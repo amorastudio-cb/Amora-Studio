@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description" content="Entre em contato com a Amora Studio.">
+    <title>Contato | Amora Studio</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        .contact-hero {
+            text-align: center;
+            padding: 85px 20px;
+            background: linear-gradient(120deg, #F6ECFA, #FFFCFF);
+        }
+
+        .contact-hero h1 {
+            font-family: 'DM Serif Display', serif;
+            color: #641B43;
+            font-size: clamp(36px, 5vw, 50px);
+            font-weight: 400;
+            margin-bottom: 15px;
+        }
+
+        .contact-hero h1 span {
+            color: #A34FA8;
+        }
+
+        .contact-hero p {
+            color: #706A73;
+            font-size: 14px;
+            max-width: 520px;
+            margin: auto;
+            line-height: 1.8;
+        }
+
+        .contact-section {
+            padding: 70px 20px;
+        }
+
+        .contact-container {
+            max-width: 1000px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 35px;
+        }
+
+        .contact-info h2,
+        .contact-form-card h2 {
+            font-family: 'DM Serif Display', serif;
+            color: #641B43;
+            font-size: 28px;
+            font-weight: 400;
+            margin-bottom: 15px;
+        }
+
+        .contact-info > p,
+        .contact-form-card > p {
+            color: #706A73;
+            font-size: 13px;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .contact-card {
+            background: #F6ECFA;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 15px;
+        }
+
+        .contact-card h3 {
+            color: #641B43;
+            font-size: 14px;
+            margin-bottom: 7px;
+        }
+
+        .contact-card p {
+            color: #706A73;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .contact-card a {
+            color: #873B83;
+            font-weight: 600;
+            text-decoration: none;
+            overflow-wrap: anywhere;
+        }
+
+        .contact-form-card {
+            background: #FFFCFF;
+            border: 1px solid #E9D8F2;
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(100, 27, 67, 0.06);
+        }
+
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .contact-form label {
+            color: #641B43;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .contact-form input,
+        .contact-form select,
+        .contact-form textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #E3D5E7;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            outline: none;
+            background: white;
+        }
+
+        .contact-form input:focus,
+        .contact-form select:focus,
+        .contact-form textarea:focus {
+            border-color: #A34FA8;
+            box-shadow: 0 0 0 3px rgba(163, 79, 168, 0.10);
+        }
+
+        .contact-form textarea {
+            min-height: 125px;
+            resize: vertical;
+        }
+
+        .contact-button {
+            padding: 13px;
+            border: none;
+            border-radius: 30px;
+            background: #873B83;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .contact-button:hover {
+            background: #641B43;
+            transform: translateY(-2px);
+        }
+
+        .contact-notice {
+            color: #706A73;
+            font-size: 10px;
+            line-height: 1.6;
+            margin-top: 12px;
+        }
+
+        .contact-bottom {
+            text-align: center;
+            padding: 45px 20px;
+            background: #F6ECFA;
+        }
+
+        .contact-bottom h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 28px;
+            font-weight: 400;
+            color: #641B43;
+            margin-bottom: 12px;
+        }
+
+        .contact-bottom p {
+            color: #706A73;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .contact-bottom a {
+            display: inline-block;
+            padding: 12px 25px;
+            border-radius: 30px;
+            background: #873B83;
+            color: white;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 750px) {
+            .contact-container {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-form-card {
+                padding: 23px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="container">
+            <a href="index.html" class="logo">Amora Studio</a>
+
+            <nav class="nav">
+                <a href="index.html">Início</a>
+                <a href="servicos.html">Serviços</a>
+                <a href="contato.html">Contato</a>
+                <a href="login.html">Minha conta</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+
+        <section class="contact-hero">
+            <h1>Vamos conversar<span>?</span></h1>
+
+            <p>
+                Tem alguma dúvida, ideia ou projeto em mente?
+                Será um prazer conhecer sua necessidade e ajudar
+                a transformar sua ideia em realidade.
+            </p>
+        </section>
+
+        <section class="contact-section">
+
+            <div class="contact-container">
+
+                <div class="contact-info">
+
+                    <h2>Estamos aqui para ajudar!</h2>
+
+                    <p>
+                        Entre em contato conosco para esclarecer dúvidas,
+                        solicitar informações ou conversar sobre um projeto.
+                    </p>
+
+                    <div class="contact-card">
+                        <h3>✉ E-mail</h3>
+                        <p>
+                            Nosso canal de atendimento:
+                            <br>
+                            <a href="mailto:amorastudio.cb@gmail.com">
+                                amorastudio.cb@gmail.com
+                            </a>
+                        </p>
+                    </div>
+
+                    <div class="contact-card">
+                        <h3>✦ Serviços personalizados</h3>
+                        <p>
+                            Cada projeto é único! Caso sua necessidade
+                            não esteja no catálogo, entre em contato
+                            para conversarmos sobre um orçamento.
+                        </p>
+                    </div>
+
+                    <div class="contact-card">
+                        <h3>♡ Nosso compromisso</h3>
+                        <p>
+                            Trabalhamos com atenção aos detalhes,
+                            organização e cuidado em cada projeto.
+                        </p>
+                    </div>
+
+                </div>
+
+                <div class="contact-form-card">
+
+                    <h2>Envie sua mensagem</h2>
+
+                    <p>
+                        Preencha os campos abaixo para preparar
+                        uma mensagem para nossa equipe.
+                    </p>
+
+                    <form class="contact-form" id="contactForm">
+
+                        <div>
+                            <label for="name">Seu nome</label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                placeholder="Digite seu nome"
+                                required
+                            >
+                        </div>
+
+                        <div>
+                            <label for="email">Seu e-mail</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                placeholder="seuemail@exemplo.com"
+                                required
+                            >
+                        </div>
+
+                        <div>
+                            <label for="subject">Assunto</label>
+                            <select id="subject" name="subject" required>
+                                <option value="">Selecione um assunto</option>
+                                <option value="Dúvida sobre serviços">Dúvida sobre serviços</option>
+                                <option value="Solicitação de orçamento">Solicitação de orçamento</option>
+                                <option value="Andamento de pedido">Andamento de pedido</option>
+                                <option value="Problema com a plataforma">Problema com a plataforma</option>
+                                <option value="Outro assunto">Outro assunto</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="message">Sua mensagem</label>
+                            <textarea
+                                id="message"
+                                name="message"
+                                placeholder="Conte-nos como podemos ajudar..."
+                                required
+                            ></textarea>
+                        </div>
+
+                        <button type="submit" class="contact-button">
+                            Preparar mensagem
+                        </button>
+
+                    </form>
+
+                    <p class="contact-notice">
+                        Ao clicar, seu aplicativo de e-mail será aberto
+                        com a mensagem preenchida. O envio dependerá
+                        da sua confirmação.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="contact-bottom">
+
+            <h2>Já sabe o que precisa?</h2>
+
+            <p>
+                Conheça nossos serviços e encontre a solução ideal
+                para seu projeto.
+            </p>
+
+            <a href="servicos.html">Conhecer serviços</a>
+
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>
+                © <span id="year"></span> Amora Studio.
+                Todos os direitos reservados.
+            </p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+
+    <script>
+        document.getElementById("contactForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const subject = document.getElementById("subject").value;
+            const message = document.getElementById("message").value.trim();
+
+            const body =
+                "Nome: " + name + "\n" +
+                "E-mail: " + email + "\n\n" +
+                "Mensagem:\n" + message;
+
+            const mailto =
+                "mailto:amorastudio.cb@gmail.com" +
+                "?subject=" + encodeURIComponent(subject) +
+                "&body=" + encodeURIComponent(body);
+
+            window.location.href = mailto;
+        });
+    </script>
+
+</body>
+</html>
