@@ -1,0 +1,453 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Solicite seu serviço personalizado na Amora Studio.">
+    <title>Solicitar serviço | Amora Studio</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        .order-hero {
+            text-align: center;
+            padding: 70px 20px;
+            background: linear-gradient(120deg, #F6ECFA, #FFFCFF);
+        }
+
+        .order-hero h1 {
+            font-family: 'DM Serif Display', serif;
+            color: #641B43;
+            font-size: clamp(35px, 5vw, 48px);
+            font-weight: 400;
+            margin-bottom: 12px;
+        }
+
+        .order-hero h1 span {
+            color: #A34FA8;
+        }
+
+        .order-hero p {
+            color: #706A73;
+            font-size: 13px;
+        }
+
+        .order-section {
+            padding: 55px 20px 80px;
+        }
+
+        .order-container {
+            max-width: 760px;
+            margin: auto;
+            background: #FFFCFF;
+            border: 1px solid #E9D8F2;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 10px 35px rgba(100, 27, 67, 0.07);
+        }
+
+        .order-container h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 25px;
+            font-weight: 400;
+            color: #641B43;
+            margin-bottom: 8px;
+        }
+
+        .order-intro {
+            color: #706A73;
+            font-size: 12px;
+            margin-bottom: 28px;
+            line-height: 1.7;
+        }
+
+        .order-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .order-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .order-group label {
+            color: #641B43;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .order-group input,
+        .order-group select,
+        .order-group textarea {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid #E3D5E7;
+            border-radius: 9px;
+            background: #FFFCFF;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .order-group input:focus,
+        .order-group select:focus,
+        .order-group textarea:focus {
+            border-color: #A34FA8;
+            box-shadow: 0 0 0 3px rgba(163, 79, 168, 0.10);
+        }
+
+        .order-group textarea {
+            min-height: 125px;
+            resize: vertical;
+        }
+
+        .order-group small {
+            color: #817984;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        .file-input {
+            padding: 15px !important;
+            background: #F6ECFA !important;
+            border: 1px dashed #C69AE0 !important;
+        }
+
+        .order-divider {
+            height: 1px;
+            background: #E9D8F2;
+            margin: 8px 0;
+        }
+
+        .order-consent {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            color: #706A73;
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        .order-consent input {
+            margin-top: 4px;
+            accent-color: #873B83;
+        }
+
+        .order-consent a {
+            color: #873B83;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .order-button {
+            border: none;
+            border-radius: 30px;
+            padding: 15px;
+            background: #873B83;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .order-button:hover {
+            background: #641B43;
+            transform: translateY(-2px);
+        }
+
+        .order-notice {
+            background: #F6ECFA;
+            border-left: 4px solid #A34FA8;
+            border-radius: 8px;
+            padding: 15px;
+            color: #706A73;
+            font-size: 11px;
+            line-height: 1.7;
+            margin-top: 25px;
+        }
+
+        .order-message {
+            display: none;
+            padding: 13px;
+            background: #F6ECFA;
+            border-radius: 8px;
+            color: #641B43;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 600px) {
+            .order-container {
+                padding: 24px 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="container">
+            <a href="index.html" class="logo">Amora Studio</a>
+
+            <nav class="nav">
+                <a href="index.html">Início</a>
+                <a href="servicos.html">Serviços</a>
+                <a href="contato.html">Contato</a>
+                <a href="login.html">Minha conta</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+
+        <section class="order-hero">
+            <h1>Vamos dar forma à sua <span>ideia?</span></h1>
+
+            <p>
+                Conte-nos o que você precisa e prepare sua solicitação.
+            </p>
+        </section>
+
+        <section class="order-section">
+
+            <div class="order-container">
+
+                <h2>Solicitar um serviço</h2>
+
+                <p class="order-intro">
+                    Preencha as informações abaixo com o máximo de detalhes
+                    possível. Assim poderemos entender melhor seu projeto.
+                </p>
+
+                <form class="order-form" id="orderForm">
+
+                    <div class="order-group">
+                        <label for="customerName">Nome completo</label>
+                        <input
+                            type="text"
+                            id="customerName"
+                            name="customerName"
+                            placeholder="Seu nome"
+                            required
+                        >
+                    </div>
+
+                    <div class="order-group">
+                        <label for="customerEmail">E-mail</label>
+                        <input
+                            type="email"
+                            id="customerEmail"
+                            name="customerEmail"
+                            placeholder="seuemail@exemplo.com"
+                            required
+                        >
+                    </div>
+
+                    <div class="order-divider"></div>
+
+                    <div class="order-group">
+                        <label for="category">Categoria do serviço</label>
+
+                        <select id="category" name="category" required>
+                            <option value="">Selecione uma categoria</option>
+                            <option value="Documentos">Documentos</option>
+                            <option value="Planilhas">Planilhas</option>
+                            <option value="Artes gráficas">Artes gráficas</option>
+                            <option value="Apresentações">Apresentações</option>
+                            <option value="Outro">Outro serviço</option>
+                        </select>
+                    </div>
+
+                    <div class="order-group">
+                        <label for="service">Serviço desejado</label>
+
+                        <select id="service" name="service" required>
+                            <option value="">Selecione primeiro a categoria</option>
+                        </select>
+                    </div>
+
+                    <div class="order-group">
+                        <label for="details">Conte-nos sobre seu projeto</label>
+
+                        <textarea
+                            id="details"
+                            name="details"
+                            placeholder="Explique o que precisa, como deseja o resultado e outras informações importantes..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="order-group">
+                        <label for="deadline">Prazo desejado</label>
+
+                        <input
+                            type="date"
+                            id="deadline"
+                            name="deadline"
+                        >
+
+                        <small>
+                            O prazo será avaliado e confirmado pela Amora Studio.
+                        </small>
+                    </div>
+
+                    <div class="order-group">
+                        <label for="reference">Anexar arquivos ou referências</label>
+
+                        <input
+                            class="file-input"
+                            type="file"
+                            id="reference"
+                            name="reference"
+                            multiple
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png"
+                        >
+
+                        <small>
+                            Você poderá selecionar mais de um arquivo.
+                            Formatos aceitos: PDF, Word, Excel, PowerPoint e imagens.
+                            Limite provisório de 10 MB por arquivo.
+                        </small>
+                    </div>
+
+                    <div class="order-divider"></div>
+
+                    <label class="order-consent">
+                        <input type="checkbox" id="orderTerms" required>
+
+                        <span>
+                            Declaro que as informações fornecidas são verdadeiras
+                            e concordo com os
+                            <a href="termos.html" target="_blank">Termos de Uso</a>
+                            e a
+                            <a href="privacidade.html" target="_blank">Política de Privacidade</a>.
+                        </span>
+                    </label>
+
+                    <p class="order-message" id="orderMessage"></p>
+
+                    <button type="submit" class="order-button">
+                        Enviar solicitação
+                    </button>
+
+                </form>
+
+                <div class="order-notice">
+                    <strong>Importante:</strong> o envio deste formulário ainda
+                    não confirma a contratação nem define o valor final.
+                    Após recebermos sua solicitação, analisaremos os detalhes
+                    e informaremos o orçamento e as condições do serviço.
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>
+                © <span id="year"></span> Amora Studio.
+                Todos os direitos reservados.
+            </p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+
+    <script>
+        const category = document.getElementById("category");
+        const service = document.getElementById("service");
+
+        const services = {
+            "Documentos": [
+                "Digitação",
+                "Formatação",
+                "Digitação e formatação"
+            ],
+
+            "Planilhas": [
+                "Planilha simples sem fórmulas",
+                "Planilha com fórmulas básicas",
+                "Planilha simples com gráfico",
+                "Planilha complexa com gráfico"
+            ],
+
+            "Artes gráficas": [
+                "Convite",
+                "Banner",
+                "Cartaz ou informativo"
+            ],
+
+            "Apresentações": [
+                "Apresentação de até 5 slides",
+                "Melhoria de apresentação de até 5 slides",
+                "Outro projeto de apresentação"
+            ],
+
+            "Outro": [
+                "Serviço personalizado"
+            ]
+        };
+
+        category.addEventListener("change", function() {
+            service.innerHTML = '<option value="">Selecione o serviço</option>';
+
+            const selectedServices = services[category.value] || [];
+
+            selectedServices.forEach(function(item) {
+                const option = document.createElement("option");
+                option.value = item;
+                option.textContent = item;
+                service.appendChild(option);
+            });
+        });
+
+        const deadline = document.getElementById("deadline");
+
+        const today = new Date();
+        const localToday = new Date(
+            today.getTime() - today.getTimezoneOffset() * 60000
+        ).toISOString().split("T")[0];
+
+        deadline.min = localToday;
+
+        const orderForm = document.getElementById("orderForm");
+        const orderMessage = document.getElementById("orderMessage");
+
+        orderForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const files = document.getElementById("reference").files;
+
+            for (const file of files) {
+                if (file.size > 10 * 1024 * 1024) {
+                    orderMessage.style.display = "block";
+                    orderMessage.textContent =
+                        "O arquivo " + file.name +
+                        " ultrapassa o limite provisório de 10 MB.";
+                    return;
+                }
+            }
+
+            orderMessage.style.display = "block";
+            orderMessage.textContent =
+                "Formulário preenchido! A integração para enviar e armazenar " +
+                "sua solicitação será ativada quando conectarmos o Supabase.";
+        });
+    </script>
+
+</body>
+</html>
