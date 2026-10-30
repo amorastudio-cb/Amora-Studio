@@ -1,0 +1,262 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Entre na sua conta Amora Studio.">
+    <title>Entrar | Amora Studio</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #F6ECFA, #FFFCFF, #F1E3F5);
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 440px;
+            padding: 42px;
+            background: #FFFCFF;
+            border-radius: 22px;
+            box-shadow: 0 12px 40px rgba(100, 27, 67, 0.10);
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-logo a {
+            font-family: 'DM Serif Display', serif;
+            font-size: 32px;
+            color: #641B43;
+            text-decoration: none;
+        }
+
+        .auth-logo span {
+            color: #A34FA8;
+        }
+
+        .auth-card h1 {
+            font-family: 'DM Serif Display', serif;
+            color: #641B43;
+            font-size: 34px;
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .auth-description {
+            color: #706A73;
+            text-align: center;
+            font-size: 13px;
+            margin-bottom: 30px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 19px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .form-group label {
+            color: #641B43;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 13px 15px;
+            border: 1px solid #E3D5E7;
+            border-radius: 9px;
+            background: #FFFCFF;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #A34FA8;
+            box-shadow: 0 0 0 3px rgba(163, 79, 168, 0.10);
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: -9px;
+        }
+
+        .forgot-password a {
+            color: #873B83;
+            font-size: 11px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 30px;
+            background: #873B83;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .auth-button:hover {
+            background: #641B43;
+            transform: translateY(-2px);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 25px;
+            color: #706A73;
+            font-size: 12px;
+        }
+
+        .auth-footer a {
+            color: #873B83;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .back-home {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #706A73;
+            font-size: 12px;
+            text-decoration: none;
+        }
+
+        .form-message {
+            display: none;
+            color: #873B83;
+            background: #F6ECFA;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 500px) {
+            .auth-card {
+                padding: 30px 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="auth-page">
+
+        <section class="auth-card">
+
+            <div class="auth-logo">
+                <a href="index.html">Amora <span>Studio</span></a>
+            </div>
+
+            <h1>Que bom ter você aqui!</h1>
+
+            <p class="auth-description">
+                Entre na sua conta para acompanhar seus pedidos e projetos.
+            </p>
+
+            <form class="auth-form" id="loginForm">
+
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="seuemail@exemplo.com"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Digite sua senha"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+
+                <div class="forgot-password">
+                    <a href="#" id="forgotPassword">Esqueceu sua senha?</a>
+                </div>
+
+                <p class="form-message" id="formMessage"></p>
+
+                <button type="submit" class="auth-button">
+                    Entrar na minha conta
+                </button>
+
+            </form>
+
+            <div class="auth-footer">
+                Ainda não possui uma conta?
+                <a href="cadastro.html">Cadastre-se</a>
+            </div>
+
+            <a href="index.html" class="back-home">
+                ← Voltar para a página inicial
+            </a>
+
+        </section>
+
+    </main>
+
+    <script>
+        const loginForm = document.getElementById("loginForm");
+        const formMessage = document.getElementById("formMessage");
+
+        loginForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            formMessage.style.display = "block";
+            formMessage.textContent =
+                "A página está pronta! O acesso será ativado quando conectarmos a autenticação.";
+        });
+
+        document.getElementById("forgotPassword").addEventListener("click", function(event) {
+            event.preventDefault();
+
+            formMessage.style.display = "block";
+            formMessage.textContent =
+                "A recuperação de senha estará disponível após a integração com o sistema de autenticação.";
+        });
+    </script>
+
+</body>
+</html>
