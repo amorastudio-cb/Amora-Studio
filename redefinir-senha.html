@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redefinir senha | Amora Studio</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <main class="auth-container">
+        <section class="auth-card">
+            <h1>Nova senha</h1>
+            <p>Escolha uma nova senha para sua conta.</p>
+
+            <form id="formSenha">
+                <label for="senha">Nova senha</label>
+                <input
+                    type="password"
+                    id="senha"
+                    placeholder="Digite sua nova senha"
+                    minlength="6"
+                    required
+                >
+
+                <label for="confirmarSenha">Confirme a nova senha</label>
+                <input
+                    type="password"
+                    id="confirmarSenha"
+                    placeholder="Digite novamente"
+                    minlength="6"
+                    required
+                >
+
+                <button type="submit" id="botaoSalvar">
+                    Salvar nova senha
+                </button>
+
+                <p id="mensagem" role="status"></p>
+            </form>
+
+            <a href="login.html">Voltar para o login</a>
+        </section>
+    </main>
+
+    <script type="module">
+        import { supabase } from "./supabase.js";
+
+        const formulario = document.getElementById("formSenha");
+        const mensagem = document.getElementById("mensagem");
+        const botao = document.getElementById("botaoSalvar");
+
+        formulario.addEventListener("submit", async (evento) => {
+            evento.preventDefault();
+
+            const senha = document.getElementById("senha").value;
+            const confirmar = document.getElementById("confirmarSenha").value;
+
+            if (senha.length < 6) {
+                mensagem.textContent = "A senha precisa ter pelo menos 6 caracteres.";
+                return;
+            }
+
+            if (senha !== confirmar) {
+                mensagem.textContent = "As senhas não são iguais.";
+                return;
+            }
+
+            botao.disabled = true;
+            mensagem.textContent = "Verificando e atualizando sua senha...";
+
+            const { data: { session }, error: erroSessao } =
+                await supabase.auth.getSession();
+
+            if (erroSessao || !session) {
+                mensagem.textContent =
+                    "O link de recuperação é inválido ou expirou. Solicite outro pelo login.";
+                botao.disabled = false;
+                return;
+            }
+
+            const { error } = await supabase.auth.updateUser({
+                password: senha
+            });
+
+            if (error) {
+                mensagem.textContent = "Não foi possível alterar a senha: " + error.message;
+                botao.disabled = false;
+                return;
+            }
+
+            mensagem.textContent = "Senha alterada com sucesso! Você já pode entrar.";
+            formulario.reset();
+            botao.disabled = false;
+        });
+    </script>
+
+</body>
+</html>
