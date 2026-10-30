@@ -1,0 +1,238 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar senha | Amora Studio</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #F6ECFA, #FFFCFF);
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 25px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            background: white;
+            padding: 42px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(100, 27, 67, .09);
+        }
+
+        .logo {
+            text-align: center;
+            color: #641B43;
+            font-family: 'DM Serif Display', serif;
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #706A73;
+            font-size: 13px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #641B43;
+            font-size: 23px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            color: #706A73;
+            font-size: 13px;
+            line-height: 1.7;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #514751;
+            font-size: 12px;
+            margin-bottom: 7px;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #E5D9E9;
+            border-radius: 9px;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #873B83;
+        }
+
+        button {
+            width: 100%;
+            border: none;
+            border-radius: 9px;
+            padding: 14px;
+            background: #641B43;
+            color: white;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+
+        .message {
+            display: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.6;
+            margin-top: 18px;
+        }
+
+        .message.success {
+            display: block;
+            background: #EAF7EF;
+            color: #21643A;
+        }
+
+        .message.error {
+            display: block;
+            background: #FCECEC;
+            color: #9B2929;
+        }
+
+        a {
+            color: #873B83;
+            text-decoration: none;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="container">
+
+        <div class="logo">Amora Studio 🍇</div>
+        <p class="subtitle">Estamos aqui para ajudar.</p>
+
+        <h1>Esqueceu sua senha?</h1>
+
+        <p class="description">
+            Não se preocupe! Informe o e-mail utilizado no cadastro.
+            Enviaremos um link para você criar uma nova senha.
+        </p>
+
+        <form id="recuperarForm">
+
+            <label for="email">Seu e-mail</label>
+
+            <input
+                type="email"
+                id="email"
+                required
+                autocomplete="email"
+                placeholder="seuemail@exemplo.com"
+            >
+
+            <button type="submit" id="botao">
+                Enviar link de recuperação
+            </button>
+
+            <div id="mensagem" class="message" role="status" aria-live="polite"></div>
+
+        </form>
+
+        <a class="back" href="login.html">← Voltar ao login</a>
+
+    </main>
+
+    <script type="module">
+        import { supabase } from "./supabase.js";
+
+        const form = document.getElementById("recuperarForm");
+        const botao = document.getElementById("botao");
+        const mensagem = document.getElementById("mensagem");
+
+        function mostrarMensagem(texto, tipo) {
+            mensagem.textContent = texto;
+            mensagem.className = "message " + tipo;
+        }
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const email = document.getElementById("email").value.trim();
+
+            if (!supabase) {
+                mostrarMensagem("Não foi possível conectar ao sistema.", "error");
+                return;
+            }
+
+            botao.disabled = true;
+            botao.textContent = "Enviando...";
+
+            try {
+                const { error } = await supabase.auth.resetPasswordForEmail(
+                    email,
+                    {
+                        redirectTo: window.location.origin + "/redefinir-senha.html"
+                    }
+                );
+
+                if (error) throw error;
+
+                mostrarMensagem(
+                    "Se esse endereço estiver cadastrado, você receberá um e-mail com as instruções para redefinir sua senha. Confira também o spam.",
+                    "success"
+                );
+
+                form.reset();
+
+            } catch (error) {
+                console.error("Erro na recuperação:", error);
+
+                mostrarMensagem(
+                    "Não foi possível enviar o e-mail. Tente novamente mais tarde.",
+                    "error"
+                );
+
+            } finally {
+                botao.disabled = false;
+                botao.textContent = "Enviar link de recuperação";
+            }
+        });
+    </script>
+
+</body>
+</html>
