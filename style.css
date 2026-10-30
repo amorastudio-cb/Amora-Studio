@@ -38,13 +38,11 @@ a {
     color: inherit;
 }
 
-button,
-a {
+button, a {
     transition: all 0.3s ease;
 }
 
-button,
-input {
+button, input {
     font-family: inherit;
 }
 
@@ -208,43 +206,44 @@ input {
     gap: 13px;
 }
 
-/* CÍRCULO VINHO E SÍMBOLO */
+/* DECORAÇÃO DO BANNER */
 
 .hero-decoration {
     width: 310px;
     height: 310px;
-    min-height: 310px;
-    flex-shrink: 0;
     border-radius: 50%;
-    background-color: #641B43;
+    background: linear-gradient(145deg, #D9B8ED, #873B83);
+
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    padding: 25px;
-    box-shadow: 0 20px 45px rgba(100, 27, 67, 0.18);
+
+    color: var(--branco);
+    box-shadow: 0 20px 50px rgba(100, 27, 67, 0.15);
+    flex-shrink: 0;
+    gap: 5px;
+    padding: 20px;
 }
 
 .amora-symbol {
-    width: 100%;
+    font-family: "Segoe UI Symbol", "Arial Unicode MS", sans-serif;
+    font-size: 115px;
+    font-weight: normal;
+    line-height: 1.2;
     color: #FFFCFF;
-    font-family: 'Poppins', sans-serif;
-    font-size: 105px;
-    line-height: 1;
     text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .decoration-text {
-    width: 100%;
+    width: 90%;
+    max-width: 235px;
     font-family: 'DM Serif Display', serif;
-    font-size: 17px;
+    font-size: 19px;
     line-height: 1.3;
     color: #FFFCFF;
     text-align: center;
+    margin: 0 auto;
 }
 
 /* SEÇÕES */
@@ -529,17 +528,17 @@ input {
     }
 
     .hero-decoration {
-        width: 270px;
-        height: 270px;
-        min-height: 270px;
+        width: 240px;
+        height: 240px;
     }
 
     .amora-symbol {
-        font-size: 90px;
+        font-size: 85px;
     }
 
     .decoration-text {
-        font-size: 15px;
+        font-size: 16px;
+        max-width: 195px;
     }
 
     .service-grid {
@@ -592,18 +591,17 @@ input {
     }
 
     .hero-decoration {
-        width: 250px;
-        height: 250px;
-        min-height: 250px;
-        gap: 10px;
+        width: 210px;
+        height: 210px;
     }
 
     .amora-symbol {
-        font-size: 85px;
+        font-size: 75px;
     }
 
     .decoration-text {
-        font-size: 13px;
+        font-size: 14px;
+        max-width: 175px;
     }
 
     .section {
@@ -644,9 +642,5 @@ input {
 
     .hero-buttons a {
         width: 100%;
-    }
-
-    .decoration-text {
-        font-size: 12px;
     }
 }
