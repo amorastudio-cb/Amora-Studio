@@ -38,11 +38,13 @@ a {
     color: inherit;
 }
 
-button, a {
+button,
+a {
     transition: all 0.3s ease;
 }
 
-button, input {
+button,
+input {
     font-family: inherit;
 }
 
@@ -206,21 +208,21 @@ button, input {
     gap: 13px;
 }
 
-/* ILUSTRAÇÃO DA AMORA */
+/* CÍRCULO E SÍMBOLO DA AMORA */
 
 .hero-decoration {
     width: 310px;
     height: 310px;
     min-height: 310px;
+    flex-shrink: 0;
     border-radius: 50%;
-    background: var(--vinho);
+    background-color: #641B43;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    flex-shrink: 0;
-    color: var(--branco);
+    padding: 25px;
     box-shadow: 0 20px 45px rgba(100, 27, 67, 0.18);
 }
 
@@ -242,10 +244,10 @@ button, input {
 
 .decoration-text {
     font-family: 'DM Serif Display', serif;
-    font-size: 18px;
-    color: var(--branco);
+    font-size: 17px;
+    color: #FFFCFF;
     text-align: center;
-    padding: 0 12px;
+    white-space: nowrap;
 }
 
 /* SEÇÕES */
@@ -541,7 +543,7 @@ button, input {
     }
 
     .decoration-text {
-        font-size: 16px;
+        font-size: 15px;
     }
 
     .service-grid {
@@ -605,7 +607,7 @@ button, input {
     }
 
     .decoration-text {
-        font-size: 15px;
+        font-size: 13px;
     }
 
     .section {
@@ -646,5 +648,9 @@ button, input {
 
     .hero-buttons a {
         width: 100%;
+    }
+
+    .decoration-text {
+        font-size: 12px;
     }
 }
