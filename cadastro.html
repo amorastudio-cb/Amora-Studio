@@ -4,175 +4,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Crie sua conta na Amora Studio e acompanhe seus pedidos.">
     <title>Criar conta | Amora Studio</title>
-
-    <link rel="stylesheet" href="style.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <style>
-        .auth-page {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
             min-height: 100vh;
+            background: linear-gradient(135deg, #F6ECFA, #FFFCFF);
+            font-family: 'Poppins', sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 45px 20px;
-            background: linear-gradient(135deg, #F6ECFA, #FFFCFF, #F1E3F5);
+            padding: 25px;
         }
 
-        .auth-card {
+        .container {
             width: 100%;
-            max-width: 480px;
-            background: #FFFCFF;
+            max-width: 460px;
+            background: white;
             padding: 42px;
-            border-radius: 22px;
-            box-shadow: 0 12px 40px rgba(100, 27, 67, 0.10);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(100, 27, 67, .09);
         }
 
-        .auth-logo {
+        .logo {
             text-align: center;
-            margin-bottom: 28px;
-        }
-
-        .auth-logo a {
+            color: #641B43;
             font-family: 'DM Serif Display', serif;
             font-size: 32px;
-            color: #641B43;
-            text-decoration: none;
-        }
-
-        .auth-logo span {
-            color: #A34FA8;
-        }
-
-        .auth-card h1 {
-            font-family: 'DM Serif Display', serif;
-            color: #641B43;
-            font-size: 32px;
-            font-weight: 400;
-            text-align: center;
             margin-bottom: 8px;
         }
 
-        .auth-description {
-            color: #706A73;
+        .subtitle {
             text-align: center;
+            color: #706A73;
             font-size: 13px;
-            margin-bottom: 28px;
+            margin-bottom: 30px;
         }
 
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 17px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 7px;
-        }
-
-        .form-group label {
+        h1 {
             color: #641B43;
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 23px;
+            margin-bottom: 22px;
         }
 
-        .form-group input {
+        label {
+            display: block;
+            color: #514751;
+            font-size: 12px;
+            margin: 15px 0 7px;
+        }
+
+        input {
             width: 100%;
-            padding: 13px 15px;
-            border: 1px solid #E3D5E7;
+            padding: 13px;
+            border: 1px solid #E5D9E9;
             border-radius: 9px;
-            background: #FFFCFF;
-            font-family: 'Poppins', sans-serif;
+            font-family: inherit;
             font-size: 13px;
             outline: none;
-            transition: 0.3s;
         }
 
-        .form-group input:focus {
-            border-color: #A34FA8;
-            box-shadow: 0 0 0 3px rgba(163, 79, 168, 0.10);
+        input:focus {
+            border-color: #873B83;
+            box-shadow: 0 0 0 3px rgba(135, 59, 131, .10);
         }
 
-        .terms-check {
+        .terms {
             display: flex;
             align-items: flex-start;
             gap: 9px;
-            color: #706A73;
+            margin: 20px 0;
             font-size: 11px;
+            color: #706A73;
             line-height: 1.6;
         }
 
-        .terms-check input {
-            margin-top: 4px;
-            accent-color: #873B83;
+        .terms input {
+            width: auto;
+            margin-top: 3px;
         }
 
-        .terms-check a {
+        a {
             color: #873B83;
             text-decoration: none;
-            font-weight: 600;
         }
 
-        .auth-button {
+        button {
             width: 100%;
-            padding: 14px;
             border: none;
-            border-radius: 30px;
-            background: #873B83;
+            border-radius: 9px;
+            padding: 14px;
+            background: #641B43;
             color: white;
-            font-family: 'Poppins', sans-serif;
+            font-family: inherit;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.3s;
         }
 
-        .auth-button:hover {
-            background: #641B43;
-            transform: translateY(-2px);
+        button:hover {
+            background: #873B83;
         }
 
-        .auth-footer {
-            text-align: center;
-            margin-top: 25px;
-            color: #706A73;
-            font-size: 12px;
+        button:disabled {
+            opacity: .6;
+            cursor: wait;
         }
 
-        .auth-footer a {
-            color: #873B83;
-            font-weight: 600;
-            text-decoration: none;
-        }
-
-        .back-home {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            color: #706A73;
-            font-size: 12px;
-            text-decoration: none;
-        }
-
-        .form-message {
+        .message {
             display: none;
-            color: #873B83;
-            background: #F6ECFA;
             padding: 12px;
             border-radius: 8px;
             font-size: 12px;
-            text-align: center;
+            line-height: 1.6;
+            margin-top: 18px;
         }
 
-        @media (max-width: 500px) {
-            .auth-card {
-                padding: 30px 22px;
+        .message.success {
+            display: block;
+            background: #EAF7EF;
+            color: #21643A;
+        }
+
+        .message.error {
+            display: block;
+            background: #FCECEC;
+            color: #9B2929;
+        }
+
+        .login {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: #706A73;
+        }
+
+        .back {
+            display: block;
+            text-align: center;
+            margin-top: 22px;
+            font-size: 12px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 23px;
             }
         }
     </style>
@@ -180,122 +166,164 @@
 
 <body>
 
-    <main class="auth-page">
+    <main class="container">
 
-        <section class="auth-card">
+        <div class="logo">Amora Studio 🍇</div>
+        <p class="subtitle">Suas ideias merecem ganhar forma.</p>
 
-            <div class="auth-logo">
-                <a href="index.html">Amora <span>Studio</span></a>
+        <h1>Crie sua conta</h1>
+
+        <form id="cadastroForm">
+
+            <label for="nome">Nome completo</label>
+            <input
+                type="text"
+                id="nome"
+                autocomplete="name"
+                required
+                placeholder="Digite seu nome"
+            >
+
+            <label for="email">E-mail</label>
+            <input
+                type="email"
+                id="email"
+                autocomplete="email"
+                required
+                placeholder="seuemail@exemplo.com"
+            >
+
+            <label for="senha">Senha</label>
+            <input
+                type="password"
+                id="senha"
+                autocomplete="new-password"
+                minlength="6"
+                required
+                placeholder="Mínimo de 6 caracteres"
+            >
+
+            <label for="confirmarSenha">Confirmar senha</label>
+            <input
+                type="password"
+                id="confirmarSenha"
+                autocomplete="new-password"
+                minlength="6"
+                required
+                placeholder="Digite a senha novamente"
+            >
+
+            <div class="terms">
+                <input type="checkbox" id="aceite" required>
+                <span>
+                    Li e concordo com os
+                    <a href="termos.html" target="_blank">Termos de Uso</a>
+                    e a
+                    <a href="privacidade.html" target="_blank">Política de Privacidade</a>.
+                </span>
             </div>
 
-            <h1>Crie sua conta</h1>
+            <button type="submit" id="botaoCadastro">
+                Criar minha conta
+            </button>
 
-            <p class="auth-description">
-                Seja bem-vinda! Cadastre-se para solicitar e acompanhar seus serviços.
-            </p>
+            <div id="mensagem" class="message" role="status" aria-live="polite"></div>
 
-            <form class="auth-form" id="registerForm">
+        </form>
 
-                <div class="form-group">
-                    <label for="name">Nome completo</label>
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        placeholder="Digite seu nome completo"
-                        autocomplete="name"
-                        required
-                    >
-                </div>
+        <p class="login">
+            Já possui uma conta?
+            <a href="login.html">Entrar</a>
+        </p>
 
-                <div class="form-group">
-                    <label for="email">E-mail</label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        placeholder="seuemail@exemplo.com"
-                        autocomplete="email"
-                        required
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Senha</label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Crie uma senha"
-                        autocomplete="new-password"
-                        minlength="8"
-                        required
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label for="confirmPassword">Confirme sua senha</label>
-                    <input
-                        type="password"
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        placeholder="Digite a senha novamente"
-                        autocomplete="new-password"
-                        minlength="8"
-                        required
-                    >
-                </div>
-
-                <label class="terms-check">
-                    <input type="checkbox" id="terms" required>
-                    <span>
-                        Li e concordo com os
-                        <a href="termos.html" target="_blank">Termos de Uso</a>
-                        e a
-                        <a href="privacidade.html" target="_blank">Política de Privacidade</a>.
-                    </span>
-                </label>
-
-                <p class="form-message" id="formMessage"></p>
-
-                <button type="submit" class="auth-button">
-                    Criar minha conta
-                </button>
-
-            </form>
-
-            <div class="auth-footer">
-                Já possui uma conta?
-                <a href="login.html">Entrar</a>
-            </div>
-
-            <a href="index.html" class="back-home">
-                ← Voltar para a página inicial
-            </a>
-
-        </section>
+        <a class="back" href="index.html">← Voltar ao início</a>
 
     </main>
 
-    <script>
-        const registerForm = document.getElementById("registerForm");
-        const formMessage = document.getElementById("formMessage");
+    <script type="module">
+        import { supabase } from "./supabase.js";
 
-        registerForm.addEventListener("submit", function(event) {
+        const form = document.getElementById("cadastroForm");
+        const botao = document.getElementById("botaoCadastro");
+        const mensagem = document.getElementById("mensagem");
+
+        function mostrarMensagem(texto, tipo) {
+            mensagem.textContent = texto;
+            mensagem.className = "message " + tipo;
+        }
+
+        form.addEventListener("submit", async (event) => {
             event.preventDefault();
 
-            const password = document.getElementById("password").value;
-            const confirmPassword = document.getElementById("confirmPassword").value;
+            const nome = document.getElementById("nome").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const senha = document.getElementById("senha").value;
+            const confirmarSenha = document.getElementById("confirmarSenha").value;
 
-            formMessage.style.display = "block";
-
-            if (password !== confirmPassword) {
-                formMessage.textContent = "As senhas não coincidem. Confira e tente novamente.";
+            if (senha !== confirmarSenha) {
+                mostrarMensagem("As senhas não coincidem.", "error");
                 return;
             }
 
-            formMessage.textContent =
-                "A tela está pronta! O cadastro será ativado quando conectarmos o sistema de autenticação.";
+            if (senha.length < 6) {
+                mostrarMensagem("A senha precisa ter pelo menos 6 caracteres.", "error");
+                return;
+            }
+
+            if (!supabase) {
+                mostrarMensagem("Não foi possível conectar ao sistema. Confira a configuração do Supabase.", "error");
+                return;
+            }
+
+            botao.disabled = true;
+            botao.textContent = "Criando sua conta...";
+
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: senha,
+                    options: {
+                        data: {
+                            nome: nome
+                        }
+                    }
+                });
+
+                if (error) throw error;
+
+                if (data.session) {
+                    mostrarMensagem(
+                        "Conta criada com sucesso! Você já pode entrar.",
+                        "success"
+                    );
+                } else {
+                    mostrarMensagem(
+                        "Cadastro realizado! Confira sua caixa de entrada para confirmar o e-mail antes de entrar.",
+                        "success"
+                    );
+                }
+
+                form.reset();
+
+            } catch (error) {
+                console.error("Erro no cadastro:", error);
+
+                let texto = "Não foi possível criar sua conta. Tente novamente.";
+
+                if (error.message?.toLowerCase().includes("already registered")) {
+                    texto = "Este e-mail já possui uma conta cadastrada. Experimente entrar.";
+                } else if (error.message?.toLowerCase().includes("password")) {
+                    texto = "A senha não atende aos requisitos do sistema.";
+                } else if (error.message?.toLowerCase().includes("email")) {
+                    texto = "Verifique se o endereço de e-mail está correto.";
+                }
+
+                mostrarMensagem(texto, "error");
+
+            } finally {
+                botao.disabled = false;
+                botao.textContent = "Criar minha conta";
+            }
         });
     </script>
 
