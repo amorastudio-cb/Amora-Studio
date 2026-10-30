@@ -1,0 +1,344 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Painel do cliente Amora Studio.">
+    <title>Minha área | Amora Studio</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        .dashboard {
+            min-height: 100vh;
+            background: #FAF7FB;
+            padding-bottom: 60px;
+        }
+
+        .dashboard-welcome {
+            background: linear-gradient(120deg, #F1E3F5, #FFFCFF);
+            padding: 55px 6%;
+        }
+
+        .dashboard-welcome h1 {
+            font-family: 'DM Serif Display', serif;
+            color: #641B43;
+            font-weight: 400;
+            font-size: clamp(30px, 5vw, 42px);
+        }
+
+        .dashboard-welcome p {
+            color: #706A73;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .dashboard-container {
+            width: 88%;
+            max-width: 1150px;
+            margin: 35px auto;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-actions h2 {
+            font-family: 'DM Serif Display', serif;
+            font-weight: 400;
+            font-size: 25px;
+            color: #641B43;
+        }
+
+        .new-order-button {
+            display: inline-block;
+            padding: 12px 22px;
+            background: #873B83;
+            color: white;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .new-order-button:hover {
+            background: #641B43;
+            transform: translateY(-2px);
+        }
+
+        .dashboard-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 35px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 23px;
+            border-radius: 15px;
+            border: 1px solid #E9D8F2;
+        }
+
+        .summary-card p {
+            color: #706A73;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .summary-card strong {
+            font-family: 'DM Serif Display', serif;
+            color: #641B43;
+            font-size: 32px;
+            font-weight: 400;
+        }
+
+        .orders-section {
+            background: white;
+            border-radius: 17px;
+            padding: 28px;
+            border: 1px solid #E9D8F2;
+        }
+
+        .orders-section h2 {
+            font-family: 'DM Serif Display', serif;
+            color: #641B43;
+            font-size: 25px;
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+
+        .orders-empty {
+            padding: 45px 15px;
+            text-align: center;
+            background: #FAF7FB;
+            border-radius: 12px;
+        }
+
+        .orders-empty h3 {
+            color: #641B43;
+            font-family: 'DM Serif Display', serif;
+            font-size: 23px;
+            font-weight: 400;
+            margin-bottom: 10px;
+        }
+
+        .orders-empty p {
+            color: #706A73;
+            font-size: 12px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .order-example {
+            border: 1px solid #E9D8F2;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .order-example h3 {
+            color: #641B43;
+            font-size: 14px;
+            margin-bottom: 7px;
+        }
+
+        .order-example p {
+            color: #706A73;
+            font-size: 11px;
+            line-height: 1.8;
+        }
+
+        .order-status {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 6px 12px;
+            background: #F6ECFA;
+            color: #873B83;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .dashboard-help {
+            margin-top: 25px;
+            padding: 23px;
+            border-radius: 13px;
+            background: #F6ECFA;
+        }
+
+        .dashboard-help h3 {
+            color: #641B43;
+            font-family: 'DM Serif Display', serif;
+            font-size: 21px;
+            font-weight: 400;
+            margin-bottom: 7px;
+        }
+
+        .dashboard-help p {
+            color: #706A73;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .dashboard-help a {
+            color: #873B83;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .dashboard-logout {
+            border: 1px solid #873B83;
+            color: #873B83;
+            background: transparent;
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 700px) {
+            .dashboard-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-container {
+                width: 92%;
+            }
+
+            .orders-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="container">
+            <a href="index.html" class="logo">Amora Studio</a>
+
+            <nav class="nav">
+                <a href="index.html">Início</a>
+                <a href="servicos.html">Serviços</a>
+                <a href="contato.html">Contato</a>
+                <button class="dashboard-logout" id="logoutButton">
+                    Sair da conta
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="dashboard">
+
+        <section class="dashboard-welcome">
+            <h1>Minha área</h1>
+            <p>
+                Acompanhe seus projetos e encontre tudo sobre seus pedidos
+                em um só lugar.
+            </p>
+        </section>
+
+        <div class="dashboard-container">
+
+            <div class="dashboard-actions">
+                <h2>Visão geral</h2>
+
+                <a href="pedido.html" class="new-order-button">
+                    + Solicitar serviço
+                </a>
+            </div>
+
+            <section class="dashboard-summary">
+
+                <div class="summary-card">
+                    <p>Total de pedidos</p>
+                    <strong id="totalOrders">—</strong>
+                </div>
+
+                <div class="summary-card">
+                    <p>Em andamento</p>
+                    <strong id="activeOrders">—</strong>
+                </div>
+
+                <div class="summary-card">
+                    <p>Concluídos</p>
+                    <strong id="completedOrders">—</strong>
+                </div>
+
+            </section>
+
+            <section class="orders-section">
+
+                <h2>Meus pedidos</h2>
+
+                <div class="orders-empty" id="ordersEmpty">
+                    <h3>Seus projetos aparecerão aqui!</h3>
+
+                    <p>
+                        Quando você solicitar um serviço, poderá acompanhar
+                        o andamento, consultar informações e acessar
+                        os arquivos disponibilizados.
+                    </p>
+
+                    <a href="pedido.html" class="new-order-button">
+                        Fazer meu primeiro pedido
+                    </a>
+                </div>
+
+                <div id="ordersList" hidden></div>
+
+            </section>
+
+            <section class="dashboard-help">
+                <h3>Precisa de ajuda?</h3>
+
+                <p>
+                    Se tiver alguma dúvida sobre seus pedidos,
+                    entre em contato pelo nosso
+                    <a href="contato.html">canal de atendimento</a>.
+                </p>
+            </section>
+
+        </div>
+
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>
+                © <span id="year"></span> Amora Studio.
+                Todos os direitos reservados.
+            </p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+
+    <script>
+        /*
+          O painel será conectado ao Supabase posteriormente.
+          Os pedidos e indicadores reais serão carregados
+          após a implementação da autenticação e do banco de dados.
+        */
+
+        document.getElementById("logoutButton").addEventListener("click", function() {
+            alert("A função de sair da conta será ativada após a integração com o Supabase.");
+        });
+    </script>
+
+</body>
+</html>
