@@ -1,0 +1,324 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel administrativo | Amora Studio</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        body {
+            background: #F9F5FA;
+        }
+
+        .admin-header {
+            background: #641B43;
+            color: white;
+            padding: 22px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .admin-header h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 27px;
+            font-weight: 400;
+        }
+
+        .admin-header span {
+            font-size: 12px;
+            opacity: .8;
+        }
+
+        .admin-header a {
+            color: white;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .admin-container {
+            max-width: 1150px;
+            margin: 55px auto;
+            padding: 0 22px;
+        }
+
+        .admin-intro {
+            margin-bottom: 30px;
+        }
+
+        .admin-intro h1 {
+            font-family: 'DM Serif Display', serif;
+            color: #641B43;
+            font-size: 38px;
+            font-weight: 400;
+        }
+
+        .admin-intro p {
+            color: #706A73;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .admin-notice {
+            background: #F1E5F5;
+            border-left: 4px solid #873B83;
+            padding: 16px 20px;
+            border-radius: 8px;
+            color: #641B43;
+            font-size: 13px;
+            line-height: 1.7;
+            margin-bottom: 30px;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 18px;
+            margin-bottom: 35px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 5px 20px rgba(100, 27, 67, .05);
+        }
+
+        .stat-card p {
+            color: #706A73;
+            font-size: 13px;
+        }
+
+        .stat-card h2 {
+            color: #641B43;
+            font-size: 30px;
+            margin-top: 10px;
+        }
+
+        .admin-orders {
+            background: white;
+            padding: 28px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(100, 27, 67, .05);
+        }
+
+        .orders-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .orders-heading h2 {
+            color: #641B43;
+            font-size: 20px;
+        }
+
+        .orders-heading p {
+            color: #706A73;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .filter-area {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+        }
+
+        .filter-area input,
+        .filter-area select {
+            padding: 12px;
+            border: 1px solid #E5D9E9;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            background: white;
+            color: #706A73;
+        }
+
+        .filter-area input {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .filter-area select {
+            min-width: 170px;
+        }
+
+        .empty-orders {
+            text-align: center;
+            padding: 55px 20px;
+            border: 1px dashed #DCCBE3;
+            border-radius: 12px;
+        }
+
+        .empty-orders .symbol {
+            font-size: 38px;
+            margin-bottom: 15px;
+        }
+
+        .empty-orders h3 {
+            color: #641B43;
+            font-size: 17px;
+            margin-bottom: 8px;
+        }
+
+        .empty-orders p {
+            color: #706A73;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .admin-footer {
+            text-align: center;
+            color: #8A818C;
+            font-size: 12px;
+            padding: 35px 15px;
+        }
+
+        .admin-footer a {
+            color: #873B83;
+            text-decoration: none;
+        }
+
+        @media (max-width: 600px) {
+            .admin-container {
+                margin: 35px auto;
+            }
+
+            .admin-intro h1 {
+                font-size: 31px;
+            }
+
+            .admin-orders {
+                padding: 20px;
+            }
+
+            .filter-area {
+                flex-direction: column;
+            }
+
+            .filter-area input,
+            .filter-area select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="admin-header">
+        <div>
+            <h2>Amora Studio</h2>
+            <span>Área administrativa</span>
+        </div>
+
+        <a href="index.html">Voltar ao site ↗</a>
+    </header>
+
+    <main class="admin-container">
+
+        <section class="admin-intro">
+            <h1>Painel administrativo</h1>
+            <p>Gerencie os pedidos e acompanhe os serviços do Amora Studio.</p>
+        </section>
+
+        <div class="admin-notice">
+            <strong>Integração pendente:</strong>
+            esta página ainda não recebe pedidos reais. Após a configuração do Supabase,
+            será possível consultar clientes, acompanhar solicitações e atualizar os
+            status dos serviços.
+        </div>
+
+        <section class="admin-stats">
+
+            <div class="stat-card">
+                <p>Total de pedidos</p>
+                <h2>—</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Novos pedidos</p>
+                <h2>—</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Em andamento</p>
+                <h2>—</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Concluídos</p>
+                <h2>—</h2>
+            </div>
+
+        </section>
+
+        <section class="admin-orders">
+
+            <div class="orders-heading">
+                <div>
+                    <h2>Pedidos recebidos</h2>
+                    <p>Visualize e acompanhe as solicitações dos clientes.</p>
+                </div>
+            </div>
+
+            <div class="filter-area">
+                <input
+                    type="search"
+                    placeholder="Buscar por cliente ou pedido..."
+                    disabled
+                >
+
+                <select disabled>
+                    <option>Todos os status</option>
+                    <option>Novo</option>
+                    <option>Em análise</option>
+                    <option>Em andamento</option>
+                    <option>Concluído</option>
+                    <option>Cancelado</option>
+                </select>
+            </div>
+
+            <div class="empty-orders">
+                <div class="symbol">🍇</div>
+
+                <h3>Nenhum pedido disponível ainda</h3>
+
+                <p>
+                    Quando a integração com o banco de dados estiver concluída,
+                    os pedidos dos clientes aparecerão aqui.
+                    <br>
+                    Você poderá consultar os detalhes e acompanhar cada serviço.
+                </p>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="admin-footer">
+        © <span id="year"></span> Amora Studio ·
+        <a href="contato.html">Central de contato</a>
+    </footer>
+
+    <script>
+        document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
+
+</body>
+</html>
