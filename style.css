@@ -212,7 +212,7 @@ button, input {
     width: 310px;
     height: 310px;
     border-radius: 50%;
-    background: linear-gradient(145deg, #7A2855, #4B1231);
+    background: #641B43;
 
     display: flex;
     flex-direction: column;
