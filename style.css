@@ -1,0 +1,620 @@
+
+/* =================================
+   AMORA STUDIO - IDENTIDADE VISUAL
+================================= */
+
+:root {
+    --vinho: #641B43;
+    --roxo: #873B83;
+    --roxo-vivo: #A34FA8;
+    --lilas: #C69AE0;
+    --lilas-claro: #E9D8F2;
+    --branco: #FFFCFF;
+    --cinza: #706A73;
+    --texto: #403541;
+    --fundo: #FBF8FC;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 90px;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--texto);
+    background: var(--branco);
+    line-height: 1.7;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button, a {
+    transition: all 0.3s ease;
+}
+
+button, input {
+    font-family: inherit;
+}
+
+/* CABEÇALHO */
+
+.header {
+    width: 100%;
+    min-height: 85px;
+    padding: 15px 7%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--branco);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 3px 18px rgba(100, 27, 67, 0.06);
+}
+
+.logo {
+    font-size: 23px;
+    font-weight: 700;
+    color: var(--vinho);
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.logo span:last-child {
+    color: var(--roxo);
+}
+
+.logo-icon {
+    color: var(--roxo-vivo);
+    margin-right: 5px;
+}
+
+.menu {
+    display: flex;
+    align-items: center;
+    gap: 27px;
+}
+
+.menu a {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--texto);
+}
+
+.menu a:hover {
+    color: var(--roxo-vivo);
+}
+
+.btn-login {
+    background: var(--vinho);
+    color: white;
+    padding: 11px 23px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.btn-login:hover {
+    background: var(--roxo);
+    transform: translateY(-2px);
+}
+
+/* BOTÕES */
+
+.btn-primary,
+.btn-secondary,
+.btn-light {
+    display: inline-block;
+    padding: 14px 25px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background: var(--roxo);
+    color: white;
+    box-shadow: 0 5px 15px rgba(135, 59, 131, 0.18);
+}
+
+.btn-primary:hover {
+    background: var(--vinho);
+    transform: translateY(-3px);
+}
+
+.btn-secondary {
+    color: var(--vinho);
+    border: 1px solid var(--lilas);
+    background: white;
+}
+
+.btn-secondary:hover {
+    background: var(--lilas-claro);
+}
+
+.btn-light {
+    background: white;
+    color: var(--vinho);
+}
+
+.btn-light:hover {
+    background: var(--lilas-claro);
+    transform: translateY(-3px);
+}
+
+/* BANNER PRINCIPAL */
+
+.hero {
+    min-height: 560px;
+    padding: 90px 10%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 50px;
+    background:
+        radial-gradient(circle at 85% 20%, #E9D8F2 0, transparent 35%),
+        linear-gradient(120deg, #FFFCFF, #F6ECFA);
+}
+
+.hero-content {
+    max-width: 600px;
+}
+
+.tag {
+    display: inline-block;
+    color: var(--roxo);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+}
+
+.hero h1 {
+    font-family: 'DM Serif Display', serif;
+    color: var(--vinho);
+    font-size: clamp(43px, 5vw, 68px);
+    line-height: 1.15;
+    margin-bottom: 22px;
+    font-weight: 400;
+}
+
+.hero h1 span,
+.section-heading h2 span {
+    color: var(--roxo-vivo);
+}
+
+.hero-content p {
+    color: var(--cinza);
+    font-size: 15px;
+    max-width: 470px;
+    margin-bottom: 30px;
+}
+
+.hero-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 13px;
+}
+
+.hero-decoration {
+    width: 310px;
+    height: 310px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #D9B8ED, #873B83);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 20px 50px rgba(100, 27, 67, 0.15);
+    flex-shrink: 0;
+}
+
+.amora-symbol {
+    font-size: 115px;
+    line-height: 1.2;
+}
+
+.decoration-text {
+    font-family: 'DM Serif Display', serif;
+    font-size: 19px;
+}
+
+/* SEÇÕES */
+
+.section {
+    padding: 90px 9%;
+}
+
+.section-heading {
+    text-align: center;
+    max-width: 650px;
+    margin: 0 auto 50px;
+}
+
+.section-heading h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 39px;
+    color: var(--vinho);
+    font-weight: 400;
+    line-height: 1.3;
+}
+
+.section-heading p {
+    color: var(--cinza);
+    font-size: 14px;
+    margin-top: 12px;
+}
+
+/* SERVIÇOS */
+
+.services {
+    background: white;
+}
+
+.service-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 23px;
+}
+
+.service-card {
+    padding: 30px 25px;
+    border: 1px solid #F0E4F3;
+    border-radius: 17px;
+    background: var(--branco);
+    box-shadow: 0 5px 20px rgba(100, 27, 67, 0.04);
+    transition: 0.3s;
+}
+
+.service-card:hover {
+    transform: translateY(-7px);
+    border-color: var(--lilas);
+    box-shadow: 0 12px 30px rgba(100, 27, 67, 0.10);
+}
+
+.service-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 15px;
+    background: var(--lilas-claro);
+    color: var(--roxo);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    margin-bottom: 20px;
+}
+
+.service-card h3 {
+    color: var(--vinho);
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.service-card p {
+    font-size: 13px;
+    color: var(--cinza);
+    min-height: 65px;
+    margin-bottom: 15px;
+}
+
+.service-card strong {
+    display: block;
+    color: var(--roxo);
+    font-size: 14px;
+    margin-bottom: 17px;
+}
+
+.service-card a {
+    color: var(--vinho);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.service-card a:hover {
+    color: var(--roxo-vivo);
+}
+
+.center {
+    text-align: center;
+    margin-top: 45px;
+}
+
+/* COMO FUNCIONA */
+
+.how {
+    background: var(--fundo);
+}
+
+.steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+}
+
+.step {
+    text-align: center;
+    padding: 20px;
+}
+
+.step span {
+    display: block;
+    font-family: 'DM Serif Display', serif;
+    font-size: 43px;
+    color: var(--lilas);
+    margin-bottom: 12px;
+}
+
+.step h3 {
+    color: var(--vinho);
+    margin-bottom: 8px;
+    font-size: 17px;
+}
+
+.step p {
+    color: var(--cinza);
+    font-size: 13px;
+}
+
+/* SOBRE */
+
+.about {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+.about h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 37px;
+    line-height: 1.35;
+    font-weight: 400;
+    color: var(--vinho);
+}
+
+.about p {
+    color: var(--cinza);
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+/* PERGUNTAS FREQUENTES */
+
+.faq {
+    background: var(--fundo);
+}
+
+.faq details {
+    max-width: 800px;
+    margin: 12px auto;
+    padding: 20px 25px;
+    background: white;
+    border: 1px solid #F0E4F3;
+    border-radius: 12px;
+}
+
+.faq summary {
+    cursor: pointer;
+    color: var(--vinho);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.faq details p {
+    color: var(--cinza);
+    font-size: 13px;
+    margin-top: 15px;
+}
+
+/* CHAMADA FINAL */
+
+.final-cta {
+    text-align: center;
+    padding: 75px 20px;
+    background: linear-gradient(120deg, var(--vinho), var(--roxo));
+    color: white;
+}
+
+.final-cta h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 38px;
+    font-weight: 400;
+    margin-bottom: 12px;
+}
+
+.final-cta p {
+    font-size: 14px;
+    margin-bottom: 25px;
+    opacity: 0.9;
+}
+
+/* RODAPÉ */
+
+.footer {
+    background: #35152C;
+    color: white;
+    text-align: center;
+    padding: 55px 20px 25px;
+}
+
+.footer .logo {
+    color: white;
+}
+
+.footer .logo span {
+    color: var(--lilas);
+}
+
+.footer > p {
+    color: #DCCBDA;
+    font-size: 13px;
+    margin: 12px 0;
+}
+
+.footer > a:not(.logo) {
+    color: var(--lilas);
+    font-size: 13px;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 23px;
+    margin: 25px 0;
+}
+
+.footer-links a {
+    font-size: 12px;
+    color: white;
+}
+
+.footer-links a:hover {
+    color: var(--lilas);
+}
+
+.footer .copyright {
+    border-top: 1px solid rgba(255,255,255,0.15);
+    padding-top: 20px;
+    margin-top: 30px;
+    font-size: 11px;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 1000px) {
+    .header {
+        padding: 15px 4%;
+    }
+
+    .menu {
+        gap: 14px;
+    }
+
+    .menu a {
+        font-size: 11px;
+    }
+
+    .hero {
+        padding: 70px 6%;
+    }
+
+    .hero-decoration {
+        width: 240px;
+        height: 240px;
+    }
+
+    .amora-symbol {
+        font-size: 85px;
+    }
+
+    .service-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .header {
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: space-between;
+    }
+
+    .logo {
+        font-size: 19px;
+    }
+
+    .menu {
+        order: 3;
+        width: 100%;
+        overflow-x: auto;
+        padding: 10px 0;
+        gap: 20px;
+    }
+
+    .menu a {
+        white-space: nowrap;
+    }
+
+    .btn-login {
+        padding: 9px 15px;
+        font-size: 11px;
+    }
+
+    .hero {
+        flex-direction: column;
+        text-align: center;
+        padding: 65px 7%;
+        gap: 45px;
+    }
+
+    .hero-content p {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+    }
+
+    .hero-decoration {
+        width: 210px;
+        height: 210px;
+    }
+
+    .amora-symbol {
+        font-size: 75px;
+    }
+
+    .section {
+        padding: 65px 6%;
+    }
+
+    .section-heading h2 {
+        font-size: 31px;
+    }
+
+    .service-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .steps {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .about {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .about h2 {
+        font-size: 31px;
+    }
+
+    .final-cta h2 {
+        font-size: 30px;
+    }
+}
+
+@media (max-width: 380px) {
+    .steps {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-buttons a {
+        width: 100%;
+    }
+}
