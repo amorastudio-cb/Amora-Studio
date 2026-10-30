@@ -210,35 +210,27 @@ button, input {
 
 .hero-decoration {
     width: 310px;
+    height: 310px;
     min-height: 310px;
+    border-radius: 50%;
+    background: var(--vinho);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 8px;
     flex-shrink: 0;
-
-    /* Sem bola, círculo ou fundo */
-    background: none !important;
-    background-color: transparent !important;
-    background-image: none !important;
-    box-shadow: none !important;
-    border: none !important;
-    border-radius: 0 !important;
-
-    color: var(--vinho);
+    color: var(--branco);
+    box-shadow: 0 20px 45px rgba(100, 27, 67, 0.18);
 }
 
 .amora-symbol {
-    width: 250px;
-    height: 250px;
+    width: 230px;
+    height: 190px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: transparent !important;
-    border: none !important;
-    font-size: 0;
-    line-height: 1;
+    background: transparent;
 }
 
 .amora-symbol svg {
@@ -250,9 +242,10 @@ button, input {
 
 .decoration-text {
     font-family: 'DM Serif Display', serif;
-    font-size: 19px;
-    color: var(--vinho);
+    font-size: 18px;
+    color: var(--branco);
     text-align: center;
+    padding: 0 12px;
 }
 
 /* SEÇÕES */
@@ -537,13 +530,18 @@ button, input {
     }
 
     .hero-decoration {
-        width: 240px;
-        min-height: 240px;
+        width: 270px;
+        height: 270px;
+        min-height: 270px;
     }
 
     .amora-symbol {
-        width: 210px;
-        height: 210px;
+        width: 205px;
+        height: 170px;
+    }
+
+    .decoration-text {
+        font-size: 16px;
     }
 
     .service-grid {
@@ -596,13 +594,18 @@ button, input {
     }
 
     .hero-decoration {
-        width: 210px;
-        min-height: 210px;
+        width: 250px;
+        height: 250px;
+        min-height: 250px;
     }
 
     .amora-symbol {
-        width: 185px;
-        height: 185px;
+        width: 190px;
+        height: 155px;
+    }
+
+    .decoration-text {
+        font-size: 15px;
     }
 
     .section {
