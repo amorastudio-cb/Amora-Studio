@@ -195,7 +195,12 @@
                 Entrar
             </button>
 
-            <div id="mensagem" class="message" role="status" aria-live="polite"></div>
+            <div
+                id="mensagem"
+                class="message"
+                role="status"
+                aria-live="polite"
+            ></div>
 
         </form>
 
@@ -215,55 +220,86 @@
         const botao = document.getElementById("botaoLogin");
         const mensagem = document.getElementById("mensagem");
 
+        let redirecionando = false;
+
         function mostrarMensagem(texto, tipo) {
             mensagem.textContent = texto;
             mensagem.className = "message " + tipo;
         }
 
+        // Se já estiver autenticado, não precisa fazer login novamente.
+        async function verificarSessao() {
+            try {
+                const { data, error } =
+                    await supabase.auth.getSession();
+
+                if (error) {
+                    throw error;
+                }
+
+                if (data.session) {
+                    redirecionando = true;
+                    window.location.replace("painel.html");
+                }
+
+            } catch (error) {
+                console.error("Erro ao verificar sessão:", error);
+            }
+        }
+
+        verificarSessao();
+
         form.addEventListener("submit", async (event) => {
             event.preventDefault();
 
+            if (redirecionando) return;
+
             const email = document.getElementById("email").value.trim();
             const senha = document.getElementById("senha").value;
-
-            if (!supabase) {
-                mostrarMensagem("Não foi possível conectar ao sistema.", "error");
-                return;
-            }
 
             botao.disabled = true;
             botao.textContent = "Entrando...";
 
             try {
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email,
-                    password: senha
-                });
+                const { data, error } =
+                    await supabase.auth.signInWithPassword({
+                        email,
+                        password: senha
+                    });
 
-                if (error) throw error;
-
-                if (!data.user) {
-                    throw new Error("Não foi possível identificar sua conta.");
+                if (error) {
+                    throw error;
                 }
 
-                mostrarMensagem("Login realizado! Redirecionando...", "success");
+                if (!data.user || !data.session) {
+                    throw new Error(
+                        "Não foi possível identificar sua conta."
+                    );
+                }
 
-                setTimeout(() => {
-                    window.location.href = "painel.html";
-                }, 1000);
+                redirecionando = true;
+
+                mostrarMensagem(
+                    "Login realizado com sucesso! Redirecionando...",
+                    "success"
+                );
+
+                window.location.replace("painel.html");
 
             } catch (error) {
                 console.error("Erro no login:", error);
 
-                let texto = "E-mail ou senha incorretos. Verifique seus dados.";
+                let texto =
+                    "E-mail ou senha incorretos. Verifique seus dados.";
 
-                if (error.message?.toLowerCase().includes("email not confirmed")) {
+                if (
+                    error.message?.toLowerCase().includes("email not confirmed")
+                ) {
                     texto = "Confirme seu e-mail antes de entrar.";
                 }
 
                 mostrarMensagem(texto, "error");
 
-            } finally {
                 botao.disabled = false;
                 botao.textContent = "Entrar";
             }
