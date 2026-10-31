@@ -227,7 +227,12 @@
                 Criar minha conta
             </button>
 
-            <div id="mensagem" class="message" role="status" aria-live="polite"></div>
+            <div
+                id="mensagem"
+                class="message"
+                role="status"
+                aria-live="polite"
+            ></div>
 
         </form>
 
@@ -247,6 +252,8 @@
         const botao = document.getElementById("botaoCadastro");
         const mensagem = document.getElementById("mensagem");
 
+        let enviando = false;
+
         function mostrarMensagem(texto, tipo) {
             mensagem.textContent = texto;
             mensagem.className = "message " + tipo;
@@ -255,10 +262,18 @@
         form.addEventListener("submit", async (event) => {
             event.preventDefault();
 
+            if (enviando) return;
+
             const nome = document.getElementById("nome").value.trim();
             const email = document.getElementById("email").value.trim();
             const senha = document.getElementById("senha").value;
-            const confirmarSenha = document.getElementById("confirmarSenha").value;
+            const confirmarSenha =
+                document.getElementById("confirmarSenha").value;
+
+            if (!nome) {
+                mostrarMensagem("Digite seu nome completo.", "error");
+                return;
+            }
 
             if (senha !== confirmarSenha) {
                 mostrarMensagem("As senhas não coincidem.", "error");
@@ -266,15 +281,22 @@
             }
 
             if (senha.length < 6) {
-                mostrarMensagem("A senha precisa ter pelo menos 6 caracteres.", "error");
+                mostrarMensagem(
+                    "A senha precisa ter pelo menos 6 caracteres.",
+                    "error"
+                );
                 return;
             }
 
             if (!supabase) {
-                mostrarMensagem("Não foi possível conectar ao sistema. Confira a configuração do Supabase.", "error");
+                mostrarMensagem(
+                    "Não foi possível conectar ao sistema. Confira a configuração do Supabase.",
+                    "error"
+                );
                 return;
             }
 
+            enviando = true;
             botao.disabled = true;
             botao.textContent = "Criando sua conta...";
 
@@ -284,7 +306,8 @@
                     password: senha,
                     options: {
                         data: {
-                            nome: nome
+                            nome: nome,
+                            full_name: nome
                         }
                     }
                 });
@@ -293,7 +316,7 @@
 
                 if (data.session) {
                     mostrarMensagem(
-                        "Conta criada com sucesso! Você já pode entrar.",
+                        "Conta criada com sucesso! Sua conta já está pronta para uso. Você pode entrar no painel.",
                         "success"
                     );
                 } else {
@@ -308,19 +331,29 @@
             } catch (error) {
                 console.error("Erro no cadastro:", error);
 
-                let texto = "Não foi possível criar sua conta. Tente novamente.";
+                let texto =
+                    "Não foi possível criar sua conta. Tente novamente.";
 
-                if (error.message?.toLowerCase().includes("already registered")) {
-                    texto = "Este e-mail já possui uma conta cadastrada. Experimente entrar.";
-                } else if (error.message?.toLowerCase().includes("password")) {
-                    texto = "A senha não atende aos requisitos do sistema.";
-                } else if (error.message?.toLowerCase().includes("email")) {
-                    texto = "Verifique se o endereço de e-mail está correto.";
+                const erro = error.message?.toLowerCase() || "";
+
+                if (
+                    erro.includes("already registered") ||
+                    erro.includes("already exists")
+                ) {
+                    texto =
+                        "Este e-mail já possui uma conta cadastrada. Experimente entrar.";
+                } else if (erro.includes("password")) {
+                    texto =
+                        "A senha não atende aos requisitos do sistema.";
+                } else if (erro.includes("email")) {
+                    texto =
+                        "Verifique se o endereço de e-mail está correto.";
                 }
 
                 mostrarMensagem(texto, "error");
 
             } finally {
+                enviando = false;
                 botao.disabled = false;
                 botao.textContent = "Criar minha conta";
             }
