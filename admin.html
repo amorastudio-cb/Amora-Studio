@@ -17,6 +17,11 @@
             background: #F9F5FA;
         }
 
+        /* O conteúdo fica oculto até a autorização ser confirmada */
+        body {
+            display: none;
+        }
+
         .admin-header {
             background: #641B43;
             color: white;
@@ -43,6 +48,29 @@
             color: white;
             text-decoration: none;
             font-size: 13px;
+        }
+
+        .admin-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .admin-logout {
+            border: 1px solid white;
+            color: white;
+            background: transparent;
+            padding: 9px 17px;
+            border-radius: 25px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .admin-logout:disabled {
+            opacity: .6;
+            cursor: wait;
         }
 
         .admin-container {
@@ -227,7 +255,17 @@
             <span>Área administrativa</span>
         </div>
 
-        <a href="index.html">Voltar ao site ↗</a>
+        <div class="admin-header-actions">
+            <a href="index.html">Voltar ao site ↗</a>
+
+            <button
+                class="admin-logout"
+                id="logoutButton"
+                type="button"
+            >
+                Sair da conta
+            </button>
+        </div>
     </header>
 
     <main class="admin-container">
@@ -316,8 +354,117 @@
         <a href="contato.html">Central de contato</a>
     </footer>
 
-    <script>
-        document.getElementById("year").textContent = new Date().getFullYear();
+    <script src="script.js"></script>
+
+    <script type="module">
+        import { supabase } from "./supabase.js";
+
+        const logoutButton = document.getElementById("logoutButton");
+
+        let redirecionando = false;
+
+        document.getElementById("year").textContent =
+            new Date().getFullYear();
+
+        function redirecionarParaLogin() {
+            if (redirecionando) return;
+
+            redirecionando = true;
+            window.location.replace("login.html");
+        }
+
+        async function verificarAdministrador() {
+            try {
+                // Verifica se existe uma sessão ativa.
+                const { data: sessionData, error: sessionError } =
+                    await supabase.auth.getSession();
+
+                if (sessionError) {
+                    throw sessionError;
+                }
+
+                if (!sessionData.session) {
+                    redirecionarParaLogin();
+                    return;
+                }
+
+                // Confirma a identidade do usuário no Supabase.
+                const { data: userData, error: userError } =
+                    await supabase.auth.getUser();
+
+                if (userError || !userData.user) {
+                    redirecionarParaLogin();
+                    return;
+                }
+
+                // Consulta a permissão administrativa no banco.
+                const { data: profile, error: profileError } =
+                    await supabase
+                        .from("profiles")
+                        .select("is_admin")
+                        .eq("id", userData.user.id)
+                        .maybeSingle();
+
+                if (profileError) {
+                    throw profileError;
+                }
+
+                // Somente contas com is_admin = true podem entrar.
+                if (!profile || profile.is_admin !== true) {
+                    alert("Você não tem permissão para acessar esta área.");
+                    window.location.replace("painel.html");
+                    return;
+                }
+
+                // Exibe a página somente após confirmar a autorização.
+                document.body.style.display = "";
+
+            } catch (error) {
+                console.error(
+                    "Erro ao verificar permissão administrativa:",
+                    error
+                );
+
+                alert(
+                    "Não foi possível verificar sua permissão. Tente entrar novamente."
+                );
+
+                redirecionarParaLogin();
+            }
+        }
+
+        verificarAdministrador();
+
+        // Se a sessão for encerrada, impede a permanência na área administrativa.
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === "SIGNED_OUT" || !session) {
+                redirecionarParaLogin();
+            }
+        });
+
+        // Encerra a sessão administrativa.
+        logoutButton.addEventListener("click", async function() {
+            logoutButton.disabled = true;
+            logoutButton.textContent = "Saindo...";
+
+            try {
+                const { error } = await supabase.auth.signOut();
+
+                if (error) {
+                    throw error;
+                }
+
+                window.location.replace("index.html");
+
+            } catch (error) {
+                console.error("Erro ao sair da conta:", error);
+
+                alert("Não foi possível sair da conta. Tente novamente.");
+
+                logoutButton.disabled = false;
+                logoutButton.textContent = "Sair da conta";
+            }
+        });
     </script>
 
 </body>
