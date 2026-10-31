@@ -169,7 +169,12 @@
                 Enviar link de recuperação
             </button>
 
-            <div id="mensagem" class="message" role="status" aria-live="polite"></div>
+            <div
+                id="mensagem"
+                class="message"
+                role="status"
+                aria-live="polite"
+            ></div>
 
         </form>
 
@@ -194,8 +199,8 @@
 
             const email = document.getElementById("email").value.trim();
 
-            if (!supabase) {
-                mostrarMensagem("Não foi possível conectar ao sistema.", "error");
+            if (!email) {
+                mostrarMensagem("Informe seu e-mail.", "error");
                 return;
             }
 
@@ -203,14 +208,22 @@
             botao.textContent = "Enviando...";
 
             try {
-                const { error } = await supabase.auth.resetPasswordForEmail(
-                    email,
-                    {
-                        redirectTo: window.location.origin + "/redefinir-senha.html"
-                    }
-                );
+                const enderecoRedirecionamento = new URL(
+                    "redefinir-senha.html",
+                    window.location.href
+                ).href;
 
-                if (error) throw error;
+                const { error } =
+                    await supabase.auth.resetPasswordForEmail(
+                        email,
+                        {
+                            redirectTo: enderecoRedirecionamento
+                        }
+                    );
+
+                if (error) {
+                    throw error;
+                }
 
                 mostrarMensagem(
                     "Se esse endereço estiver cadastrado, você receberá um e-mail com as instruções para redefinir sua senha. Confira também o spam.",
