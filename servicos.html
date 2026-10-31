@@ -26,7 +26,7 @@
         <a href="index.html#faq">Dúvidas</a>
     </nav>
 
-    <a href="login.html" class="btn-login">Minha conta</a>
+    <a href="login.html" class="btn-login" id="accountLink">Minha conta</a>
 </header>
 
 <main>
@@ -206,6 +206,36 @@
         © 2026 Amora Studio. Todos os direitos reservados.
     </p>
 </footer>
+
+<script type="module">
+    import { supabase } from "./supabase.js";
+
+    const accountLink = document.getElementById("accountLink");
+
+    accountLink.addEventListener("click", async function(event) {
+        event.preventDefault();
+
+        accountLink.style.pointerEvents = "none";
+
+        try {
+            const { data, error } = await supabase.auth.getSession();
+
+            if (error) {
+                throw error;
+            }
+
+            if (data.session) {
+                window.location.href = "painel.html";
+            } else {
+                window.location.href = "login.html";
+            }
+
+        } catch (error) {
+            console.error("Erro ao verificar a sessão:", error);
+            window.location.href = "login.html";
+        }
+    });
+</script>
 
 <script src="script.js"></script>
 
