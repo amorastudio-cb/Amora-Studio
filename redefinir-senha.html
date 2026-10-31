@@ -21,6 +21,7 @@
                     id="senha"
                     placeholder="Digite sua nova senha"
                     minlength="6"
+                    autocomplete="new-password"
                     required
                 >
 
@@ -30,6 +31,7 @@
                     id="confirmarSenha"
                     placeholder="Digite novamente"
                     minlength="6"
+                    autocomplete="new-password"
                     required
                 >
 
@@ -37,7 +39,7 @@
                     Salvar nova senha
                 </button>
 
-                <p id="mensagem" role="status"></p>
+                <p id="mensagem" role="status" aria-live="polite"></p>
             </form>
 
             <a href="login.html">Voltar para o login</a>
@@ -51,14 +53,59 @@
         const mensagem = document.getElementById("mensagem");
         const botao = document.getElementById("botaoSalvar");
 
+        let sessaoValida = false;
+
+        async function verificarSessaoRecuperacao() {
+            try {
+                const { data, error } =
+                    await supabase.auth.getSession();
+
+                if (error) {
+                    throw error;
+                }
+
+                if (!data.session) {
+                    mensagem.textContent =
+                        "O link de recuperação é inválido ou expirou. Solicite outro pelo login.";
+
+                    formulario.querySelectorAll("input, button").forEach(elemento => {
+                        elemento.disabled = true;
+                    });
+
+                    return;
+                }
+
+                sessaoValida = true;
+
+            } catch (error) {
+                console.error("Erro ao verificar sessão:", error);
+
+                mensagem.textContent =
+                    "Não foi possível validar o link. Solicite uma nova recuperação de senha.";
+
+                formulario.querySelectorAll("input, button").forEach(elemento => {
+                    elemento.disabled = true;
+                });
+            }
+        }
+
+        verificarSessaoRecuperacao();
+
         formulario.addEventListener("submit", async (evento) => {
             evento.preventDefault();
+
+            if (!sessaoValida) {
+                mensagem.textContent =
+                    "Aguarde a validação do link ou solicite uma nova recuperação de senha.";
+                return;
+            }
 
             const senha = document.getElementById("senha").value;
             const confirmar = document.getElementById("confirmarSenha").value;
 
             if (senha.length < 6) {
-                mensagem.textContent = "A senha precisa ter pelo menos 6 caracteres.";
+                mensagem.textContent =
+                    "A senha precisa ter pelo menos 6 caracteres.";
                 return;
             }
 
@@ -68,31 +115,43 @@
             }
 
             botao.disabled = true;
-            mensagem.textContent = "Verificando e atualizando sua senha...";
+            mensagem.textContent = "Atualizando sua senha...";
 
-            const { data: { session }, error: erroSessao } =
-                await supabase.auth.getSession();
+            try {
+                const { data, error: erroSessao } =
+                    await supabase.auth.getSession();
 
-            if (erroSessao || !session) {
+                if (erroSessao || !data.session) {
+                    throw new Error(
+                        "O link de recuperação é inválido ou expirou. Solicite outro pelo login."
+                    );
+                }
+
+                const { error } = await supabase.auth.updateUser({
+                    password: senha
+                });
+
+                if (error) {
+                    throw error;
+                }
+
                 mensagem.textContent =
-                    "O link de recuperação é inválido ou expirou. Solicite outro pelo login.";
+                    "Senha alterada com sucesso! Você já pode entrar.";
+
+                formulario.reset();
+
+                // A sessão não é encerrada automaticamente.
+                // O usuário poderá sair normalmente pelo botão Sair da conta.
+
+            } catch (error) {
+                console.error("Erro ao atualizar senha:", error);
+
+                mensagem.textContent =
+                    error.message || "Não foi possível alterar sua senha. Tente novamente.";
+
+            } finally {
                 botao.disabled = false;
-                return;
             }
-
-            const { error } = await supabase.auth.updateUser({
-                password: senha
-            });
-
-            if (error) {
-                mensagem.textContent = "Não foi possível alterar a senha: " + error.message;
-                botao.disabled = false;
-                return;
-            }
-
-            mensagem.textContent = "Senha alterada com sucesso! Você já pode entrar.";
-            formulario.reset();
-            botao.disabled = false;
         });
     </script>
 
