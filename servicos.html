@@ -207,37 +207,30 @@
     </p>
 </footer>
 
+<script src="script.js"></script>
+
 <script type="module">
     import { supabase } from "./supabase.js";
 
     const accountLink = document.getElementById("accountLink");
 
-    accountLink.addEventListener("click", async function(event) {
-        event.preventDefault();
+    async function atualizarLinkConta() {
+        const { data, error } = await supabase.auth.getSession();
 
-        accountLink.style.pointerEvents = "none";
-
-        try {
-            const { data, error } = await supabase.auth.getSession();
-
-            if (error) {
-                throw error;
-            }
-
-            if (data.session) {
-                window.location.href = "painel.html";
-            } else {
-                window.location.href = "login.html";
-            }
-
-        } catch (error) {
-            console.error("Erro ao verificar a sessão:", error);
-            window.location.href = "login.html";
+        if (error) {
+            console.error("Erro ao verificar sessão:", error);
+            return;
         }
+
+        accountLink.href = data.session ? "painel.html" : "login.html";
+    }
+
+    atualizarLinkConta();
+
+    supabase.auth.onAuthStateChange(() => {
+        atualizarLinkConta();
     });
 </script>
-
-<script src="script.js"></script>
 
 </body>
 </html>
