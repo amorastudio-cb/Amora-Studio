@@ -196,258 +196,284 @@
 
 <body>
 
-    <header class="header">
-        <div class="container">
-            <a href="index.html" class="logo">Amora Studio</a>
+<header class="header">
+    <a href="index.html" class="logo">
+        <span class="logo-icon">●</span>
+        AMORA <span>STUDIO</span>
+    </a>
 
-            <nav class="nav">
-                <a href="index.html">Início</a>
-                <a href="servicos.html">Serviços</a>
-                <a href="contato.html">Contato</a>
-                <a href="login.html">Minha conta</a>
-            </nav>
-        </div>
-    </header>
+    <nav class="menu">
+        <a href="index.html">Início</a>
+        <a href="servicos.html">Serviços</a>
+        <a href="index.html#como-funciona">Como funciona</a>
+        <a href="index.html#sobre">Sobre nós</a>
+        <a href="index.html#faq">Dúvidas</a>
+        <a href="contato.html">Contato</a>
+    </nav>
 
-    <main>
+    <a href="login.html" class="btn-login" id="accountLink">Minha conta</a>
+</header>
 
-        <section class="order-hero">
-            <h1>Vamos dar forma à sua <span>ideia?</span></h1>
+<main>
 
-            <p>
-                Conte-nos o que você precisa e prepare sua solicitação.
+    <section class="order-hero">
+        <h1>Vamos dar forma à sua <span>ideia?</span></h1>
+
+        <p>
+            Conte-nos o que você precisa e prepare sua solicitação.
+        </p>
+    </section>
+
+    <section class="order-section">
+
+        <div class="order-container">
+
+            <h2>Solicitar um serviço</h2>
+
+            <p class="order-intro">
+                Preencha as informações abaixo com o máximo de detalhes
+                possível. Assim poderemos entender melhor seu projeto.
             </p>
-        </section>
 
-        <section class="order-section">
+            <form class="order-form" id="orderForm">
 
-            <div class="order-container">
-
-                <h2>Solicitar um serviço</h2>
-
-                <p class="order-intro">
-                    Preencha as informações abaixo com o máximo de detalhes
-                    possível. Assim poderemos entender melhor seu projeto.
-                </p>
-
-                <form class="order-form" id="orderForm">
-
-                    <div class="order-group">
-                        <label for="customerName">Nome completo</label>
-                        <input
-                            type="text"
-                            id="customerName"
-                            name="customerName"
-                            placeholder="Seu nome"
-                            required
-                        >
-                    </div>
-
-                    <div class="order-group">
-                        <label for="customerEmail">E-mail</label>
-                        <input
-                            type="email"
-                            id="customerEmail"
-                            name="customerEmail"
-                            placeholder="seuemail@exemplo.com"
-                            required
-                        >
-                    </div>
-
-                    <div class="order-divider"></div>
-
-                    <div class="order-group">
-                        <label for="category">Categoria do serviço</label>
-
-                        <select id="category" name="category" required>
-                            <option value="">Selecione uma categoria</option>
-                            <option value="Documentos">Documentos</option>
-                            <option value="Planilhas">Planilhas</option>
-                            <option value="Artes gráficas">Artes gráficas</option>
-                            <option value="Apresentações">Apresentações</option>
-                            <option value="Outro">Outro serviço</option>
-                        </select>
-                    </div>
-
-                    <div class="order-group">
-                        <label for="service">Serviço desejado</label>
-
-                        <select id="service" name="service" required>
-                            <option value="">Selecione primeiro a categoria</option>
-                        </select>
-                    </div>
-
-                    <div class="order-group">
-                        <label for="details">Conte-nos sobre seu projeto</label>
-
-                        <textarea
-                            id="details"
-                            name="details"
-                            placeholder="Explique o que precisa, como deseja o resultado e outras informações importantes..."
-                            required
-                        ></textarea>
-                    </div>
-
-                    <div class="order-group">
-                        <label for="deadline">Prazo desejado</label>
-
-                        <input
-                            type="date"
-                            id="deadline"
-                            name="deadline"
-                        >
-
-                        <small>
-                            O prazo será avaliado e confirmado pela Amora Studio.
-                        </small>
-                    </div>
-
-                    <div class="order-group">
-                        <label for="reference">Anexar arquivos ou referências</label>
-
-                        <input
-                            class="file-input"
-                            type="file"
-                            id="reference"
-                            name="reference"
-                            multiple
-                            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png"
-                        >
-
-                        <small>
-                            Você poderá selecionar mais de um arquivo.
-                            Formatos aceitos: PDF, Word, Excel, PowerPoint e imagens.
-                            Limite provisório de 10 MB por arquivo.
-                        </small>
-                    </div>
-
-                    <div class="order-divider"></div>
-
-                    <label class="order-consent">
-                        <input type="checkbox" id="orderTerms" required>
-
-                        <span>
-                            Declaro que as informações fornecidas são verdadeiras
-                            e concordo com os
-                            <a href="termos.html" target="_blank">Termos de Uso</a>
-                            e a
-                            <a href="privacidade.html" target="_blank">Política de Privacidade</a>.
-                        </span>
-                    </label>
-
-                    <p class="order-message" id="orderMessage"></p>
-
-                    <button type="submit" class="order-button">
-                        Enviar solicitação
-                    </button>
-
-                </form>
-
-                <div class="order-notice">
-                    <strong>Importante:</strong> o envio deste formulário ainda
-                    não confirma a contratação nem define o valor final.
-                    Após recebermos sua solicitação, analisaremos os detalhes
-                    e informaremos o orçamento e as condições do serviço.
+                <div class="order-group">
+                    <label for="customerName">Nome completo</label>
+                    <input
+                        type="text"
+                        id="customerName"
+                        name="customerName"
+                        placeholder="Seu nome"
+                        required
+                    >
                 </div>
 
+                <div class="order-group">
+                    <label for="customerEmail">E-mail</label>
+                    <input
+                        type="email"
+                        id="customerEmail"
+                        name="customerEmail"
+                        placeholder="seuemail@exemplo.com"
+                        required
+                    >
+                </div>
+
+                <div class="order-divider"></div>
+
+                <div class="order-group">
+                    <label for="category">Categoria do serviço</label>
+
+                    <select id="category" name="category" required>
+                        <option value="">Selecione uma categoria</option>
+                        <option value="Documentos">Documentos</option>
+                        <option value="Planilhas">Planilhas</option>
+                        <option value="Artes gráficas">Artes gráficas</option>
+                        <option value="Apresentações">Apresentações</option>
+                        <option value="Outro">Outro serviço</option>
+                    </select>
+                </div>
+
+                <div class="order-group">
+                    <label for="service">Serviço desejado</label>
+
+                    <select id="service" name="service" required>
+                        <option value="">Selecione primeiro a categoria</option>
+                    </select>
+                </div>
+
+                <div class="order-group">
+                    <label for="details">Conte-nos sobre seu projeto</label>
+
+                    <textarea
+                        id="details"
+                        name="details"
+                        placeholder="Explique o que precisa, como deseja o resultado e outras informações importantes..."
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="order-group">
+                    <label for="deadline">Prazo desejado</label>
+
+                    <input
+                        type="date"
+                        id="deadline"
+                        name="deadline"
+                    >
+
+                    <small>
+                        O prazo será avaliado e confirmado pela Amora Studio.
+                    </small>
+                </div>
+
+                <div class="order-group">
+                    <label for="reference">Anexar arquivos ou referências</label>
+
+                    <input
+                        class="file-input"
+                        type="file"
+                        id="reference"
+                        name="reference"
+                        multiple
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png"
+                    >
+
+                    <small>
+                        Você poderá selecionar mais de um arquivo.
+                        Formatos aceitos: PDF, Word, Excel, PowerPoint e imagens.
+                        Limite provisório de 10 MB por arquivo.
+                    </small>
+                </div>
+
+                <div class="order-divider"></div>
+
+                <label class="order-consent">
+                    <input type="checkbox" id="orderTerms" required>
+
+                    <span>
+                        Declaro que as informações fornecidas são verdadeiras
+                        e concordo com os
+                        <a href="termos.html" target="_blank">Termos de Uso</a>
+                        e a
+                        <a href="privacidade.html" target="_blank">Política de Privacidade</a>.
+                    </span>
+                </label>
+
+                <p class="order-message" id="orderMessage"></p>
+
+                <button type="submit" class="order-button">
+                    Enviar solicitação
+                </button>
+
+            </form>
+
+            <div class="order-notice">
+                <strong>Importante:</strong> o envio deste formulário ainda
+                não confirma a contratação nem define o valor final.
+                Após recebermos sua solicitação, analisaremos os detalhes
+                e informaremos o orçamento e as condições do serviço.
             </div>
 
-        </section>
-
-    </main>
-
-    <footer class="footer">
-        <div class="container">
-            <p>
-                © <span id="year"></span> Amora Studio.
-                Todos os direitos reservados.
-            </p>
         </div>
-    </footer>
 
-    <script src="script.js"></script>
+    </section>
 
-    <script>
-        const category = document.getElementById("category");
-        const service = document.getElementById("service");
+</main>
 
-        const services = {
-            "Documentos": [
-                "Digitação",
-                "Formatação",
-                "Digitação e formatação"
-            ],
+<footer class="footer">
+    <p>
+        © <span id="year"></span> Amora Studio.
+        Todos os direitos reservados.
+    </p>
+</footer>
 
-            "Planilhas": [
-                "Planilha simples sem fórmulas",
-                "Planilha com fórmulas básicas",
-                "Planilha simples com gráfico",
-                "Planilha complexa com gráfico"
-            ],
+<script src="script.js"></script>
 
-            "Artes gráficas": [
-                "Convite",
-                "Banner",
-                "Cartaz ou informativo"
-            ],
+<script type="module">
+    import { supabase } from "./supabase.js";
 
-            "Apresentações": [
-                "Apresentação de até 5 slides",
-                "Melhoria de apresentação de até 5 slides",
-                "Outro projeto de apresentação"
-            ],
+    const accountLink = document.getElementById("accountLink");
 
-            "Outro": [
-                "Serviço personalizado"
-            ]
-        };
+    async function atualizarLinkConta() {
+        const { data, error } = await supabase.auth.getSession();
 
-        category.addEventListener("change", function() {
-            service.innerHTML = '<option value="">Selecione o serviço</option>';
+        if (error) {
+            console.error("Erro ao verificar sessão:", error);
+            return;
+        }
 
-            const selectedServices = services[category.value] || [];
+        accountLink.href = data.session ? "painel.html" : "login.html";
+    }
 
-            selectedServices.forEach(function(item) {
-                const option = document.createElement("option");
-                option.value = item;
-                option.textContent = item;
-                service.appendChild(option);
-            });
+    atualizarLinkConta();
+
+    supabase.auth.onAuthStateChange((event, session) => {
+        accountLink.href = session ? "painel.html" : "login.html";
+    });
+</script>
+
+<script>
+    const category = document.getElementById("category");
+    const service = document.getElementById("service");
+
+    const services = {
+        "Documentos": [
+            "Digitação",
+            "Formatação",
+            "Digitação e formatação"
+        ],
+
+        "Planilhas": [
+            "Planilha simples sem fórmulas",
+            "Planilha com fórmulas básicas",
+            "Planilha simples com gráfico",
+            "Planilha complexa com gráfico"
+        ],
+
+        "Artes gráficas": [
+            "Convite",
+            "Banner",
+            "Cartaz ou informativo"
+        ],
+
+        "Apresentações": [
+            "Apresentação de até 5 slides",
+            "Melhoria de apresentação de até 5 slides",
+            "Outro projeto de apresentação"
+        ],
+
+        "Outro": [
+            "Serviço personalizado"
+        ]
+    };
+
+    category.addEventListener("change", function() {
+        service.innerHTML = '<option value="">Selecione o serviço</option>';
+
+        const selectedServices = services[category.value] || [];
+
+        selectedServices.forEach(function(item) {
+            const option = document.createElement("option");
+            option.value = item;
+            option.textContent = item;
+            service.appendChild(option);
         });
+    });
 
-        const deadline = document.getElementById("deadline");
+    const deadline = document.getElementById("deadline");
 
-        const today = new Date();
-        const localToday = new Date(
-            today.getTime() - today.getTimezoneOffset() * 60000
-        ).toISOString().split("T")[0];
+    const today = new Date();
+    const localToday = new Date(
+        today.getTime() - today.getTimezoneOffset() * 60000
+    ).toISOString().split("T")[0];
 
-        deadline.min = localToday;
+    deadline.min = localToday;
 
-        const orderForm = document.getElementById("orderForm");
-        const orderMessage = document.getElementById("orderMessage");
+    const orderForm = document.getElementById("orderForm");
+    const orderMessage = document.getElementById("orderMessage");
 
-        orderForm.addEventListener("submit", function(event) {
-            event.preventDefault();
+    orderForm.addEventListener("submit", function(event) {
+        event.preventDefault();
 
-            const files = document.getElementById("reference").files;
+        const files = document.getElementById("reference").files;
 
-            for (const file of files) {
-                if (file.size > 10 * 1024 * 1024) {
-                    orderMessage.style.display = "block";
-                    orderMessage.textContent =
-                        "O arquivo " + file.name +
-                        " ultrapassa o limite provisório de 10 MB.";
-                    return;
-                }
+        for (const file of files) {
+            if (file.size > 10 * 1024 * 1024) {
+                orderMessage.style.display = "block";
+                orderMessage.textContent =
+                    "O arquivo " + file.name +
+                    " ultrapassa o limite provisório de 10 MB.";
+                return;
             }
+        }
 
-            orderMessage.style.display = "block";
-            orderMessage.textContent =
-                "Formulário preenchido! A integração para enviar e armazenar " +
-                "sua solicitação será ativada quando conectarmos o Supabase.";
-        });
-    </script>
+        orderMessage.style.display = "block";
+        orderMessage.textContent =
+            "Formulário preenchido! A integração para enviar e armazenar " +
+            "sua solicitação será ativada quando conectarmos o Supabase.";
+    });
+</script>
 
 </body>
 </html>
