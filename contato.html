@@ -211,195 +211,221 @@
 
 <body>
 
-    <header class="header">
-        <div class="container">
-            <a href="index.html" class="logo">Amora Studio</a>
+<header class="header">
+    <a href="index.html" class="logo">
+        <span class="logo-icon">●</span>
+        AMORA <span>STUDIO</span>
+    </a>
 
-            <nav class="nav">
-                <a href="index.html">Início</a>
-                <a href="servicos.html">Serviços</a>
-                <a href="contato.html">Contato</a>
-                <a href="login.html">Minha conta</a>
-            </nav>
-        </div>
-    </header>
+    <nav class="menu">
+        <a href="index.html">Início</a>
+        <a href="servicos.html">Serviços</a>
+        <a href="index.html#como-funciona">Como funciona</a>
+        <a href="index.html#sobre">Sobre nós</a>
+        <a href="index.html#faq">Dúvidas</a>
+        <a href="contato.html">Contato</a>
+    </nav>
 
-    <main>
+    <a href="login.html" class="btn-login" id="accountLink">Minha conta</a>
+</header>
 
-        <section class="contact-hero">
-            <h1>Vamos conversar<span>?</span></h1>
+<main>
 
-            <p>
-                Tem alguma dúvida, ideia ou projeto em mente?
-                Será um prazer conhecer sua necessidade e ajudar
-                a transformar sua ideia em realidade.
-            </p>
-        </section>
+    <section class="contact-hero">
+        <h1>Vamos conversar<span>?</span></h1>
 
-        <section class="contact-section">
+        <p>
+            Tem alguma dúvida, ideia ou projeto em mente?
+            Será um prazer conhecer sua necessidade e ajudar
+            a transformar sua ideia em realidade.
+        </p>
+    </section>
 
-            <div class="contact-container">
+    <section class="contact-section">
 
-                <div class="contact-info">
+        <div class="contact-container">
 
-                    <h2>Estamos aqui para ajudar!</h2>
+            <div class="contact-info">
 
+                <h2>Estamos aqui para ajudar!</h2>
+
+                <p>
+                    Entre em contato conosco para esclarecer dúvidas,
+                    solicitar informações ou conversar sobre um projeto.
+                </p>
+
+                <div class="contact-card">
+                    <h3>✉ E-mail</h3>
                     <p>
-                        Entre em contato conosco para esclarecer dúvidas,
-                        solicitar informações ou conversar sobre um projeto.
+                        Nosso canal de atendimento:
+                        <br>
+                        <a href="mailto:amorastudio.cb@gmail.com">
+                            amorastudio.cb@gmail.com
+                        </a>
                     </p>
-
-                    <div class="contact-card">
-                        <h3>✉ E-mail</h3>
-                        <p>
-                            Nosso canal de atendimento:
-                            <br>
-                            <a href="mailto:amorastudio.cb@gmail.com">
-                                amorastudio.cb@gmail.com
-                            </a>
-                        </p>
-                    </div>
-
-                    <div class="contact-card">
-                        <h3>✦ Serviços personalizados</h3>
-                        <p>
-                            Cada projeto é único! Caso sua necessidade
-                            não esteja no catálogo, entre em contato
-                            para conversarmos sobre um orçamento.
-                        </p>
-                    </div>
-
-                    <div class="contact-card">
-                        <h3>♡ Nosso compromisso</h3>
-                        <p>
-                            Trabalhamos com atenção aos detalhes,
-                            organização e cuidado em cada projeto.
-                        </p>
-                    </div>
-
                 </div>
 
-                <div class="contact-form-card">
-
-                    <h2>Envie sua mensagem</h2>
-
+                <div class="contact-card">
+                    <h3>✦ Serviços personalizados</h3>
                     <p>
-                        Preencha os campos abaixo para preparar
-                        uma mensagem para nossa equipe.
+                        Cada projeto é único! Caso sua necessidade
+                        não esteja no catálogo, entre em contato
+                        para conversarmos sobre um orçamento.
                     </p>
+                </div>
 
-                    <form class="contact-form" id="contactForm">
-
-                        <div>
-                            <label for="name">Seu nome</label>
-                            <input
-                                type="text"
-                                id="name"
-                                name="name"
-                                placeholder="Digite seu nome"
-                                required
-                            >
-                        </div>
-
-                        <div>
-                            <label for="email">Seu e-mail</label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                placeholder="seuemail@exemplo.com"
-                                required
-                            >
-                        </div>
-
-                        <div>
-                            <label for="subject">Assunto</label>
-                            <select id="subject" name="subject" required>
-                                <option value="">Selecione um assunto</option>
-                                <option value="Dúvida sobre serviços">Dúvida sobre serviços</option>
-                                <option value="Solicitação de orçamento">Solicitação de orçamento</option>
-                                <option value="Andamento de pedido">Andamento de pedido</option>
-                                <option value="Problema com a plataforma">Problema com a plataforma</option>
-                                <option value="Outro assunto">Outro assunto</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label for="message">Sua mensagem</label>
-                            <textarea
-                                id="message"
-                                name="message"
-                                placeholder="Conte-nos como podemos ajudar..."
-                                required
-                            ></textarea>
-                        </div>
-
-                        <button type="submit" class="contact-button">
-                            Preparar mensagem
-                        </button>
-
-                    </form>
-
-                    <p class="contact-notice">
-                        Ao clicar, seu aplicativo de e-mail será aberto
-                        com a mensagem preenchida. O envio dependerá
-                        da sua confirmação.
+                <div class="contact-card">
+                    <h3>♡ Nosso compromisso</h3>
+                    <p>
+                        Trabalhamos com atenção aos detalhes,
+                        organização e cuidado em cada projeto.
                     </p>
-
                 </div>
 
             </div>
 
-        </section>
+            <div class="contact-form-card">
 
-        <section class="contact-bottom">
+                <h2>Envie sua mensagem</h2>
 
-            <h2>Já sabe o que precisa?</h2>
+                <p>
+                    Preencha os campos abaixo para preparar
+                    uma mensagem para nossa equipe.
+                </p>
 
-            <p>
-                Conheça nossos serviços e encontre a solução ideal
-                para seu projeto.
-            </p>
+                <form class="contact-form" id="contactForm">
 
-            <a href="servicos.html">Conhecer serviços</a>
+                    <div>
+                        <label for="name">Seu nome</label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            placeholder="Digite seu nome"
+                            required
+                        >
+                    </div>
 
-        </section>
+                    <div>
+                        <label for="email">Seu e-mail</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="seuemail@exemplo.com"
+                            required
+                        >
+                    </div>
 
-    </main>
+                    <div>
+                        <label for="subject">Assunto</label>
+                        <select id="subject" name="subject" required>
+                            <option value="">Selecione um assunto</option>
+                            <option value="Dúvida sobre serviços">Dúvida sobre serviços</option>
+                            <option value="Solicitação de orçamento">Solicitação de orçamento</option>
+                            <option value="Andamento de pedido">Andamento de pedido</option>
+                            <option value="Problema com a plataforma">Problema com a plataforma</option>
+                            <option value="Outro assunto">Outro assunto</option>
+                        </select>
+                    </div>
 
-    <footer class="footer">
-        <div class="container">
-            <p>
-                © <span id="year"></span> Amora Studio.
-                Todos os direitos reservados.
-            </p>
+                    <div>
+                        <label for="message">Sua mensagem</label>
+                        <textarea
+                            id="message"
+                            name="message"
+                            placeholder="Conte-nos como podemos ajudar..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <button type="submit" class="contact-button">
+                        Preparar mensagem
+                    </button>
+
+                </form>
+
+                <p class="contact-notice">
+                    Ao clicar, seu aplicativo de e-mail será aberto
+                    com a mensagem preenchida. O envio dependerá
+                    da sua confirmação.
+                </p>
+
+            </div>
+
         </div>
-    </footer>
 
-    <script src="script.js"></script>
+    </section>
 
-    <script>
-        document.getElementById("contactForm").addEventListener("submit", function(event) {
-            event.preventDefault();
+    <section class="contact-bottom">
 
-            const name = document.getElementById("name").value.trim();
-            const email = document.getElementById("email").value.trim();
-            const subject = document.getElementById("subject").value;
-            const message = document.getElementById("message").value.trim();
+        <h2>Já sabe o que precisa?</h2>
 
-            const body =
-                "Nome: " + name + "\n" +
-                "E-mail: " + email + "\n\n" +
-                "Mensagem:\n" + message;
+        <p>
+            Conheça nossos serviços e encontre a solução ideal
+            para seu projeto.
+        </p>
 
-            const mailto =
-                "mailto:amorastudio.cb@gmail.com" +
-                "?subject=" + encodeURIComponent(subject) +
-                "&body=" + encodeURIComponent(body);
+        <a href="servicos.html">Conhecer serviços</a>
 
-            window.location.href = mailto;
-        });
-    </script>
+    </section>
+
+</main>
+
+<footer class="footer">
+    <p>
+        © <span id="year"></span> Amora Studio.
+        Todos os direitos reservados.
+    </p>
+</footer>
+
+<script src="script.js"></script>
+
+<script type="module">
+    import { supabase } from "./supabase.js";
+
+    const accountLink = document.getElementById("accountLink");
+
+    async function atualizarLinkConta() {
+        const { data, error } = await supabase.auth.getSession();
+
+        if (error) {
+            console.error("Erro ao verificar sessão:", error);
+            return;
+        }
+
+        accountLink.href = data.session ? "painel.html" : "login.html";
+    }
+
+    atualizarLinkConta();
+
+    supabase.auth.onAuthStateChange((event, session) => {
+        accountLink.href = session ? "painel.html" : "login.html";
+    });
+</script>
+
+<script>
+    document.getElementById("contactForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const subject = document.getElementById("subject").value;
+        const message = document.getElementById("message").value.trim();
+
+        const body =
+            "Nome: " + name + "\n" +
+            "E-mail: " + email + "\n\n" +
+            "Mensagem:\n" + message;
+
+        const mailto =
+            "mailto:amorastudio.cb@gmail.com" +
+            "?subject=" + encodeURIComponent(subject) +
+            "&body=" + encodeURIComponent(body);
+
+        window.location.href = mailto;
+    });
+</script>
 
 </body>
 </html>
