@@ -209,6 +209,11 @@
             cursor: pointer;
         }
 
+        .dashboard-logout:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
         @media (max-width: 700px) {
             .dashboard-summary {
                 grid-template-columns: 1fr;
@@ -227,117 +232,190 @@
 
 <body>
 
-    <header class="header">
-        <a href="index.html" class="logo">Amora Studio</a>
+<header class="header">
+    <a href="index.html" class="logo">
+        <span class="logo-icon">●</span>
+        AMORA <span>STUDIO</span>
+    </a>
 
-        <nav class="menu">
-            <a href="index.html">Início</a>
-            <a href="servicos.html">Serviços</a>
-            <a href="contato.html">Contato</a>
+    <nav class="menu">
+        <a href="index.html">Início</a>
+        <a href="servicos.html">Serviços</a>
+        <a href="contato.html">Contato</a>
 
-            <button class="dashboard-logout" id="logoutButton">
-                Sair da conta
-            </button>
-        </nav>
-    </header>
+        <button class="dashboard-logout" id="logoutButton" type="button">
+            Sair da conta
+        </button>
+    </nav>
+</header>
 
-    <main class="dashboard">
+<main class="dashboard">
 
-        <section class="dashboard-welcome">
-            <h1>Minha área</h1>
-            <p>
-                Acompanhe seus projetos e encontre tudo sobre seus pedidos
-                em um só lugar.
-            </p>
+    <section class="dashboard-welcome">
+        <h1>Minha área</h1>
+        <p id="welcomeMessage">
+            Acompanhe seus projetos e encontre tudo sobre seus pedidos
+            em um só lugar.
+        </p>
+    </section>
+
+    <div class="dashboard-container">
+
+        <div class="dashboard-actions">
+            <h2>Visão geral</h2>
+
+            <a href="pedido.html" class="new-order-button">
+                + Solicitar serviço
+            </a>
+        </div>
+
+        <section class="dashboard-summary">
+
+            <div class="summary-card">
+                <p>Total de pedidos</p>
+                <strong id="totalOrders">—</strong>
+            </div>
+
+            <div class="summary-card">
+                <p>Em andamento</p>
+                <strong id="activeOrders">—</strong>
+            </div>
+
+            <div class="summary-card">
+                <p>Concluídos</p>
+                <strong id="completedOrders">—</strong>
+            </div>
+
         </section>
 
-        <div class="dashboard-container">
+        <section class="orders-section">
 
-            <div class="dashboard-actions">
-                <h2>Visão geral</h2>
+            <h2>Meus pedidos</h2>
+
+            <div class="orders-empty" id="ordersEmpty">
+                <h3>Seus projetos aparecerão aqui!</h3>
+
+                <p>
+                    Quando você solicitar um serviço, poderá acompanhar
+                    o andamento, consultar informações e acessar
+                    os arquivos disponibilizados.
+                </p>
 
                 <a href="pedido.html" class="new-order-button">
-                    + Solicitar serviço
+                    Fazer meu primeiro pedido
                 </a>
             </div>
 
-            <section class="dashboard-summary">
+            <div id="ordersList" hidden></div>
 
-                <div class="summary-card">
-                    <p>Total de pedidos</p>
-                    <strong id="totalOrders">—</strong>
-                </div>
+        </section>
 
-                <div class="summary-card">
-                    <p>Em andamento</p>
-                    <strong id="activeOrders">—</strong>
-                </div>
+        <section class="dashboard-help">
+            <h3>Precisa de ajuda?</h3>
 
-                <div class="summary-card">
-                    <p>Concluídos</p>
-                    <strong id="completedOrders">—</strong>
-                </div>
-
-            </section>
-
-            <section class="orders-section">
-
-                <h2>Meus pedidos</h2>
-
-                <div class="orders-empty" id="ordersEmpty">
-                    <h3>Seus projetos aparecerão aqui!</h3>
-
-                    <p>
-                        Quando você solicitar um serviço, poderá acompanhar
-                        o andamento, consultar informações e acessar
-                        os arquivos disponibilizados.
-                    </p>
-
-                    <a href="pedido.html" class="new-order-button">
-                        Fazer meu primeiro pedido
-                    </a>
-                </div>
-
-                <div id="ordersList" hidden></div>
-
-            </section>
-
-            <section class="dashboard-help">
-                <h3>Precisa de ajuda?</h3>
-
-                <p>
-                    Se tiver alguma dúvida sobre seus pedidos,
-                    entre em contato pelo nosso
-                    <a href="contato.html">canal de atendimento</a>.
-                </p>
-            </section>
-
-        </div>
-
-    </main>
-
-    <footer class="footer">
-        <div class="container">
             <p>
-                © <span id="year"></span> Amora Studio.
-                Todos os direitos reservados.
+                Se tiver alguma dúvida sobre seus pedidos,
+                entre em contato pelo nosso
+                <a href="contato.html">canal de atendimento</a>.
             </p>
-        </div>
-    </footer>
+        </section>
 
-    <script src="script.js"></script>
+    </div>
 
-    <script>
-        /*
-          O painel será conectado ao Supabase posteriormente.
-          Os pedidos e indicadores reais serão carregados
-          após a implementação da autenticação e do banco de dados.
-        */
+</main>
 
-        document.getElementById("logoutButton").addEventListener("click", function() {
-            alert("A função de sair da conta será ativada após a integração com o Supabase.");
-        });
-    </script>
+<footer class="footer">
+    <div class="container">
+        <p>
+            © <span id="year"></span> Amora Studio.
+            Todos os direitos reservados.
+        </p>
+    </div>
+</footer>
+
+<script src="script.js"></script>
+
+<script type="module">
+    import { supabase } from "./supabase.js";
+
+    const logoutButton = document.getElementById("logoutButton");
+    const welcomeMessage = document.getElementById("welcomeMessage");
+
+    let redirecionando = false;
+
+    function irParaLogin() {
+        if (redirecionando) return;
+
+        redirecionando = true;
+        window.location.replace("login.html");
+    }
+
+    async function verificarAutenticacao() {
+        try {
+            const { data, error } = await supabase.auth.getSession();
+
+            if (error) {
+                throw error;
+            }
+
+            if (!data.session) {
+                irParaLogin();
+                return;
+            }
+
+            const { data: userData, error: userError } =
+                await supabase.auth.getUser();
+
+            if (userError || !userData.user) {
+                irParaLogin();
+                return;
+            }
+
+            const nome = userData.user.user_metadata?.full_name;
+
+            if (nome) {
+                welcomeMessage.textContent =
+                    "Olá, " + nome +
+                    "! Acompanhe seus projetos e encontre tudo sobre seus pedidos em um só lugar.";
+            }
+
+        } catch (error) {
+            console.error("Erro ao verificar autenticação:", error);
+            irParaLogin();
+        }
+    }
+
+    verificarAutenticacao();
+
+    supabase.auth.onAuthStateChange((event, session) => {
+        if (event === "SIGNED_OUT" || !session) {
+            irParaLogin();
+        }
+    });
+
+    logoutButton.addEventListener("click", async function() {
+        logoutButton.disabled = true;
+        logoutButton.textContent = "Saindo...";
+
+        try {
+            const { error } = await supabase.auth.signOut();
+
+            if (error) {
+                throw error;
+            }
+
+            window.location.replace("index.html");
+
+        } catch (error) {
+            console.error("Erro ao sair da conta:", error);
+
+            alert("Não foi possível sair da conta. Tente novamente.");
+
+            logoutButton.disabled = false;
+            logoutButton.textContent = "Sair da conta";
+        }
+    });
+</script>
 
 </body>
 </html>
