@@ -274,6 +274,40 @@
         .order-file-error {
             color: #A04444;
             font-size: 11px;
+            line-height: 1.7;
+        }
+
+        .final-files {
+            margin-top: 18px;
+            padding: 16px;
+            background: #F6ECFA;
+            border: 1px solid #E9D8F2;
+            border-radius: 11px;
+        }
+
+        .final-files h4 {
+            color: #641B43;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .final-files p {
+            color: #706A73;
+            font-size: 11px;
+            line-height: 1.8;
+        }
+
+        .final-files .order-file-link {
+            background: #FFFCFF;
+        }
+
+        .final-files-message {
+            margin-top: 5px;
+        }
+
+        .final-files-available {
+            color: #39734C !important;
+            font-weight: 600;
         }
 
         .dashboard-help {
@@ -522,6 +556,10 @@
         return normalizarStatus(status) === "cancelado";
     }
 
+    function pagamentoConfirmado(status) {
+        return normalizarStatus(status) === "confirmado";
+    }
+
     function criarDetalhe(titulo, valor) {
         const detalhe = criarElemento("div", "order-detail");
 
@@ -582,6 +620,120 @@
         }
 
         container.appendChild(secao);
+    }
+
+    async function carregarArquivosFinais(container, pedido) {
+        const secao = criarElemento("section", "final-files");
+
+        secao.appendChild(
+            criarElemento("h4", "", "Arquivos finais do seu pedido")
+        );
+
+        /*
+         * A consulta dos arquivos finais só é feita quando
+         * o pagamento está confirmado no banco de dados.
+         */
+        if (!pagamentoConfirmado(pedido.pagamento_status)) {
+            secao.appendChild(
+                criarElemento(
+                    "p",
+                    "final-files-message",
+                    "Seus arquivos estão sendo preparados ou aguardam a confirmação do pagamento. Assim que o pagamento for confirmado pela Amora Studio, os arquivos disponíveis aparecerão aqui."
+                )
+            );
+
+            container.appendChild(secao);
+            return;
+        }
+
+        const mensagem = criarElemento(
+            "p",
+            "final-files-message",
+            "Verificando seus arquivos..."
+        );
+
+        secao.appendChild(mensagem);
+
+        container.appendChild(secao);
+
+        const pasta = `${pedido.user_id}/${pedido.id}`;
+
+        const { data: arquivos, error } = await supabase
+            .storage
+            .from("arquivos-finais")
+            .list(pasta, {
+                limit: 100,
+                sortBy: {
+                    column: "name",
+                    order: "asc"
+                }
+            });
+
+        if (error) {
+            console.error("Erro ao consultar arquivos finais:", error);
+
+            mensagem.className = "order-file-error final-files-message";
+            mensagem.textContent =
+                "Não foi possível carregar os arquivos finais. Tente atualizar a página ou entre em contato com a Amora Studio.";
+
+            return;
+        }
+
+        const arquivosValidos = (arquivos || []).filter(arquivo =>
+            arquivo.name &&
+            arquivo.name !== ".emptyFolderPlaceholder" &&
+            arquivo.id
+        );
+
+        if (arquivosValidos.length === 0) {
+            mensagem.textContent =
+                "Pagamento confirmado! Seus arquivos finais ainda não foram disponibilizados. Assim que forem enviados, aparecerão aqui.";
+
+            return;
+        }
+
+        mensagem.textContent =
+            "Pagamento confirmado! Seus arquivos finais estão disponíveis.";
+
+        mensagem.classList.add("final-files-available");
+
+        for (const arquivo of arquivosValidos) {
+            const caminho = `${pasta}/${arquivo.name}`;
+
+            const { data, error: linkError } = await supabase
+                .storage
+                .from("arquivos-finais")
+                .createSignedUrl(caminho, 60);
+
+            if (linkError || !data?.signedUrl) {
+                secao.appendChild(
+                    criarElemento(
+                        "p",
+                        "order-file-error",
+                        "Não foi possível abrir o arquivo: " + arquivo.name
+                    )
+                );
+
+                console.error(
+                    "Erro ao gerar link do arquivo final:",
+                    linkError
+                );
+
+                continue;
+            }
+
+            const link = criarElemento(
+                "a",
+                "order-file-link",
+                "Abrir " + arquivo.name
+            );
+
+            link.href = data.signedUrl;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+
+            secao.appendChild(link);
+        }
     }
 
     async function criarCartaoPedido(pedido) {
@@ -649,6 +801,8 @@
 
         await carregarAnexos(cartao, arquivos);
 
+        await carregarArquivosFinais(cartao, pedido);
+
         return cartao;
     }
 
@@ -663,12 +817,14 @@
             .from("pedidos")
             .select(`
                 id,
+                user_id,
                 categoria,
                 servico,
                 descricao,
                 prazo,
                 arquivos,
                 status,
+                pagamento_status,
                 created_at
             `)
             .eq("user_id", userId)
