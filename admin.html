@@ -15,10 +15,6 @@
     <style>
         body {
             background: #F9F5FA;
-        }
-
-        /* O conteúdo fica oculto até a autorização ser confirmada */
-        body {
             display: none;
         }
 
@@ -159,6 +155,22 @@
             margin-top: 5px;
         }
 
+        .refresh-button {
+            border: 1px solid #873B83;
+            color: #873B83;
+            background: white;
+            padding: 10px 16px;
+            border-radius: 25px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .refresh-button:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+
         .filter-area {
             display: flex;
             gap: 10px;
@@ -186,11 +198,15 @@
             min-width: 170px;
         }
 
-        .empty-orders {
+        .empty-orders,
+        .orders-message {
             text-align: center;
-            padding: 55px 20px;
+            padding: 45px 20px;
             border: 1px dashed #DCCBE3;
             border-radius: 12px;
+            color: #706A73;
+            font-size: 13px;
+            line-height: 1.8;
         }
 
         .empty-orders .symbol {
@@ -204,10 +220,180 @@
             margin-bottom: 8px;
         }
 
-        .empty-orders p {
+        .orders-message.error {
+            color: #A04444;
+            border-color: #E9BABA;
+        }
+
+        .order-card {
+            border: 1px solid #E9D8F2;
+            border-radius: 13px;
+            padding: 22px;
+            margin-bottom: 18px;
+            background: #FFFCFF;
+        }
+
+        .order-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .order-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 17px;
+        }
+
+        .order-card-header h3 {
+            color: #641B43;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .order-date {
+            color: #8A818C;
+            font-size: 11px;
+        }
+
+        .order-status {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #F6ECFA;
+            color: #873B83;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .order-details {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .order-detail {
+            padding: 13px;
+            background: #FAF7FB;
+            border-radius: 9px;
+            min-width: 0;
+        }
+
+        .order-detail strong {
+            display: block;
+            color: #641B43;
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+        .order-detail span {
+            display: block;
             color: #706A73;
-            font-size: 13px;
+            font-size: 12px;
             line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .order-description {
+            margin-top: 13px;
+            padding: 14px;
+            background: #FAF7FB;
+            border-radius: 9px;
+        }
+
+        .order-description strong,
+        .order-files strong {
+            display: block;
+            color: #641B43;
+            font-size: 11px;
+            margin-bottom: 7px;
+        }
+
+        .order-description p {
+            color: #706A73;
+            font-size: 12px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .order-files {
+            margin-top: 15px;
+        }
+
+        .file-link {
+            display: inline-block;
+            margin: 3px 7px 3px 0;
+            padding: 8px 12px;
+            border: 1px solid #E9D8F2;
+            border-radius: 20px;
+            color: #873B83;
+            font-size: 11px;
+            text-decoration: none;
+            overflow-wrap: anywhere;
+        }
+
+        .file-link:hover {
+            background: #F6ECFA;
+        }
+
+        .file-error {
+            color: #A04444;
+            font-size: 11px;
+        }
+
+        .order-management {
+            border-top: 1px solid #E9D8F2;
+            margin-top: 19px;
+            padding-top: 17px;
+        }
+
+        .order-management label {
+            display: block;
+            color: #641B43;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .order-management-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .order-management select {
+            flex: 1;
+            min-width: 180px;
+            padding: 11px;
+            border: 1px solid #E5D9E9;
+            border-radius: 8px;
+            background: white;
+            color: #706A73;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+        }
+
+        .save-status-button {
+            padding: 11px 18px;
+            border: none;
+            border-radius: 25px;
+            background: #873B83;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .save-status-button:hover {
+            background: #641B43;
+        }
+
+        .save-status-button:disabled {
+            opacity: .6;
+            cursor: wait;
         }
 
         .admin-footer {
@@ -243,6 +429,19 @@
             .filter-area select {
                 width: 100%;
             }
+
+            .order-details {
+                grid-template-columns: 1fr;
+            }
+
+            .order-management-row {
+                flex-direction: column;
+            }
+
+            .order-management select,
+            .save-status-button {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -258,11 +457,7 @@
         <div class="admin-header-actions">
             <a href="index.html">Voltar ao site ↗</a>
 
-            <button
-                class="admin-logout"
-                id="logoutButton"
-                type="button"
-            >
+            <button class="admin-logout" id="logoutButton" type="button">
                 Sair da conta
             </button>
         </div>
@@ -276,32 +471,33 @@
         </section>
 
         <div class="admin-notice">
-            <strong>Integração pendente:</strong>
-            esta página ainda não recebe pedidos reais. Após a configuração do Supabase,
-            será possível consultar clientes, acompanhar solicitações e atualizar os
-            status dos serviços.
+            <strong>Atenção:</strong>
+            a atualização do status registra o andamento administrativo do pedido.
+            A confirmação de pagamento deve acontecer somente depois que você
+            verificar o recebimento do Pix na sua conta. A liberação dos arquivos
+            finais será configurada em uma etapa própria.
         </div>
 
         <section class="admin-stats">
 
             <div class="stat-card">
                 <p>Total de pedidos</p>
-                <h2>—</h2>
+                <h2 id="totalOrders">—</h2>
             </div>
 
             <div class="stat-card">
                 <p>Novos pedidos</p>
-                <h2>—</h2>
+                <h2 id="newOrders">—</h2>
             </div>
 
             <div class="stat-card">
                 <p>Em andamento</p>
-                <h2>—</h2>
+                <h2 id="activeOrders">—</h2>
             </div>
 
             <div class="stat-card">
                 <p>Concluídos</p>
-                <h2>—</h2>
+                <h2 id="completedOrders">—</h2>
             </div>
 
         </section>
@@ -313,37 +509,54 @@
                     <h2>Pedidos recebidos</h2>
                     <p>Visualize e acompanhe as solicitações dos clientes.</p>
                 </div>
+
+                <button
+                    type="button"
+                    class="refresh-button"
+                    id="refreshButton"
+                >
+                    Atualizar pedidos
+                </button>
             </div>
 
             <div class="filter-area">
                 <input
                     type="search"
-                    placeholder="Buscar por cliente ou pedido..."
-                    disabled
+                    id="searchOrders"
+                    placeholder="Buscar por cliente, e-mail ou serviço..."
                 >
 
-                <select disabled>
-                    <option>Todos os status</option>
-                    <option>Novo</option>
-                    <option>Em análise</option>
-                    <option>Em andamento</option>
-                    <option>Concluído</option>
-                    <option>Cancelado</option>
+                <select id="filterStatus">
+                    <option value="">Todos os status</option>
+                    <option value="Novo">Novo</option>
+                    <option value="Em análise">Em análise</option>
+                    <option value="Aguardando pagamento">Aguardando pagamento</option>
+                    <option value="Em andamento">Em andamento</option>
+                    <option value="Concluído">Concluído</option>
+                    <option value="Cancelado">Cancelado</option>
                 </select>
             </div>
 
-            <div class="empty-orders">
-                <div class="symbol">🍇</div>
+            <div class="orders-message" id="ordersLoading">
+                Carregando pedidos...
+            </div>
 
-                <h3>Nenhum pedido disponível ainda</h3>
+            <div class="orders-message error" id="ordersError" hidden>
+                Não foi possível carregar os pedidos. Tente novamente.
+            </div>
+
+            <div class="empty-orders" id="ordersEmpty" hidden>
+                <div class="symbol">♡</div>
+
+                <h3>Nenhum pedido encontrado</h3>
 
                 <p>
-                    Quando a integração com o banco de dados estiver concluída,
-                    os pedidos dos clientes aparecerão aqui.
-                    <br>
-                    Você poderá consultar os detalhes e acompanhar cada serviço.
+                    Quando os clientes enviarem solicitações,
+                    elas aparecerão nesta área.
                 </p>
             </div>
+
+            <div id="ordersList" hidden></div>
 
         </section>
 
@@ -360,8 +573,23 @@
         import { supabase } from "./supabase.js";
 
         const logoutButton = document.getElementById("logoutButton");
+        const refreshButton = document.getElementById("refreshButton");
+
+        const totalOrders = document.getElementById("totalOrders");
+        const newOrders = document.getElementById("newOrders");
+        const activeOrders = document.getElementById("activeOrders");
+        const completedOrders = document.getElementById("completedOrders");
+
+        const searchInput = document.getElementById("searchOrders");
+        const filterStatus = document.getElementById("filterStatus");
+
+        const ordersLoading = document.getElementById("ordersLoading");
+        const ordersError = document.getElementById("ordersError");
+        const ordersEmpty = document.getElementById("ordersEmpty");
+        const ordersList = document.getElementById("ordersList");
 
         let redirecionando = false;
+        let todosPedidos = [];
 
         document.getElementById("year").textContent =
             new Date().getFullYear();
@@ -373,9 +601,433 @@
             window.location.replace("login.html");
         }
 
+        function criarElemento(tag, classe, texto) {
+            const elemento = document.createElement(tag);
+
+            if (classe) {
+                elemento.className = classe;
+            }
+
+            if (texto !== undefined && texto !== null) {
+                elemento.textContent = texto;
+            }
+
+            return elemento;
+        }
+
+        function normalizar(texto) {
+            return String(texto || "")
+                .trim()
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "");
+        }
+
+        function formatarData(data) {
+            if (!data) return "Não informado";
+
+            const objetoData = new Date(data);
+
+            if (Number.isNaN(objetoData.getTime())) {
+                return "Não informado";
+            }
+
+            return objetoData.toLocaleDateString("pt-BR");
+        }
+
+        function formatarDataHora(data) {
+            if (!data) return "Não informado";
+
+            const objetoData = new Date(data);
+
+            if (Number.isNaN(objetoData.getTime())) {
+                return "Não informado";
+            }
+
+            return objetoData.toLocaleString("pt-BR");
+        }
+
+        function statusNormalizado(status) {
+            return normalizar(status);
+        }
+
+        function atualizarIndicadores() {
+            const total = todosPedidos.length;
+
+            const novos = todosPedidos.filter(pedido =>
+                statusNormalizado(pedido.status) === "novo"
+            ).length;
+
+            const concluidos = todosPedidos.filter(pedido =>
+                statusNormalizado(pedido.status) === "concluido"
+            ).length;
+
+            const cancelados = todosPedidos.filter(pedido =>
+                statusNormalizado(pedido.status) === "cancelado"
+            ).length;
+
+            totalOrders.textContent = total;
+            newOrders.textContent = novos;
+            activeOrders.textContent = total - novos - concluidos - cancelados;
+            completedOrders.textContent = concluidos;
+        }
+
+        function criarDetalhe(titulo, valor) {
+            const detalhe = criarElemento("div", "order-detail");
+
+            detalhe.appendChild(
+                criarElemento("strong", "", titulo)
+            );
+
+            detalhe.appendChild(
+                criarElemento("span", "", valor || "Não informado")
+            );
+
+            return detalhe;
+        }
+
+        function obterArquivos(arquivos) {
+            if (Array.isArray(arquivos)) {
+                return arquivos;
+            }
+
+            if (typeof arquivos === "string" && arquivos.trim()) {
+                return [arquivos];
+            }
+
+            return [];
+        }
+
+        async function carregarAnexos(container, arquivos) {
+            if (!arquivos.length) return;
+
+            const secao = criarElemento("div", "order-files");
+
+            secao.appendChild(
+                criarElemento("strong", "", "Anexos enviados pelo cliente:")
+            );
+
+            for (const caminho of arquivos) {
+                const nomeArquivo = String(caminho).split("/").pop();
+
+                const { data, error } = await supabase
+                    .storage
+                    .from("pedido-referencias")
+                    .createSignedUrl(caminho, 60);
+
+                if (error || !data?.signedUrl) {
+                    secao.appendChild(
+                        criarElemento(
+                            "p",
+                            "file-error",
+                            "Não foi possível abrir: " + nomeArquivo
+                        )
+                    );
+
+                    console.error("Erro ao abrir anexo:", error);
+                    continue;
+                }
+
+                const link = criarElemento(
+                    "a",
+                    "file-link",
+                    "Abrir " + nomeArquivo
+                );
+
+                link.href = data.signedUrl;
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+
+                secao.appendChild(link);
+            }
+
+            container.appendChild(secao);
+        }
+
+        function criarSeletorStatus(pedido) {
+            const opcoes = [
+                "Novo",
+                "Em análise",
+                "Aguardando pagamento",
+                "Em andamento",
+                "Concluído",
+                "Cancelado"
+            ];
+
+            const area = criarElemento("div", "order-management");
+
+            const label = criarElemento(
+                "label",
+                "",
+                "Atualizar status do pedido"
+            );
+
+            const linha = criarElemento("div", "order-management-row");
+
+            const seletor = document.createElement("select");
+            seletor.setAttribute("aria-label", "Status do pedido");
+
+            const statusAtual = pedido.status || "Novo";
+
+            opcoes.forEach(status => {
+                const opcao = document.createElement("option");
+                opcao.value = status;
+                opcao.textContent = status;
+
+                if (normalizar(status) === normalizar(statusAtual)) {
+                    opcao.selected = true;
+                }
+
+                seletor.appendChild(opcao);
+            });
+
+            // Preserva status que eventualmente já exista no banco,
+            // mesmo que ainda não esteja entre as opções padrão.
+            if (!opcoes.some(status =>
+                normalizar(status) === normalizar(statusAtual)
+            )) {
+                const opcaoAtual = document.createElement("option");
+                opcaoAtual.value = statusAtual;
+                opcaoAtual.textContent = statusAtual;
+                opcaoAtual.selected = true;
+                seletor.appendChild(opcaoAtual);
+            }
+
+            const botao = criarElemento(
+                "button",
+                "save-status-button",
+                "Salvar status"
+            );
+
+            botao.type = "button";
+
+            botao.addEventListener("click", async () => {
+                const novoStatus = seletor.value;
+
+                if (novoStatus === statusAtual) {
+                    alert("Este pedido já está com esse status.");
+                    return;
+                }
+
+                botao.disabled = true;
+                seletor.disabled = true;
+                botao.textContent = "Salvando...";
+
+                try {
+                    const { error } = await supabase
+                        .from("pedidos")
+                        .update({
+                            status: novoStatus
+                        })
+                        .eq("id", pedido.id);
+
+                    if (error) {
+                        throw error;
+                    }
+
+                    alert("Status atualizado com sucesso!");
+
+                    await carregarPedidos();
+
+                } catch (error) {
+                    console.error("Erro ao atualizar status:", error);
+
+                    alert(
+                        "Não foi possível atualizar o status. Verifique sua conexão e as permissões do banco."
+                    );
+
+                    botao.disabled = false;
+                    seletor.disabled = false;
+                    botao.textContent = "Salvar status";
+                }
+            });
+
+            linha.appendChild(seletor);
+            linha.appendChild(botao);
+
+            area.appendChild(label);
+            area.appendChild(linha);
+
+            return area;
+        }
+
+        async function criarCartaoPedido(pedido) {
+            const cartao = criarElemento("article", "order-card");
+
+            const cabecalho = criarElemento("div", "order-card-header");
+            const identificacao = criarElemento("div");
+
+            identificacao.appendChild(
+                criarElemento(
+                    "h3",
+                    "",
+                    pedido.servico || "Serviço solicitado"
+                )
+            );
+
+            identificacao.appendChild(
+                criarElemento(
+                    "p",
+                    "order-date",
+                    "Recebido em " + formatarDataHora(pedido.created_at)
+                )
+            );
+
+            const status = criarElemento(
+                "span",
+                "order-status",
+                pedido.status || "Novo"
+            );
+
+            cabecalho.appendChild(identificacao);
+            cabecalho.appendChild(status);
+
+            cartao.appendChild(cabecalho);
+
+            const detalhes = criarElemento("div", "order-details");
+
+            detalhes.appendChild(
+                criarDetalhe("Nome do cliente", pedido.nome_cliente)
+            );
+
+            detalhes.appendChild(
+                criarDetalhe("E-mail", pedido.email_cliente)
+            );
+
+            detalhes.appendChild(
+                criarDetalhe("Categoria", pedido.categoria)
+            );
+
+            detalhes.appendChild(
+                criarDetalhe("Prazo solicitado", formatarData(pedido.prazo))
+            );
+
+            detalhes.appendChild(
+                criarDetalhe("Número do pedido", pedido.id)
+            );
+
+            cartao.appendChild(detalhes);
+
+            if (pedido.descricao) {
+                const descricao = criarElemento(
+                    "div",
+                    "order-description"
+                );
+
+                descricao.appendChild(
+                    criarElemento("strong", "", "Descrição do pedido")
+                );
+
+                descricao.appendChild(
+                    criarElemento("p", "", pedido.descricao)
+                );
+
+                cartao.appendChild(descricao);
+            }
+
+            const arquivos = obterArquivos(pedido.arquivos);
+
+            await carregarAnexos(cartao, arquivos);
+
+            cartao.appendChild(criarSeletorStatus(pedido));
+
+            return cartao;
+        }
+
+        function aplicarFiltros() {
+            const busca = normalizar(searchInput.value);
+            const statusSelecionado = normalizar(filterStatus.value);
+
+            const filtrados = todosPedidos.filter(pedido => {
+                const textoBusca = normalizar([
+                    pedido.nome_cliente,
+                    pedido.email_cliente,
+                    pedido.servico,
+                    pedido.categoria,
+                    pedido.id
+                ].join(" "));
+
+                const correspondeBusca =
+                    !busca || textoBusca.includes(busca);
+
+                const correspondeStatus =
+                    !statusSelecionado ||
+                    normalizar(pedido.status || "Novo") === statusSelecionado;
+
+                return correspondeBusca && correspondeStatus;
+            });
+
+            renderizarPedidos(filtrados);
+        }
+
+        async function renderizarPedidos(lista) {
+            ordersList.replaceChildren();
+
+            ordersEmpty.hidden = true;
+            ordersList.hidden = true;
+
+            if (lista.length === 0) {
+                ordersEmpty.hidden = false;
+                return;
+            }
+
+            ordersList.hidden = false;
+
+            for (const pedido of lista) {
+                const cartao = await criarCartaoPedido(pedido);
+                ordersList.appendChild(cartao);
+            }
+        }
+
+        async function carregarPedidos() {
+            ordersLoading.hidden = false;
+            ordersError.hidden = true;
+            ordersEmpty.hidden = true;
+            ordersList.hidden = true;
+
+            refreshButton.disabled = true;
+            refreshButton.textContent = "Atualizando...";
+
+            try {
+                const { data: pedidos, error } = await supabase
+                    .from("pedidos")
+                    .select(`
+                        id,
+                        user_id,
+                        nome_cliente,
+                        email_cliente,
+                        categoria,
+                        servico,
+                        descricao,
+                        prazo,
+                        arquivos,
+                        status,
+                        created_at
+                    `)
+                    .order("created_at", { ascending: false });
+
+                if (error) {
+                    throw error;
+                }
+
+                todosPedidos = pedidos || [];
+
+                atualizarIndicadores();
+                aplicarFiltros();
+
+            } catch (error) {
+                console.error("Erro ao carregar pedidos:", error);
+                ordersError.hidden = false;
+
+            } finally {
+                ordersLoading.hidden = true;
+                refreshButton.disabled = false;
+                refreshButton.textContent = "Atualizar pedidos";
+            }
+        }
+
         async function verificarAdministrador() {
             try {
-                // Verifica se existe uma sessão ativa.
                 const { data: sessionData, error: sessionError } =
                     await supabase.auth.getSession();
 
@@ -388,7 +1040,6 @@
                     return;
                 }
 
-                // Confirma a identidade do usuário no Supabase.
                 const { data: userData, error: userError } =
                     await supabase.auth.getUser();
 
@@ -397,7 +1048,6 @@
                     return;
                 }
 
-                // Consulta a permissão administrativa no banco.
                 const { data: profile, error: profileError } =
                     await supabase
                         .from("profiles")
@@ -409,15 +1059,16 @@
                     throw profileError;
                 }
 
-                // Somente contas com is_admin = true podem entrar.
                 if (!profile || profile.is_admin !== true) {
                     alert("Você não tem permissão para acessar esta área.");
                     window.location.replace("painel.html");
                     return;
                 }
 
-                // Exibe a página somente após confirmar a autorização.
-                document.body.style.display = "";
+                // Exibe a página depois de confirmar a autorização.
+                document.body.style.display = "block";
+
+                await carregarPedidos();
 
             } catch (error) {
                 console.error(
@@ -435,14 +1086,17 @@
 
         verificarAdministrador();
 
-        // Se a sessão for encerrada, impede a permanência na área administrativa.
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (event === "SIGNED_OUT" || !session) {
+        supabase.auth.onAuthStateChange((event) => {
+            if (event === "SIGNED_OUT") {
                 redirecionarParaLogin();
             }
         });
 
-        // Encerra a sessão administrativa.
+        searchInput.addEventListener("input", aplicarFiltros);
+        filterStatus.addEventListener("change", aplicarFiltros);
+
+        refreshButton.addEventListener("click", carregarPedidos);
+
         logoutButton.addEventListener("click", async function() {
             logoutButton.disabled = true;
             logoutButton.textContent = "Saindo...";
