@@ -126,6 +126,7 @@
             color: #641B43;
             font-size: 30px;
             margin-top: 10px;
+            overflow-wrap: anywhere;
         }
 
         .admin-orders {
@@ -396,6 +397,138 @@
             cursor: wait;
         }
 
+        /* Controle financeiro */
+
+        .payment-management {
+            border-top: 1px solid #E9D8F2;
+            margin-top: 19px;
+            padding-top: 19px;
+        }
+
+        .payment-management h4 {
+            color: #641B43;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .payment-explanation {
+            color: #8A818C;
+            font-size: 11px;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .payment-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: #F6ECFA;
+            color: #873B83;
+            font-size: 10px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .payment-status.waiting {
+            background: #FFF2DB;
+            color: #95631C;
+        }
+
+        .payment-status.confirmed {
+            background: #E6F4EA;
+            color: #287443;
+        }
+
+        .payment-status.not-requested {
+            background: #F1EAF3;
+            color: #706A73;
+        }
+
+        .payment-field {
+            margin-bottom: 14px;
+        }
+
+        .payment-field label {
+            display: block;
+            color: #641B43;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 7px;
+        }
+
+        .payment-field input {
+            width: 100%;
+            max-width: 300px;
+            padding: 11px 13px;
+            border: 1px solid #E5D9E9;
+            border-radius: 8px;
+            background: white;
+            color: #641B43;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+        }
+
+        .payment-field input:disabled {
+            background: #F5F0F6;
+            color: #8A818C;
+        }
+
+        .payment-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .payment-button {
+            padding: 11px 17px;
+            border: none;
+            border-radius: 25px;
+            background: #873B83;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .payment-button:hover {
+            background: #641B43;
+        }
+
+        .payment-button.secondary {
+            background: white;
+            color: #873B83;
+            border: 1px solid #873B83;
+        }
+
+        .payment-button.confirm {
+            background: #39764C;
+        }
+
+        .payment-button.confirm:hover {
+            background: #285B38;
+        }
+
+        .payment-button:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+
+        .payment-dates {
+            margin-top: 14px;
+            padding: 12px;
+            background: #FAF7FB;
+            border-radius: 9px;
+            color: #706A73;
+            font-size: 11px;
+            line-height: 1.9;
+        }
+
+        .payment-dates strong {
+            color: #641B43;
+        }
+
         .admin-footer {
             text-align: center;
             color: #8A818C;
@@ -442,6 +575,18 @@
             .save-status-button {
                 width: 100%;
             }
+
+            .payment-actions {
+                flex-direction: column;
+            }
+
+            .payment-button {
+                width: 100%;
+            }
+
+            .payment-field input {
+                max-width: none;
+            }
         }
     </style>
 </head>
@@ -472,10 +617,10 @@
 
         <div class="admin-notice">
             <strong>Atenção:</strong>
-            a atualização do status registra o andamento administrativo do pedido.
-            A confirmação de pagamento deve acontecer somente depois que você
-            verificar o recebimento do Pix na sua conta. A liberação dos arquivos
-            finais será configurada em uma etapa própria.
+            a confirmação de pagamento deve acontecer somente depois que você
+            verificar o recebimento do Pix na sua conta. O status do pedido e
+            o status do pagamento são controles separados. A liberação dos
+            arquivos finais será configurada em uma etapa própria.
         </div>
 
         <section class="admin-stats">
@@ -500,6 +645,26 @@
                 <h2 id="completedOrders">—</h2>
             </div>
 
+            <div class="stat-card">
+                <p>Aguardando pagamento</p>
+                <h2 id="waitingPayments">—</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Pagamentos confirmados</p>
+                <h2 id="confirmedPayments">—</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Valores aguardando</p>
+                <h2 id="pendingAmount">—</h2>
+            </div>
+
+            <div class="stat-card">
+                <p>Valores recebidos</p>
+                <h2 id="receivedAmount">—</h2>
+            </div>
+
         </section>
 
         <section class="admin-orders">
@@ -507,7 +672,7 @@
             <div class="orders-heading">
                 <div>
                     <h2>Pedidos recebidos</h2>
-                    <p>Visualize e acompanhe as solicitações dos clientes.</p>
+                    <p>Visualize, gerencie e acompanhe as solicitações dos clientes.</p>
                 </div>
 
                 <button
@@ -527,13 +692,20 @@
                 >
 
                 <select id="filterStatus">
-                    <option value="">Todos os status</option>
+                    <option value="">Todos os status do pedido</option>
                     <option value="Novo">Novo</option>
                     <option value="Em análise">Em análise</option>
                     <option value="Aguardando pagamento">Aguardando pagamento</option>
                     <option value="Em andamento">Em andamento</option>
                     <option value="Concluído">Concluído</option>
                     <option value="Cancelado">Cancelado</option>
+                </select>
+
+                <select id="filterPayment">
+                    <option value="">Todos os pagamentos</option>
+                    <option value="Não solicitado">Não solicitado</option>
+                    <option value="Aguardando pagamento">Aguardando pagamento</option>
+                    <option value="Confirmado">Confirmado</option>
                 </select>
             </div>
 
@@ -580,8 +752,14 @@
         const activeOrders = document.getElementById("activeOrders");
         const completedOrders = document.getElementById("completedOrders");
 
+        const waitingPayments = document.getElementById("waitingPayments");
+        const confirmedPayments = document.getElementById("confirmedPayments");
+        const pendingAmount = document.getElementById("pendingAmount");
+        const receivedAmount = document.getElementById("receivedAmount");
+
         const searchInput = document.getElementById("searchOrders");
         const filterStatus = document.getElementById("filterStatus");
+        const filterPayment = document.getElementById("filterPayment");
 
         const ordersLoading = document.getElementById("ordersLoading");
         const ordersError = document.getElementById("ordersError");
@@ -647,6 +825,23 @@
             return objetoData.toLocaleString("pt-BR");
         }
 
+        function formatarMoeda(valor) {
+            if (valor === null || valor === undefined || valor === "") {
+                return "Não definido";
+            }
+
+            const numero = Number(valor);
+
+            if (!Number.isFinite(numero)) {
+                return "Não definido";
+            }
+
+            return numero.toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL"
+            });
+        }
+
         function statusNormalizado(status) {
             return normalizar(status);
         }
@@ -666,10 +861,32 @@
                 statusNormalizado(pedido.status) === "cancelado"
             ).length;
 
+            const aguardando = todosPedidos.filter(pedido =>
+                normalizar(pedido.pagamento_status) === "aguardando pagamento"
+            );
+
+            const confirmados = todosPedidos.filter(pedido =>
+                normalizar(pedido.pagamento_status) === "confirmado"
+            );
+
+            const totalAguardando = aguardando.reduce((soma, pedido) => {
+                return soma + (Number(pedido.valor_orcamento) || 0);
+            }, 0);
+
+            const totalRecebido = confirmados.reduce((soma, pedido) => {
+                return soma + (Number(pedido.valor_orcamento) || 0);
+            }, 0);
+
             totalOrders.textContent = total;
             newOrders.textContent = novos;
             activeOrders.textContent = total - novos - concluidos - cancelados;
             completedOrders.textContent = concluidos;
+
+            waitingPayments.textContent = aguardando.length;
+            confirmedPayments.textContent = confirmados.length;
+
+            pendingAmount.textContent = formatarMoeda(totalAguardando);
+            receivedAmount.textContent = formatarMoeda(totalRecebido);
         }
 
         function criarDetalhe(titulo, valor) {
@@ -781,8 +998,6 @@
                 seletor.appendChild(opcao);
             });
 
-            // Preserva status que eventualmente já exista no banco,
-            // mesmo que ainda não esteja entre as opções padrão.
             if (!opcoes.some(status =>
                 normalizar(status) === normalizar(statusAtual)
             )) {
@@ -847,6 +1062,288 @@
 
             area.appendChild(label);
             area.appendChild(linha);
+
+            return area;
+        }
+
+        function criarControlePagamento(pedido) {
+            const area = criarElemento("div", "payment-management");
+
+            area.appendChild(
+                criarElemento("h4", "", "Controle financeiro")
+            );
+
+            area.appendChild(
+                criarElemento(
+                    "p",
+                    "payment-explanation",
+                    "Registre o orçamento e acompanhe o pagamento deste pedido."
+                )
+            );
+
+            const pagamentoStatus = pedido.pagamento_status || "Não solicitado";
+
+            let classeStatus = "not-requested";
+
+            if (pagamentoStatus === "Aguardando pagamento") {
+                classeStatus = "waiting";
+            } else if (pagamentoStatus === "Confirmado") {
+                classeStatus = "confirmed";
+            }
+
+            area.appendChild(
+                criarElemento(
+                    "span",
+                    "payment-status " + classeStatus,
+                    "Pagamento: " + pagamentoStatus
+                )
+            );
+
+            const campo = criarElemento("div", "payment-field");
+
+            const label = criarElemento(
+                "label",
+                "",
+                "Valor do orçamento (R$)"
+            );
+
+            const input = document.createElement("input");
+            input.type = "number";
+            input.min = "0.01";
+            input.step = "0.01";
+            input.placeholder = "Ex.: 35,00";
+            input.value = pedido.valor_orcamento ?? "";
+            input.setAttribute("aria-label", "Valor do orçamento");
+
+            if (pagamentoStatus === "Confirmado") {
+                input.disabled = true;
+            }
+
+            campo.appendChild(label);
+            campo.appendChild(input);
+
+            area.appendChild(campo);
+
+            const botaoSalvar = criarElemento(
+                "button",
+                "payment-button secondary",
+                "Salvar orçamento"
+            );
+
+            botaoSalvar.type = "button";
+
+            if (pagamentoStatus === "Confirmado") {
+                botaoSalvar.disabled = true;
+                botaoSalvar.textContent = "Orçamento confirmado";
+            }
+
+            botaoSalvar.addEventListener("click", async () => {
+                const valorDigitado = input.value.trim();
+                const valor = Number(valorDigitado);
+
+                if (!valorDigitado || !Number.isFinite(valor) || valor <= 0) {
+                    alert("Informe um valor válido para o orçamento.");
+                    input.focus();
+                    return;
+                }
+
+                if (pagamentoStatus === "Confirmado") {
+                    alert("Este pagamento já foi confirmado. O orçamento não pode ser alterado por aqui.");
+                    return;
+                }
+
+                botaoSalvar.disabled = true;
+                botaoSalvar.textContent = "Salvando...";
+
+                try {
+                    const { error } = await supabase
+                        .from("pedidos")
+                        .update({
+                            valor_orcamento: valor
+                        })
+                        .eq("id", pedido.id);
+
+                    if (error) {
+                        throw error;
+                    }
+
+                    alert("Orçamento salvo com sucesso!");
+                    await carregarPedidos();
+
+                } catch (error) {
+                    console.error("Erro ao salvar orçamento:", error);
+
+                    alert(
+                        "Não foi possível salvar o orçamento. Verifique as permissões do banco."
+                    );
+
+                    botaoSalvar.disabled = false;
+                    botaoSalvar.textContent = "Salvar orçamento";
+                }
+            });
+
+            area.appendChild(botaoSalvar);
+
+            const datas = criarElemento("div", "payment-dates");
+
+            datas.appendChild(
+                criarElemento(
+                    "div",
+                    "",
+                    "Pix enviado: " + formatarDataHora(pedido.pix_enviado_em)
+                )
+            );
+
+            datas.appendChild(
+                criarElemento(
+                    "div",
+                    "",
+                    "Pagamento confirmado: " + formatarDataHora(pedido.pagamento_confirmado_em)
+                )
+            );
+
+            area.appendChild(datas);
+
+            const acoes = criarElemento("div", "payment-actions");
+
+            if (pagamentoStatus === "Não solicitado" || !pagamentoStatus) {
+                const botaoPix = criarElemento(
+                    "button",
+                    "payment-button",
+                    "Registrar envio do Pix"
+                );
+
+                botaoPix.type = "button";
+
+                botaoPix.addEventListener("click", async () => {
+                    const valor = Number(input.value);
+
+                    if (!input.value.trim() || !Number.isFinite(valor) || valor <= 0) {
+                        alert("Primeiro, informe e salve o valor do orçamento.");
+                        input.focus();
+                        return;
+                    }
+
+                    if (Number(pedido.valor_orcamento) !== valor) {
+                        alert("Salve o orçamento atualizado antes de registrar o envio do Pix.");
+                        return;
+                    }
+
+                    const confirmar = window.confirm(
+                        "Você já enviou o QR Code ou os dados do Pix ao cliente?"
+                    );
+
+                    if (!confirmar) return;
+
+                    botaoPix.disabled = true;
+                    botaoPix.textContent = "Registrando...";
+
+                    try {
+                        const { error } = await supabase
+                            .from("pedidos")
+                            .update({
+                                pagamento_status: "Aguardando pagamento",
+                                pix_enviado_em: new Date().toISOString(),
+                                pagamento_confirmado_em: null
+                            })
+                            .eq("id", pedido.id);
+
+                        if (error) {
+                            throw error;
+                        }
+
+                        alert("Envio do Pix registrado com sucesso!");
+                        await carregarPedidos();
+
+                    } catch (error) {
+                        console.error("Erro ao registrar envio do Pix:", error);
+
+                        alert(
+                            "Não foi possível registrar o envio do Pix. Tente novamente."
+                        );
+
+                        botaoPix.disabled = false;
+                        botaoPix.textContent = "Registrar envio do Pix";
+                    }
+                });
+
+                acoes.appendChild(botaoPix);
+            }
+
+            if (pagamentoStatus === "Aguardando pagamento") {
+                const botaoConfirmar = criarElemento(
+                    "button",
+                    "payment-button confirm",
+                    "Confirmar recebimento do Pix"
+                );
+
+                botaoConfirmar.type = "button";
+
+                botaoConfirmar.addEventListener("click", async () => {
+                    if (!pedido.pix_enviado_em) {
+                        alert("Não há registro de envio do Pix para este pedido.");
+                        return;
+                    }
+
+                    if (!pedido.valor_orcamento || Number(pedido.valor_orcamento) <= 0) {
+                        alert("Este pedido não possui um orçamento válido.");
+                        return;
+                    }
+
+                    const confirmar = window.confirm(
+                        "Você conferiu sua conta e verificou que o valor deste Pix realmente caiu? Só confirme se o dinheiro já estiver disponível."
+                    );
+
+                    if (!confirmar) return;
+
+                    botaoConfirmar.disabled = true;
+                    botaoConfirmar.textContent = "Confirmando...";
+
+                    try {
+                        const { error } = await supabase
+                            .from("pedidos")
+                            .update({
+                                pagamento_status: "Confirmado",
+                                pagamento_confirmado_em: new Date().toISOString()
+                            })
+                            .eq("id", pedido.id);
+
+                        if (error) {
+                            throw error;
+                        }
+
+                        alert(
+                            "Pagamento confirmado e registrado com sucesso!"
+                        );
+
+                        await carregarPedidos();
+
+                    } catch (error) {
+                        console.error("Erro ao confirmar pagamento:", error);
+
+                        alert(
+                            "Não foi possível confirmar o pagamento. Verifique as permissões do banco."
+                        );
+
+                        botaoConfirmar.disabled = false;
+                        botaoConfirmar.textContent = "Confirmar recebimento do Pix";
+                    }
+                });
+
+                acoes.appendChild(botaoConfirmar);
+            }
+
+            if (pagamentoStatus === "Confirmado") {
+                acoes.appendChild(
+                    criarElemento(
+                        "p",
+                        "payment-explanation",
+                        "Este pagamento já foi confirmado. A confirmação registrada não pode ser alterada por este painel."
+                    )
+                );
+            }
+
+            area.appendChild(acoes);
 
             return area;
         }
@@ -930,6 +1427,7 @@
             await carregarAnexos(cartao, arquivos);
 
             cartao.appendChild(criarSeletorStatus(pedido));
+            cartao.appendChild(criarControlePagamento(pedido));
 
             return cartao;
         }
@@ -937,6 +1435,7 @@
         function aplicarFiltros() {
             const busca = normalizar(searchInput.value);
             const statusSelecionado = normalizar(filterStatus.value);
+            const pagamentoSelecionado = normalizar(filterPayment.value);
 
             const filtrados = todosPedidos.filter(pedido => {
                 const textoBusca = normalizar([
@@ -954,7 +1453,13 @@
                     !statusSelecionado ||
                     normalizar(pedido.status || "Novo") === statusSelecionado;
 
-                return correspondeBusca && correspondeStatus;
+                const correspondePagamento =
+                    !pagamentoSelecionado ||
+                    normalizar(pedido.pagamento_status || "Não solicitado") === pagamentoSelecionado;
+
+                return correspondeBusca &&
+                    correspondeStatus &&
+                    correspondePagamento;
             });
 
             renderizarPedidos(filtrados);
@@ -1002,7 +1507,11 @@
                         prazo,
                         arquivos,
                         status,
-                        created_at
+                        created_at,
+                        valor_orcamento,
+                        pagamento_status,
+                        pix_enviado_em,
+                        pagamento_confirmado_em
                     `)
                     .order("created_at", { ascending: false });
 
@@ -1065,7 +1574,6 @@
                     return;
                 }
 
-                // Exibe a página depois de confirmar a autorização.
                 document.body.style.display = "block";
 
                 await carregarPedidos();
@@ -1094,6 +1602,7 @@
 
         searchInput.addEventListener("input", aplicarFiltros);
         filterStatus.addEventListener("change", aplicarFiltros);
+        filterPayment.addEventListener("change", aplicarFiltros);
 
         refreshButton.addEventListener("click", carregarPedidos);
 
