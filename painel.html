@@ -141,34 +141,139 @@
             margin-bottom: 20px;
         }
 
-        .order-example {
+        .orders-message {
+            padding: 25px 15px;
+            text-align: center;
+            background: #FAF7FB;
+            border-radius: 12px;
+            color: #706A73;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .order-card {
             border: 1px solid #E9D8F2;
             border-radius: 12px;
-            padding: 20px;
+            padding: 22px;
+            margin-bottom: 16px;
+            background: #FFFCFF;
+        }
+
+        .order-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .order-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            flex-wrap: wrap;
             margin-bottom: 15px;
         }
 
-        .order-example h3 {
+        .order-card h3 {
             color: #641B43;
-            font-size: 14px;
-            margin-bottom: 7px;
+            font-size: 15px;
+            margin-bottom: 5px;
         }
 
-        .order-example p {
-            color: #706A73;
+        .order-date {
+            color: #8A808C;
             font-size: 11px;
-            line-height: 1.8;
         }
 
         .order-status {
             display: inline-block;
-            margin-top: 12px;
             padding: 6px 12px;
             background: #F6ECFA;
             color: #873B83;
             border-radius: 20px;
             font-size: 10px;
             font-weight: 600;
+        }
+
+        .order-details {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 13px;
+            margin-top: 15px;
+        }
+
+        .order-detail {
+            padding: 12px;
+            background: #FAF7FB;
+            border-radius: 9px;
+            min-width: 0;
+        }
+
+        .order-detail strong {
+            display: block;
+            color: #641B43;
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+        .order-detail span {
+            display: block;
+            color: #706A73;
+            font-size: 12px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .order-description {
+            margin-top: 14px;
+            padding: 13px;
+            background: #FAF7FB;
+            border-radius: 9px;
+        }
+
+        .order-description strong {
+            display: block;
+            color: #641B43;
+            font-size: 11px;
+            margin-bottom: 6px;
+        }
+
+        .order-description p {
+            color: #706A73;
+            font-size: 12px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .order-files {
+            margin-top: 15px;
+        }
+
+        .order-files strong {
+            display: block;
+            color: #641B43;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+
+        .order-file-link {
+            display: inline-block;
+            margin: 3px 8px 3px 0;
+            padding: 8px 12px;
+            border: 1px solid #E9D8F2;
+            border-radius: 20px;
+            color: #873B83;
+            font-size: 11px;
+            text-decoration: none;
+            overflow-wrap: anywhere;
+        }
+
+        .order-file-link:hover {
+            background: #F6ECFA;
+        }
+
+        .order-file-error {
+            color: #A04444;
+            font-size: 11px;
         }
 
         .dashboard-help {
@@ -225,6 +330,10 @@
 
             .orders-section {
                 padding: 20px;
+            }
+
+            .order-details {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -292,18 +401,26 @@
 
             <h2>Meus pedidos</h2>
 
-            <div class="orders-empty" id="ordersEmpty">
+            <div class="orders-empty" id="ordersEmpty" hidden>
                 <h3>Seus projetos aparecerão aqui!</h3>
 
                 <p>
                     Quando você solicitar um serviço, poderá acompanhar
-                    o andamento, consultar informações e acessar
-                    os arquivos disponibilizados.
+                    o andamento e consultar as informações dos seus pedidos.
                 </p>
 
                 <a href="pedido.html" class="new-order-button">
                     Fazer meu primeiro pedido
                 </a>
+            </div>
+
+            <div class="orders-message" id="ordersLoading">
+                Carregando seus pedidos...
+            </div>
+
+            <div class="orders-message" id="ordersError" hidden>
+                Não foi possível carregar seus pedidos.
+                Tente atualizar a página.
             </div>
 
             <div id="ordersList" hidden></div>
@@ -341,6 +458,15 @@
     const logoutButton = document.getElementById("logoutButton");
     const welcomeMessage = document.getElementById("welcomeMessage");
 
+    const totalOrders = document.getElementById("totalOrders");
+    const activeOrders = document.getElementById("activeOrders");
+    const completedOrders = document.getElementById("completedOrders");
+
+    const ordersEmpty = document.getElementById("ordersEmpty");
+    const ordersLoading = document.getElementById("ordersLoading");
+    const ordersError = document.getElementById("ordersError");
+    const ordersList = document.getElementById("ordersList");
+
     let redirecionando = false;
 
     function irParaLogin() {
@@ -348,6 +474,242 @@
 
         redirecionando = true;
         window.location.replace("login.html");
+    }
+
+    function formatarData(data) {
+        if (!data) return "Não informado";
+
+        const dataObj = new Date(data + (data.length === 10 ? "T00:00:00" : ""));
+
+        if (Number.isNaN(dataObj.getTime())) {
+            return "Não informado";
+        }
+
+        return dataObj.toLocaleDateString("pt-BR");
+    }
+
+    function criarElemento(tag, classe, texto) {
+        const elemento = document.createElement(tag);
+
+        if (classe) {
+            elemento.className = classe;
+        }
+
+        if (texto !== undefined && texto !== null) {
+            elemento.textContent = texto;
+        }
+
+        return elemento;
+    }
+
+    function normalizarStatus(status) {
+        return String(status || "Novo")
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function statusConcluido(status) {
+        return [
+            "concluido",
+            "finalizado",
+            "entregue"
+        ].includes(normalizarStatus(status));
+    }
+
+    function statusCancelado(status) {
+        return normalizarStatus(status) === "cancelado";
+    }
+
+    function criarDetalhe(titulo, valor) {
+        const detalhe = criarElemento("div", "order-detail");
+
+        detalhe.appendChild(
+            criarElemento("strong", "", titulo)
+        );
+
+        detalhe.appendChild(
+            criarElemento("span", "", valor || "Não informado")
+        );
+
+        return detalhe;
+    }
+
+    async function carregarAnexos(container, arquivos) {
+        if (!arquivos || arquivos.length === 0) {
+            return;
+        }
+
+        const secao = criarElemento("div", "order-files");
+
+        secao.appendChild(
+            criarElemento("strong", "", "Anexos enviados:")
+        );
+
+        for (const caminho of arquivos) {
+            const nomeArquivo = String(caminho).split("/").pop();
+
+            const { data, error } = await supabase
+                .storage
+                .from("pedido-referencias")
+                .createSignedUrl(caminho, 60);
+
+            if (error || !data?.signedUrl) {
+                secao.appendChild(
+                    criarElemento(
+                        "p",
+                        "order-file-error",
+                        "Não foi possível abrir o anexo: " + nomeArquivo
+                    )
+                );
+
+                console.error("Erro ao gerar link do anexo:", error);
+                continue;
+            }
+
+            const link = criarElemento(
+                "a",
+                "order-file-link",
+                "Abrir " + nomeArquivo
+            );
+
+            link.href = data.signedUrl;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+
+            secao.appendChild(link);
+        }
+
+        container.appendChild(secao);
+    }
+
+    async function criarCartaoPedido(pedido) {
+        const cartao = criarElemento("article", "order-card");
+
+        const cabecalho = criarElemento("div", "order-card-header");
+        const identificacao = criarElemento("div");
+
+        identificacao.appendChild(
+            criarElemento(
+                "h3",
+                "",
+                pedido.servico || "Serviço solicitado"
+            )
+        );
+
+        identificacao.appendChild(
+            criarElemento(
+                "p",
+                "order-date",
+                "Solicitado em " + formatarData(pedido.created_at)
+            )
+        );
+
+        const status = criarElemento(
+            "span",
+            "order-status",
+            pedido.status || "Novo"
+        );
+
+        cabecalho.appendChild(identificacao);
+        cabecalho.appendChild(status);
+
+        cartao.appendChild(cabecalho);
+
+        const detalhes = criarElemento("div", "order-details");
+
+        detalhes.appendChild(
+            criarDetalhe("Categoria", pedido.categoria)
+        );
+
+        detalhes.appendChild(
+            criarDetalhe("Prazo solicitado", formatarData(pedido.prazo))
+        );
+
+        cartao.appendChild(detalhes);
+
+        if (pedido.descricao) {
+            const descricao = criarElemento("div", "order-description");
+
+            descricao.appendChild(
+                criarElemento("strong", "", "Descrição do pedido")
+            );
+
+            descricao.appendChild(
+                criarElemento("p", "", pedido.descricao)
+            );
+
+            cartao.appendChild(descricao);
+        }
+
+        const arquivos = Array.isArray(pedido.arquivos)
+            ? pedido.arquivos
+            : [];
+
+        await carregarAnexos(cartao, arquivos);
+
+        return cartao;
+    }
+
+    async function carregarPedidos(userId) {
+        ordersLoading.hidden = false;
+        ordersError.hidden = true;
+        ordersEmpty.hidden = true;
+        ordersList.hidden = true;
+        ordersList.replaceChildren();
+
+        const { data: pedidos, error } = await supabase
+            .from("pedidos")
+            .select(`
+                id,
+                categoria,
+                servico,
+                descricao,
+                prazo,
+                arquivos,
+                status,
+                created_at
+            `)
+            .eq("user_id", userId)
+            .order("created_at", { ascending: false });
+
+        ordersLoading.hidden = true;
+
+        if (error) {
+            console.error("Erro ao carregar pedidos:", error);
+            ordersError.hidden = false;
+            return;
+        }
+
+        const lista = pedidos || [];
+
+        totalOrders.textContent = lista.length;
+
+        const concluidos = lista.filter(pedido =>
+            statusConcluido(pedido.status)
+        ).length;
+
+        const cancelados = lista.filter(pedido =>
+            statusCancelado(pedido.status)
+        ).length;
+
+        activeOrders.textContent =
+            lista.length - concluidos - cancelados;
+
+        completedOrders.textContent = concluidos;
+
+        if (lista.length === 0) {
+            ordersEmpty.hidden = false;
+            return;
+        }
+
+        ordersList.hidden = false;
+
+        for (const pedido of lista) {
+            const cartao = await criarCartaoPedido(pedido);
+            ordersList.appendChild(cartao);
+        }
     }
 
     async function verificarAutenticacao() {
@@ -371,7 +733,11 @@
                 return;
             }
 
-            const nome = userData.user.user_metadata?.full_name;
+            const usuario = userData.user;
+
+            const nome =
+                usuario.user_metadata?.full_name ||
+                usuario.user_metadata?.nome;
 
             if (nome) {
                 welcomeMessage.textContent =
@@ -379,16 +745,19 @@
                     "! Acompanhe seus projetos e encontre tudo sobre seus pedidos em um só lugar.";
             }
 
+            await carregarPedidos(usuario.id);
+
         } catch (error) {
             console.error("Erro ao verificar autenticação:", error);
-            irParaLogin();
+            ordersLoading.hidden = true;
+            ordersError.hidden = false;
         }
     }
 
     verificarAutenticacao();
 
-    supabase.auth.onAuthStateChange((event, session) => {
-        if (event === "SIGNED_OUT" || !session) {
+    supabase.auth.onAuthStateChange((event) => {
+        if (event === "SIGNED_OUT") {
             irParaLogin();
         }
     });
