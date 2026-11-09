@@ -165,6 +165,12 @@
             transform: translateY(-2px);
         }
 
+        .order-button:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .order-notice {
             background: #F6ECFA;
             border-left: 4px solid #A34FA8;
@@ -184,6 +190,11 @@
             color: #641B43;
             font-size: 12px;
             line-height: 1.6;
+        }
+
+        .order-message.error {
+            background: #FCEEEE;
+            color: #922D35;
         }
 
         @media (max-width: 600px) {
@@ -255,8 +266,12 @@
                         id="customerEmail"
                         name="customerEmail"
                         placeholder="seuemail@exemplo.com"
+                        readonly
                         required
                     >
+                    <small>
+                        Este é o e-mail vinculado à sua conta.
+                    </small>
                 </div>
 
                 <div class="order-divider"></div>
@@ -322,7 +337,7 @@
                     <small>
                         Você poderá selecionar mais de um arquivo.
                         Formatos aceitos: PDF, Word, Excel, PowerPoint e imagens.
-                        Limite provisório de 10 MB por arquivo.
+                        Limite de 10 MB por arquivo.
                     </small>
                 </div>
 
@@ -340,9 +355,9 @@
                     </span>
                 </label>
 
-                <p class="order-message" id="orderMessage"></p>
+                <p class="order-message" id="orderMessage" role="status" aria-live="polite"></p>
 
-                <button type="submit" class="order-button">
+                <button type="submit" class="order-button" id="submitOrder">
                     Enviar solicitação
                 </button>
 
@@ -374,28 +389,22 @@
     import { supabase } from "./supabase.js";
 
     const accountLink = document.getElementById("accountLink");
+    const orderForm = document.getElementById("orderForm");
+    const orderMessage = document.getElementById("orderMessage");
+    const submitButton = document.getElementById("submitOrder");
 
-    async function atualizarLinkConta() {
-        const { data, error } = await supabase.auth.getSession();
-
-        if (error) {
-            console.error("Erro ao verificar sessão:", error);
-            return;
-        }
-
-        accountLink.href = data.session ? "painel.html" : "login.html";
-    }
-
-    atualizarLinkConta();
-
-    supabase.auth.onAuthStateChange((event, session) => {
-        accountLink.href = session ? "painel.html" : "login.html";
-    });
-</script>
-
-<script>
+    const customerName = document.getElementById("customerName");
+    const customerEmail = document.getElementById("customerEmail");
     const category = document.getElementById("category");
     const service = document.getElementById("service");
+    const deadline = document.getElementById("deadline");
+    const reference = document.getElementById("reference");
+
+    const BUCKET_NAME = "pedido-referencias";
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+    let usuarioAtual = null;
+    let enviando = false;
 
     const services = {
         "Documentos": [
@@ -428,6 +437,65 @@
         ]
     };
 
+    function mostrarMensagem(mensagem, erro = false) {
+        orderMessage.textContent = mensagem;
+        orderMessage.style.display = "block";
+        orderMessage.classList.toggle("error", erro);
+    }
+
+    function definirCarregamento(ativo) {
+        enviando = ativo;
+        submitButton.disabled = ativo;
+        submitButton.textContent = ativo
+            ? "Enviando solicitação..."
+            : "Enviar solicitação";
+    }
+
+    function atualizarNomeUsuario(usuario) {
+        const nome =
+            usuario.user_metadata?.full_name ||
+            usuario.user_metadata?.nome ||
+            "";
+
+        if (nome && !customerName.value) {
+            customerName.value = nome;
+        }
+
+        customerEmail.value = usuario.email || "";
+    }
+
+    async function verificarAutenticacao() {
+        const { data, error } = await supabase.auth.getSession();
+
+        if (error) {
+            console.error("Erro ao verificar sessão:", error);
+            mostrarMensagem(
+                "Não foi possível verificar sua conta. Atualize a página e tente novamente.",
+                true
+            );
+            return;
+        }
+
+        if (!data.session) {
+            window.location.replace("login.html");
+            return;
+        }
+
+        const { data: userData, error: userError } =
+            await supabase.auth.getUser();
+
+        if (userError || !userData.user) {
+            console.error("Erro ao verificar usuário:", userError);
+            window.location.replace("login.html");
+            return;
+        }
+
+        usuarioAtual = userData.user;
+        atualizarNomeUsuario(usuarioAtual);
+
+        accountLink.href = "painel.html";
+    }
+
     category.addEventListener("change", function() {
         service.innerHTML = '<option value="">Selecione o serviço</option>';
 
@@ -441,38 +509,178 @@
         });
     });
 
-    const deadline = document.getElementById("deadline");
-
     const today = new Date();
+
     const localToday = new Date(
         today.getTime() - today.getTimezoneOffset() * 60000
     ).toISOString().split("T")[0];
 
     deadline.min = localToday;
 
-    const orderForm = document.getElementById("orderForm");
-    const orderMessage = document.getElementById("orderMessage");
+    function obterExtensao(nomeArquivo) {
+        const partes = nomeArquivo.split(".");
+        return partes.length > 1
+            ? partes.pop().toLowerCase()
+            : "";
+    }
 
-    orderForm.addEventListener("submit", function(event) {
-        event.preventDefault();
+    async function enviarAnexos(arquivos, userId) {
+        const caminhos = [];
 
-        const files = document.getElementById("reference").files;
+        for (const arquivo of arquivos) {
+            const extensao = obterExtensao(arquivo.name);
 
-        for (const file of files) {
-            if (file.size > 10 * 1024 * 1024) {
-                orderMessage.style.display = "block";
-                orderMessage.textContent =
-                    "O arquivo " + file.name +
-                    " ultrapassa o limite provisório de 10 MB.";
-                return;
+            const nomeSeguro = crypto.randomUUID() +
+                (extensao ? "." + extensao : "");
+
+            const caminho = `${userId}/${nomeSeguro}`;
+
+            const { error } = await supabase.storage
+                .from(BUCKET_NAME)
+                .upload(caminho, arquivo, {
+                    cacheControl: "3600",
+                    upsert: false
+                });
+
+            if (error) {
+                throw new Error(
+                    `Não foi possível enviar o arquivo "${arquivo.name}". ${error.message}`
+                );
             }
+
+            caminhos.push(caminho);
         }
 
-        orderMessage.style.display = "block";
-        orderMessage.textContent =
-            "Formulário preenchido! A integração para enviar e armazenar " +
-            "sua solicitação será ativada quando conectarmos o Supabase.";
+        return caminhos;
+    }
+
+    orderForm.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        if (enviando) return;
+
+        orderMessage.style.display = "none";
+        orderMessage.classList.remove("error");
+
+        try {
+            definirCarregamento(true);
+
+            // Confere novamente a sessão antes de enviar o pedido.
+            const { data: sessionData, error: sessionError } =
+                await supabase.auth.getSession();
+
+            if (sessionError || !sessionData.session) {
+                window.location.replace("login.html");
+                return;
+            }
+
+            const { data: userData, error: userError } =
+                await supabase.auth.getUser();
+
+            if (userError || !userData.user) {
+                window.location.replace("login.html");
+                return;
+            }
+
+            usuarioAtual = userData.user;
+
+            const nome = customerName.value.trim();
+            const email = usuarioAtual.email;
+            const categoria = category.value;
+            const servico = service.value;
+            const descricao = document.getElementById("details").value.trim();
+            const prazo = deadline.value || null;
+
+            if (!nome || !email || !categoria || !servico || !descricao) {
+                throw new Error(
+                    "Preencha todos os campos obrigatórios antes de enviar."
+                );
+            }
+
+            if (!document.getElementById("orderTerms").checked) {
+                throw new Error(
+                    "É necessário aceitar os Termos de Uso e a Política de Privacidade."
+                );
+            }
+
+            if (prazo && prazo < localToday) {
+                throw new Error(
+                    "O prazo desejado não pode ser anterior à data de hoje."
+                );
+            }
+
+            const arquivos = Array.from(reference.files);
+
+            for (const arquivo of arquivos) {
+                if (arquivo.size > MAX_FILE_SIZE) {
+                    throw new Error(
+                        `O arquivo "${arquivo.name}" ultrapassa o limite de 10 MB.`
+                    );
+                }
+            }
+
+            // Envia os anexos para o bucket privado.
+            const caminhosArquivos = await enviarAnexos(
+                arquivos,
+                usuarioAtual.id
+            );
+
+            // Registra o pedido vinculado ao usuário autenticado.
+            // O status será definido pelo padrão "Novo" da tabela.
+            const { error: insertError } = await supabase
+                .from("pedidos")
+                .insert({
+                    user_id: usuarioAtual.id,
+                    nome_cliente: nome,
+                    email_cliente: email,
+                    categoria: categoria,
+                    servico: servico,
+                    descricao: descricao,
+                    prazo: prazo,
+                    arquivos: caminhosArquivos
+                });
+
+            if (insertError) {
+                console.error("Erro ao registrar pedido:", insertError);
+                throw new Error(
+                    "Os arquivos foram enviados, mas não foi possível registrar o pedido. Tente novamente ou entre em contato com a Amora Studio."
+                );
+            }
+
+            mostrarMensagem(
+                "Sua solicitação foi enviada com sucesso! Ela está registrada como Novo e será analisada pela Amora Studio. O envio ainda não confirma a contratação."
+            );
+
+            orderForm.reset();
+            atualizarNomeUsuario(usuarioAtual);
+
+            service.innerHTML =
+                '<option value="">Selecione primeiro a categoria</option>';
+
+        } catch (error) {
+            console.error("Erro ao enviar solicitação:", error);
+
+            mostrarMensagem(
+                error.message ||
+                "Ocorreu um erro ao enviar sua solicitação. Tente novamente.",
+                true
+            );
+
+        } finally {
+            definirCarregamento(false);
+        }
     });
+
+    // Atualiza o link da conta quando o estado de autenticação mudar.
+    supabase.auth.onAuthStateChange((event, session) => {
+        accountLink.href = session ? "painel.html" : "login.html";
+
+        if (event === "SIGNED_OUT" || !session) {
+            window.location.replace("login.html");
+        }
+    });
+
+    verificarAutenticacao();
 </script>
 
 </body>
