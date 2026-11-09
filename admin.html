@@ -529,6 +529,138 @@
             color: #641B43;
         }
 
+        /* Arquivos finais */
+
+        .final-files-management {
+            border-top: 1px solid #E9D8F2;
+            margin-top: 19px;
+            padding-top: 19px;
+        }
+
+        .final-files-management h4 {
+            color: #641B43;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .final-files-description {
+            color: #8A818C;
+            font-size: 11px;
+            line-height: 1.8;
+            margin-bottom: 14px;
+        }
+
+        .final-files-list {
+            background: #FAF7FB;
+            border-radius: 9px;
+            padding: 13px;
+            margin-bottom: 15px;
+        }
+
+        .final-files-list strong {
+            display: block;
+            color: #641B43;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+
+        .final-file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 8px 0;
+            border-bottom: 1px solid #E9D8F2;
+        }
+
+        .final-file-item:last-child {
+            border-bottom: none;
+        }
+
+        .final-file-name {
+            color: #706A73;
+            font-size: 11px;
+            overflow-wrap: anywhere;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .final-file-link {
+            color: #873B83;
+            font-size: 11px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .final-file-link:hover {
+            text-decoration: underline;
+        }
+
+        .final-files-empty {
+            color: #8A818C;
+            font-size: 11px;
+        }
+
+        .final-upload-area {
+            background: #F6EFF8;
+            border: 1px dashed #C69AE0;
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .final-upload-area label {
+            display: block;
+            color: #641B43;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 9px;
+        }
+
+        .final-upload-area input[type="file"] {
+            width: 100%;
+            color: #706A73;
+            font-family: 'Poppins', sans-serif;
+            font-size: 11px;
+            margin-bottom: 12px;
+        }
+
+        .final-upload-button {
+            padding: 11px 17px;
+            border: none;
+            border-radius: 25px;
+            background: #873B83;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .final-upload-button:hover {
+            background: #641B43;
+        }
+
+        .final-upload-button:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+
+        .final-upload-feedback {
+            color: #706A73;
+            font-size: 11px;
+            line-height: 1.7;
+            margin-top: 10px;
+        }
+
+        .final-upload-feedback.error {
+            color: #A04444;
+        }
+
+        .final-upload-feedback.success {
+            color: #287443;
+        }
+
         .admin-footer {
             text-align: center;
             color: #8A818C;
@@ -587,6 +719,10 @@
             .payment-field input {
                 max-width: none;
             }
+
+            .final-upload-button {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -619,8 +755,9 @@
             <strong>Atenção:</strong>
             a confirmação de pagamento deve acontecer somente depois que você
             verificar o recebimento do Pix na sua conta. O status do pedido e
-            o status do pagamento são controles separados. A liberação dos
-            arquivos finais será configurada em uma etapa própria.
+            o status do pagamento são controles separados. Os arquivos finais
+            ficam em armazenamento privado e o acesso do cliente depende da
+            confirmação do pagamento.
         </div>
 
         <section class="admin-stats">
@@ -765,6 +902,22 @@
         const ordersError = document.getElementById("ordersError");
         const ordersEmpty = document.getElementById("ordersEmpty");
         const ordersList = document.getElementById("ordersList");
+
+        const BUCKET_ARQUIVOS_FINAIS = "arquivos-finais";
+
+        const TIPOS_PERMITIDOS = [
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.ms-powerpoint",
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            "image/jpeg",
+            "image/png"
+        ];
+
+        const TAMANHO_MAXIMO = 10 * 1024 * 1024;
 
         let redirecionando = false;
         let todosPedidos = [];
@@ -1348,6 +1501,289 @@
             return area;
         }
 
+        function nomeArquivoSeguro(nome) {
+            return String(nome || "arquivo")
+                .replace(/[\/\\]/g, "_")
+                .replace(/[^\p{L}\p{N}._() -]/gu, "_")
+                .trim()
+                .slice(0, 150) || "arquivo";
+        }
+
+        function criarControleArquivosFinais(pedido) {
+            const area = criarElemento("div", "final-files-management");
+
+            area.appendChild(
+                criarElemento("h4", "", "Arquivos finais")
+            );
+
+            area.appendChild(
+                criarElemento(
+                    "p",
+                    "final-files-description",
+                    "Envie aqui os trabalhos concluídos deste pedido. Você pode selecionar vários arquivos. Eles ficam privados e o cliente só poderá acessá-los depois que o pagamento for confirmado."
+                )
+            );
+
+            const lista = criarElemento("div", "final-files-list");
+
+            lista.appendChild(
+                criarElemento("strong", "", "Arquivos já enviados")
+            );
+
+            lista.appendChild(
+                criarElemento(
+                    "p",
+                    "final-files-empty",
+                    "Carregando arquivos..."
+                )
+            );
+
+            area.appendChild(lista);
+
+            const uploadArea = criarElemento("div", "final-upload-area");
+
+            const label = criarElemento(
+                "label",
+                "",
+                "Selecionar arquivos finais"
+            );
+
+            const input = document.createElement("input");
+            input.type = "file";
+            input.multiple = true;
+            input.accept = ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png";
+            input.setAttribute("aria-label", "Selecionar arquivos finais");
+
+            const botao = criarElemento(
+                "button",
+                "final-upload-button",
+                "Enviar arquivos"
+            );
+
+            botao.type = "button";
+
+            const feedback = criarElemento(
+                "p",
+                "final-upload-feedback",
+                "Limite de 10 MB por arquivo. Formatos permitidos: PDF, Word, Excel, PowerPoint, JPEG e PNG."
+            );
+
+            uploadArea.appendChild(label);
+            uploadArea.appendChild(input);
+            uploadArea.appendChild(botao);
+            uploadArea.appendChild(feedback);
+
+            area.appendChild(uploadArea);
+
+            async function carregarListaArquivos() {
+                lista.replaceChildren();
+
+                lista.appendChild(
+                    criarElemento("strong", "", "Arquivos já enviados")
+                );
+
+                const caminhoPasta = `${pedido.user_id}/${pedido.id}`;
+
+                const { data: arquivos, error } = await supabase
+                    .storage
+                    .from(BUCKET_ARQUIVOS_FINAIS)
+                    .list(caminhoPasta, {
+                        limit: 100,
+                        sortBy: {
+                            column: "name",
+                            order: "asc"
+                        }
+                    });
+
+                if (error) {
+                    console.error("Erro ao listar arquivos finais:", error);
+
+                    lista.appendChild(
+                        criarElemento(
+                            "p",
+                            "file-error",
+                            "Não foi possível carregar a lista de arquivos finais."
+                        )
+                    );
+
+                    return;
+                }
+
+                const arquivosValidos = (arquivos || []).filter(arquivo =>
+                    arquivo.name && arquivo.id
+                );
+
+                if (!arquivosValidos.length) {
+                    lista.appendChild(
+                        criarElemento(
+                            "p",
+                            "final-files-empty",
+                            "Nenhum arquivo final enviado para este pedido."
+                        )
+                    );
+
+                    return;
+                }
+
+                for (const arquivo of arquivosValidos) {
+                    const caminhoCompleto =
+                        `${caminhoPasta}/${arquivo.name}`;
+
+                    const linha = criarElemento("div", "final-file-item");
+
+                    linha.appendChild(
+                        criarElemento(
+                            "span",
+                            "final-file-name",
+                            arquivo.name
+                        )
+                    );
+
+                    const { data, error: linkError } = await supabase
+                        .storage
+                        .from(BUCKET_ARQUIVOS_FINAIS)
+                        .createSignedUrl(caminhoCompleto, 60);
+
+                    if (linkError || !data?.signedUrl) {
+                        linha.appendChild(
+                            criarElemento(
+                                "span",
+                                "file-error",
+                                "Link indisponível"
+                            )
+                        );
+
+                        console.error(
+                            "Erro ao gerar link do arquivo final:",
+                            linkError
+                        );
+
+                    } else {
+                        const link = criarElemento(
+                            "a",
+                            "final-file-link",
+                            "Abrir arquivo"
+                        );
+
+                        link.href = data.signedUrl;
+                        link.target = "_blank";
+                        link.rel = "noopener noreferrer";
+
+                        linha.appendChild(link);
+                    }
+
+                    lista.appendChild(linha);
+                }
+            }
+
+            botao.addEventListener("click", async () => {
+                const arquivosSelecionados = Array.from(input.files || []);
+
+                if (!arquivosSelecionados.length) {
+                    alert("Selecione pelo menos um arquivo para enviar.");
+                    input.focus();
+                    return;
+                }
+
+                for (const arquivo of arquivosSelecionados) {
+                    if (arquivo.size > TAMANHO_MAXIMO) {
+                        alert(
+                            `O arquivo "${arquivo.name}" ultrapassa o limite de 10 MB.`
+                        );
+                        return;
+                    }
+
+                    if (
+                        arquivo.type &&
+                        !TIPOS_PERMITIDOS.includes(arquivo.type)
+                    ) {
+                        alert(
+                            `O formato do arquivo "${arquivo.name}" não é permitido.`
+                        );
+                        return;
+                    }
+                }
+
+                const confirmar = window.confirm(
+                    `Deseja enviar ${arquivosSelecionados.length} arquivo(s) final(is) para este pedido?`
+                );
+
+                if (!confirmar) return;
+
+                botao.disabled = true;
+                input.disabled = true;
+                botao.textContent = "Enviando...";
+                feedback.className = "final-upload-feedback";
+                feedback.textContent = "Enviando os arquivos. Aguarde...";
+
+                const caminhoPasta = `${pedido.user_id}/${pedido.id}`;
+
+                let enviados = 0;
+
+                try {
+                    for (const arquivo of arquivosSelecionados) {
+                        const nomeSeguro = nomeArquivoSeguro(arquivo.name);
+
+                        const nomeArmazenado =
+                            `${Date.now()}-${crypto.randomUUID()}-${nomeSeguro}`;
+
+                        const caminhoCompleto =
+                            `${caminhoPasta}/${nomeArmazenado}`;
+
+                        const { error } = await supabase
+                            .storage
+                            .from(BUCKET_ARQUIVOS_FINAIS)
+                            .upload(caminhoCompleto, arquivo, {
+                                cacheControl: "3600",
+                                upsert: false,
+                                contentType: arquivo.type || undefined
+                            });
+
+                        if (error) {
+                            throw new Error(
+                                `Falha ao enviar "${arquivo.name}": ${error.message}`
+                            );
+                        }
+
+                        enviados++;
+                    }
+
+                    feedback.className = "final-upload-feedback success";
+                    feedback.textContent =
+                        `${enviados} arquivo(s) enviado(s) com sucesso!`;
+
+                    input.value = "";
+
+                    await carregarListaArquivos();
+
+                    alert("Arquivos finais enviados com sucesso!");
+
+                } catch (error) {
+                    console.error("Erro ao enviar arquivos finais:", error);
+
+                    feedback.className = "final-upload-feedback error";
+
+                    feedback.textContent =
+                        `Foram enviados ${enviados} de ${arquivosSelecionados.length} arquivo(s). ${error.message || "Ocorreu um erro no envio."}`;
+
+                    alert(
+                        "Ocorreu um erro durante o envio. Confira a mensagem exibida na área de arquivos finais."
+                    );
+
+                    await carregarListaArquivos();
+
+                } finally {
+                    botao.disabled = false;
+                    input.disabled = false;
+                    botao.textContent = "Enviar arquivos";
+                }
+            });
+
+            carregarListaArquivos();
+
+            return area;
+        }
+
         async function criarCartaoPedido(pedido) {
             const cartao = criarElemento("article", "order-card");
 
@@ -1428,6 +1864,7 @@
 
             cartao.appendChild(criarSeletorStatus(pedido));
             cartao.appendChild(criarControlePagamento(pedido));
+            cartao.appendChild(criarControleArquivosFinais(pedido));
 
             return cartao;
         }
