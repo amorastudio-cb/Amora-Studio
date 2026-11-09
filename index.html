@@ -26,7 +26,16 @@
         <a href="#faq">Dúvidas</a>
     </nav>
 
-    <a href="login.html" class="btn-login" id="accountLink">Minha conta</a>
+    <div class="account-actions">
+        <a href="login.html" class="btn-login" id="accountLink">Minha conta</a>
+
+        <a href="admin.html"
+           class="btn-login"
+           id="adminLink"
+           hidden>
+            Painel administrativo
+        </a>
+    </div>
 </header>
 
 <main>
@@ -227,8 +236,35 @@
     import { supabase } from "./supabase.js";
 
     const accountLink = document.getElementById("accountLink");
+    const adminLink = document.getElementById("adminLink");
 
-    async function atualizarLinkConta() {
+    async function atualizarLinks(session) {
+        if (!session) {
+            accountLink.href = "login.html";
+            accountLink.textContent = "Minha conta";
+            adminLink.hidden = true;
+            return;
+        }
+
+        accountLink.href = "painel.html";
+        accountLink.textContent = "Minha conta";
+        adminLink.hidden = true;
+
+        const { data: perfil, error } = await supabase
+            .from("profiles")
+            .select("is_admin")
+            .eq("id", session.user.id)
+            .maybeSingle();
+
+        if (error) {
+            console.error("Erro ao verificar permissão administrativa:", error);
+            return;
+        }
+
+        adminLink.hidden = perfil?.is_admin !== true;
+    }
+
+    async function verificarSessaoInicial() {
         const { data, error } = await supabase.auth.getSession();
 
         if (error) {
@@ -236,13 +272,15 @@
             return;
         }
 
-        accountLink.href = data.session ? "painel.html" : "login.html";
+        await atualizarLinks(data.session);
     }
 
-    atualizarLinkConta();
+    verificarSessaoInicial();
 
-    supabase.auth.onAuthStateChange(() => {
-        atualizarLinkConta();
+    supabase.auth.onAuthStateChange((event, session) => {
+        setTimeout(() => {
+            atualizarLinks(session);
+        }, 0);
     });
 </script>
 
