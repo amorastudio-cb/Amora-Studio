@@ -545,6 +545,125 @@ button, input {
     font-size: 11px;
 }
 
+/* PÁGINAS DE AUTENTICAÇÃO */
+
+.auth-container {
+    min-height: 100vh;
+    width: 100%;
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(circle at 85% 15%, #E9D8F2 0, transparent 35%),
+        linear-gradient(135deg, #F6ECFA, #FFFCFF);
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 460px;
+    padding: 42px;
+    background: var(--branco);
+    border: 1px solid #F0E4F3;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(100, 27, 67, .09);
+}
+
+.auth-card h1 {
+    font-family: 'DM Serif Display', serif;
+    color: var(--vinho);
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 1.25;
+    margin-bottom: 10px;
+}
+
+.auth-card > p {
+    color: var(--cinza);
+    font-size: 13px;
+    margin-bottom: 25px;
+}
+
+.auth-card form label {
+    display: block;
+    color: #514751;
+    font-size: 12px;
+    margin: 17px 0 7px;
+}
+
+.auth-card form input {
+    display: block;
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #E5D9E9;
+    border-radius: 9px;
+    background: white;
+    color: var(--texto);
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+}
+
+.auth-card form input:focus {
+    border-color: var(--roxo);
+    box-shadow: 0 0 0 3px rgba(135, 59, 131, .10);
+}
+
+.auth-card form input:disabled {
+    background: #F7F3F8;
+    cursor: not-allowed;
+}
+
+.auth-card form button {
+    display: block;
+    width: 100%;
+    margin-top: 22px;
+    padding: 14px;
+    border: none;
+    border-radius: 9px;
+    background: var(--vinho);
+    color: white;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.auth-card form button:hover:not(:disabled) {
+    background: var(--roxo);
+}
+
+.auth-card form button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.auth-card form #mensagem {
+    margin-top: 18px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #F7F1F8;
+    color: var(--roxo);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.auth-card form #mensagem:empty {
+    display: none;
+}
+
+.auth-card > a {
+    display: block;
+    margin-top: 22px;
+    color: var(--roxo);
+    text-align: center;
+    font-size: 12px;
+}
+
+.auth-card > a:hover {
+    color: var(--vinho);
+}
+
 /* RESPONSIVIDADE */
 
 @media (max-width: 1000px) {
@@ -678,6 +797,18 @@ button, input {
     .final-cta h2 {
         font-size: 30px;
     }
+
+    .auth-container {
+        padding: 18px;
+    }
+
+    .auth-card {
+        padding: 30px 23px;
+    }
+
+    .auth-card h1 {
+        font-size: 29px;
+    }
 }
 
 @media (max-width: 380px) {
@@ -687,5 +818,9 @@ button, input {
 
     .hero-buttons a {
         width: 100%;
+    }
+
+    .auth-card {
+        padding: 27px 20px;
     }
 }
