@@ -35,8 +35,8 @@
                     required
                 >
 
-                <button type="submit" id="botaoSalvar">
-                    Salvar nova senha
+                <button type="submit" id="botaoSalvar" disabled>
+                    Validando link...
                 </button>
 
                 <p id="mensagem" role="status" aria-live="polite"></p>
@@ -54,49 +54,75 @@
         const botao = document.getElementById("botaoSalvar");
 
         let sessaoValida = false;
+        let atualizando = false;
+        let senhaAlterada = false;
+
+        function mostrarMensagem(texto) {
+            mensagem.textContent = texto;
+        }
+
+        function bloquearFormulario(texto) {
+            sessaoValida = false;
+            mostrarMensagem(texto);
+
+            formulario.querySelectorAll("input, button").forEach(elemento => {
+                elemento.disabled = true;
+            });
+        }
 
         async function verificarSessaoRecuperacao() {
             try {
                 const { data, error } =
                     await supabase.auth.getSession();
 
-                if (error) {
-                    throw error;
-                }
+                if (error) throw error;
 
                 if (!data.session) {
-                    mensagem.textContent =
-                        "O link de recuperação é inválido ou expirou. Solicite outro pelo login.";
-
-                    formulario.querySelectorAll("input, button").forEach(elemento => {
-                        elemento.disabled = true;
-                    });
-
+                    bloquearFormulario(
+                        "O link de recuperação é inválido ou expirou. Solicite outro pelo login."
+                    );
                     return;
                 }
 
                 sessaoValida = true;
+                botao.disabled = false;
+                botao.textContent = "Salvar nova senha";
+
+                mostrarMensagem(
+                    "Link validado! Você já pode escolher sua nova senha."
+                );
 
             } catch (error) {
                 console.error("Erro ao verificar sessão:", error);
 
-                mensagem.textContent =
-                    "Não foi possível validar o link. Solicite uma nova recuperação de senha.";
-
-                formulario.querySelectorAll("input, button").forEach(elemento => {
-                    elemento.disabled = true;
-                });
+                bloquearFormulario(
+                    "Não foi possível validar o link. Solicite uma nova recuperação de senha."
+                );
             }
         }
+
+        supabase.auth.onAuthStateChange((evento, sessao) => {
+            if (
+                evento === "SIGNED_OUT" ||
+                (evento === "TOKEN_REFRESHED" && !sessao)
+            ) {
+                bloquearFormulario(
+                    "Sua sessão expirou. Solicite um novo link de recuperação."
+                );
+            }
+        });
 
         verificarSessaoRecuperacao();
 
         formulario.addEventListener("submit", async (evento) => {
             evento.preventDefault();
 
+            if (atualizando || senhaAlterada) return;
+
             if (!sessaoValida) {
-                mensagem.textContent =
-                    "Aguarde a validação do link ou solicite uma nova recuperação de senha.";
+                mostrarMensagem(
+                    "Aguarde a validação do link ou solicite uma nova recuperação de senha."
+                );
                 return;
             }
 
@@ -104,24 +130,28 @@
             const confirmar = document.getElementById("confirmarSenha").value;
 
             if (senha.length < 6) {
-                mensagem.textContent =
-                    "A senha precisa ter pelo menos 6 caracteres.";
+                mostrarMensagem(
+                    "A senha precisa ter pelo menos 6 caracteres."
+                );
                 return;
             }
 
             if (senha !== confirmar) {
-                mensagem.textContent = "As senhas não são iguais.";
+                mostrarMensagem("As senhas não são iguais.");
                 return;
             }
 
+            atualizando = true;
             botao.disabled = true;
-            mensagem.textContent = "Atualizando sua senha...";
+            botao.textContent = "Atualizando...";
 
             try {
                 const { data, error: erroSessao } =
                     await supabase.auth.getSession();
 
-                if (erroSessao || !data.session) {
+                if (erroSessao) throw erroSessao;
+
+                if (!data.session) {
                     throw new Error(
                         "O link de recuperação é inválido ou expirou. Solicite outro pelo login."
                     );
@@ -131,26 +161,36 @@
                     password: senha
                 });
 
-                if (error) {
-                    throw error;
-                }
+                if (error) throw error;
 
-                mensagem.textContent =
-                    "Senha alterada com sucesso! Você já pode entrar.";
+                senhaAlterada = true;
+                sessaoValida = false;
+
+                mostrarMensagem(
+                    "Senha alterada com sucesso! Você já pode entrar com sua nova senha."
+                );
 
                 formulario.reset();
 
-                // A sessão não é encerrada automaticamente.
-                // O usuário poderá sair normalmente pelo botão Sair da conta.
+                formulario.querySelectorAll("input").forEach(elemento => {
+                    elemento.disabled = true;
+                });
+
+                botao.textContent = "Senha alterada";
 
             } catch (error) {
                 console.error("Erro ao atualizar senha:", error);
 
-                mensagem.textContent =
-                    error.message || "Não foi possível alterar sua senha. Tente novamente.";
+                mostrarMensagem(
+                    error.message ||
+                    "Não foi possível alterar sua senha. Tente novamente."
+                );
+
+                botao.disabled = false;
+                botao.textContent = "Salvar nova senha";
 
             } finally {
-                botao.disabled = false;
+                atualizando = false;
             }
         });
     </script>
