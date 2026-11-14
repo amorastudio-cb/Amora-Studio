@@ -502,6 +502,7 @@
     const ordersList = document.getElementById("ordersList");
 
     let redirecionando = false;
+    let encerrandoSessaoManualmente = false;
 
     function irParaLogin() {
         if (redirecionando) return;
@@ -629,10 +630,6 @@
             criarElemento("h4", "", "Arquivos finais do seu pedido")
         );
 
-        /*
-         * A consulta dos arquivos finais só é feita quando
-         * o pagamento está confirmado no banco de dados.
-         */
         if (!pagamentoConfirmado(pedido.pagamento_status)) {
             secao.appendChild(
                 criarElemento(
@@ -913,7 +910,10 @@
     verificarAutenticacao();
 
     supabase.auth.onAuthStateChange((event) => {
-        if (event === "SIGNED_OUT") {
+        if (
+            event === "SIGNED_OUT" &&
+            !encerrandoSessaoManualmente
+        ) {
             irParaLogin();
         }
     });
@@ -921,6 +921,8 @@
     logoutButton.addEventListener("click", async function() {
         logoutButton.disabled = true;
         logoutButton.textContent = "Saindo...";
+
+        encerrandoSessaoManualmente = true;
 
         try {
             const { error } = await supabase.auth.signOut();
@@ -933,6 +935,8 @@
 
         } catch (error) {
             console.error("Erro ao sair da conta:", error);
+
+            encerrandoSessaoManualmente = false;
 
             alert("Não foi possível sair da conta. Tente novamente.");
 
