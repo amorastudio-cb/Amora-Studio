@@ -310,9 +310,7 @@
             font-weight: 600;
         }
 
-        /* =========================================
-           DECISÃO DO ORÇAMENTO
-        ========================================= */
+        /* DECISÃO DO ORÇAMENTO */
 
         .budget-decision {
             margin-top: 18px;
@@ -452,9 +450,7 @@
             line-height: 1.8;
         }
 
-        /* =========================================
-           PAGAMENTO PIX
-        ========================================= */
+        /* PAGAMENTO PIX */
 
         .pix-section {
             margin-top: 18px;
@@ -570,7 +566,7 @@
             background: #EDF6EF;
             border: 1px solid #CDE5D2;
             border-radius: 10px;
-            color: #39734C !important;
+            color: #39734C;
             font-size: 12px !important;
             font-weight: 600;
         }
@@ -618,9 +614,7 @@
             cursor: wait;
         }
 
-        /* =========================================
-           MENSAGENS
-        ========================================= */
+        /* MENSAGENS */
 
         .messages-section {
             margin-top: 25px;
@@ -1099,9 +1093,7 @@
         return detalhe;
     }
 
-    /* =========================================
-       DECISÃO DO ORÇAMENTO
-    ========================================= */
+    /* DECISÃO DO ORÇAMENTO */
 
     async function responderOrcamento(pedido, decisao, botaoPrincipal, botaoSecundario, feedback) {
         if (!usuarioAutenticado) {
@@ -1204,7 +1196,7 @@
             const aviso = criarElemento("div", "budget-accepted-note");
 
             aviso.textContent =
-                "Orçamento aceito! Obrigada pela confiança na Amora Studio. Sua decisão foi registrada. A cobrança Pix será disponibilizada pela Amora Studio e aparecerá nesta área assim que for gerada.";
+                "Orçamento aceito com sucesso! 💜 Obrigada por escolher a Amora Studio. Agora vamos preparar seu projeto com todo carinho. Assim que ele estiver pronto, você será avisado por aqui e também receberá uma notificação por e-mail. Nesse momento, a cobrança Pix estará disponível nesta área. Após a confirmação do pagamento, seus arquivos finais serão liberados.";
 
             return aviso;
         }
@@ -1309,9 +1301,7 @@
         return secao;
     }
 
-    /* =========================================
-       ÁREA DE PAGAMENTO PIX
-    ========================================= */
+    /* ÁREA DE PAGAMENTO PIX */
 
     function criarAreaPix(pedido) {
         if (pagamentoConfirmado(pedido.pagamento_status)) {
