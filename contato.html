@@ -195,11 +195,6 @@
             margin-top: 12px;
         }
 
-        .contact-status a {
-            color: #873B83;
-            font-weight: 700;
-        }
-
         .contact-bottom {
             text-align: center;
             padding: 45px 20px;
@@ -299,7 +294,9 @@
                     <p>
                         Nosso canal de atendimento:
                         <br>
-                        amorastudio.cb@gmail.com
+                        <a href="mailto:amorastudio.cb@gmail.com">
+                            amorastudio.cb@gmail.com
+                        </a>
                     </p>
                 </div>
 
@@ -327,8 +324,8 @@
                 <h2>Envie sua mensagem</h2>
 
                 <p>
-                    Preencha os campos abaixo. Sua mensagem será
-                    enviada diretamente para nossa caixa de atendimento.
+                    Preencha os campos abaixo para enviar
+                    sua mensagem diretamente à equipe Amora Studio.
                 </p>
 
                 <form class="contact-form" id="contactForm">
@@ -396,9 +393,9 @@
                 </form>
 
                 <p class="contact-notice">
-                    Para enviar uma mensagem, é necessário estar conectado
-                    à sua conta Amora Studio. As mensagens ficam registradas
-                    em nossa caixa de atendimento.
+                    Sua mensagem será enviada diretamente pelo site
+                    e ficará disponível na caixa de mensagens da
+                    Amora Studio. É necessário estar conectado à sua conta.
                 </p>
 
             </div>
@@ -435,29 +432,13 @@
     import { supabase } from "./supabase.js";
 
     const accountLink = document.getElementById("accountLink");
+
     const contactForm = document.getElementById("contactForm");
     const contactStatus = document.getElementById("contactStatus");
     const contactButton = document.getElementById("contactButton");
 
-    function mostrarStatus(mensagem, mostrarLogin = false) {
-        contactStatus.replaceChildren();
-
-        contactStatus.appendChild(
-            document.createTextNode(mensagem)
-        );
-
-        if (mostrarLogin) {
-            contactStatus.appendChild(
-                document.createTextNode(" ")
-            );
-
-            const loginLink = document.createElement("a");
-            loginLink.href = "login.html";
-            loginLink.textContent = "Entrar na minha conta";
-
-            contactStatus.appendChild(loginLink);
-        }
-
+    function mostrarStatus(mensagem) {
+        contactStatus.textContent = mensagem;
         contactStatus.style.display = "block";
     }
 
@@ -486,13 +467,18 @@
         const subject = document.getElementById("subject").value;
         const message = document.getElementById("message").value.trim();
 
+        if (!name || !email || !subject || !message) {
+            mostrarStatus("Preencha todos os campos antes de enviar sua mensagem.");
+            return;
+        }
+
         if (!contactForm.checkValidity()) {
             contactForm.reportValidity();
             return;
         }
 
-        if (!name || !email || !subject || !message) {
-            mostrarStatus("Preencha todos os campos antes de enviar.");
+        if (message.length > 4900) {
+            mostrarStatus("Sua mensagem está muito longa. Reduza um pouco o texto e tente novamente.");
             return;
         }
 
@@ -511,16 +497,15 @@
 
             if (!usuario) {
                 mostrarStatus(
-                    "Para enviar sua mensagem, entre primeiro na sua conta Amora Studio.",
-                    true
+                    "Para enviar uma mensagem por aqui, entre primeiro na sua conta Amora Studio. Depois, volte a esta página e tente novamente."
                 );
 
                 return;
             }
 
             const mensagemCompleta =
-                "Assunto: " + subject + "\n" +
-                "Nome: " + name + "\n" +
+                "Assunto: " + subject + "\n\n" +
+                "Nome informado: " + name + "\n" +
                 "E-mail informado: " + email + "\n\n" +
                 "Mensagem:\n" + message;
 
@@ -529,7 +514,6 @@
                 .insert({
                     user_id: usuario.id,
                     autor_id: usuario.id,
-                    pedido_id: null,
                     mensagem: mensagemCompleta
                 });
 
@@ -537,17 +521,17 @@
                 throw insertError;
             }
 
-            mostrarStatus(
-                "Mensagem enviada com sucesso! Nossa equipe poderá responder pela sua área de mensagens."
-            );
-
             contactForm.reset();
+
+            mostrarStatus(
+                "Sua mensagem foi enviada com sucesso! A equipe Amora Studio poderá visualizá-la na caixa de mensagens. 💜"
+            );
 
         } catch (error) {
             console.error("Erro ao enviar mensagem:", error);
 
             mostrarStatus(
-                "Não foi possível enviar sua mensagem. Tente novamente em alguns instantes."
+                "Não foi possível enviar sua mensagem. Confira sua conexão e tente novamente. Se o problema continuar, entre em contato pelo e-mail informado ao lado."
             );
 
         } finally {
