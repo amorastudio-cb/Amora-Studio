@@ -932,6 +932,11 @@
         return detalhe;
     }
 
+    /* =========================================
+       ÁREA DE PAGAMENTO
+       Exibe o orçamento mesmo antes de gerar o Pix.
+    ========================================= */
+
     function criarAreaPix(pedido) {
         if (pagamentoConfirmado(pedido.pagamento_status)) {
             const aviso = criarElemento("div", "pix-paid-note");
@@ -941,37 +946,62 @@
             return aviso;
         }
 
-        const temCobranca =
-            pedido.mercado_pago_payment_id &&
-            pedido.pix_qr_code;
+        const valor = Number(pedido.valor_orcamento);
 
-        if (!temCobranca) {
+        if (
+            pedido.valor_orcamento === null ||
+            pedido.valor_orcamento === undefined ||
+            !Number.isFinite(valor) ||
+            valor <= 0
+        ) {
             return null;
         }
 
         const secao = criarElemento("section", "pix-section");
 
         secao.appendChild(
-            criarElemento("h4", "", "Pagamento via Pix")
+            criarElemento("h4", "", "Pagamento do seu pedido")
         );
 
         secao.appendChild(
             criarElemento(
                 "p",
                 "",
-                "Sua cobrança está disponível! Você pode pagar escaneando o QR Code ou copiando o código Pix abaixo."
+                "Valor definido para o seu serviço:"
             )
         );
 
-        if (pedido.valor_orcamento !== null && pedido.valor_orcamento !== undefined) {
+        secao.appendChild(
+            criarElemento(
+                "p",
+                "pix-value",
+                formatarValor(valor)
+            )
+        );
+
+        const temCobranca =
+            pedido.mercado_pago_payment_id &&
+            pedido.pix_qr_code;
+
+        if (!temCobranca) {
             secao.appendChild(
                 criarElemento(
                     "p",
-                    "pix-value",
-                    formatarValor(pedido.valor_orcamento)
+                    "pix-pending-note",
+                    "Seu orçamento foi definido pela Amora Studio. A cobrança Pix ainda não foi gerada. Assim que estiver disponível, o QR Code e o código para pagamento aparecerão aqui."
                 )
             );
+
+            return secao;
         }
+
+        secao.appendChild(
+            criarElemento(
+                "p",
+                "",
+                "Sua cobrança Pix está disponível! Você pode pagar escaneando o QR Code ou copiando o código abaixo."
+            )
+        );
 
         if (pedido.pix_qr_code_base64) {
             const imagemContainer = criarElemento("div", "pix-qr-container");
