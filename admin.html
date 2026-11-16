@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -396,8 +395,7 @@
             opacity: .6;
             cursor: wait;
         }
-
-        /* Controle financeiro */
+                /* Controle financeiro */
 
         .payment-management {
             border-top: 1px solid #E9D8F2;
@@ -661,6 +659,47 @@
             color: #287443;
         }
 
+
+        /* Caixa de entrada de mensagens */
+        .messages-admin {
+            background: white;
+            padding: 28px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(100, 27, 67, .05);
+            margin-top: 30px;
+        }
+        .messages-admin h2 { color: #641B43; font-size: 20px; margin-bottom: 7px; }
+        .messages-admin-intro { color: #706A73; font-size: 12px; line-height: 1.8; margin-bottom: 20px; }
+        .messages-admin-layout { display: grid; grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.7fr); gap: 18px; }
+        .conversation-list { border: 1px solid #E9D8F2; border-radius: 10px; padding: 8px; max-height: 520px; overflow-y: auto; }
+        .conversation-choice { display: block; width: 100%; text-align: left; padding: 13px; border: 0; border-radius: 8px; background: white; cursor: pointer; font-family: 'Poppins', sans-serif; margin-bottom: 5px; }
+        .conversation-choice:hover, .conversation-choice.selected { background: #F6ECFA; }
+        .conversation-choice strong { display: block; color: #641B43; font-size: 12px; overflow-wrap: anywhere; }
+        .conversation-choice span { display: block; color: #8A818C; font-size: 10px; margin-top: 4px; }
+        .conversation-choice p { color: #706A73; font-size: 11px; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .conversation-chat { border: 1px solid #E9D8F2; border-radius: 10px; padding: 15px; min-width: 0; }
+        .conversation-chat h3 { color: #641B43; font-size: 14px; margin-bottom: 12px; }
+        .admin-chat-messages { display: flex; flex-direction: column; gap: 10px; min-height: 170px; max-height: 360px; overflow-y: auto; padding: 5px 2px 14px; }
+        .admin-chat-bubble { max-width: 88%; padding: 11px 13px; border-radius: 11px; background: #F6ECFA; align-self: flex-start; overflow-wrap: anywhere; }
+        .admin-chat-bubble.from-admin { background: #F1E3F5; align-self: flex-end; }
+        .admin-chat-bubble strong { display: block; color: #641B43; font-size: 10px; margin-bottom: 5px; }
+        .admin-chat-bubble p { color: #514A55; font-size: 11px; line-height: 1.7; white-space: pre-wrap; }
+        .admin-chat-bubble time { display: block; color: #8A818C; font-size: 9px; margin-top: 6px; text-align: right; }
+        .admin-reply-form { display: flex; flex-direction: column; gap: 9px; margin-top: 12px; }
+        .admin-reply-form textarea { width: 100%; min-height: 90px; resize: vertical; padding: 12px; border: 1px solid #E5D9E9; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 12px; }
+        .admin-reply-form button { align-self: flex-start; padding: 10px 18px; border: 0; border-radius: 25px; background: #873B83; color: white; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; }
+        .admin-reply-form button:disabled { opacity: .6; cursor: wait; }
+        .messages-admin-feedback { color: #706A73; font-size: 12px; line-height: 1.8; padding: 18px; text-align: center; background: #FAF7FB; border-radius: 9px; }
+        .messages-admin-status { color: #706A73; font-size: 11px; min-height: 17px; }
+        .messages-admin-status.error { color: #A04444; }
+        .messages-admin-status.success { color: #287443; }
+        @media (max-width: 700px) {
+            .messages-admin { padding: 20px; }
+            .messages-admin-layout { grid-template-columns: 1fr; }
+            .conversation-list { max-height: 230px; }
+            .admin-chat-bubble { max-width: 95%; }
+        }
+
         .admin-footer {
             text-align: center;
             color: #8A818C;
@@ -707,8 +746,7 @@
             .save-status-button {
                 width: 100%;
             }
-
-            .payment-actions {
+                        .payment-actions {
                 flex-direction: column;
             }
 
@@ -869,6 +907,30 @@
 
         </section>
 
+
+        <section class="messages-admin" aria-labelledby="adminMessagesTitle">
+            <div class="orders-heading">
+                <div>
+                    <h2 id="adminMessagesTitle">Caixa de mensagens</h2>
+                    <p>Leia as mensagens dos clientes e responda diretamente por aqui.</p>
+                </div>
+                <button type="button" class="refresh-button" id="refreshMessagesButton">Atualizar mensagens</button>
+            </div>
+            <p class="messages-admin-intro">As conversas são privadas. Selecione um cliente para visualizar o histórico e enviar uma resposta.</p>
+            <div class="messages-admin-layout">
+                <div class="conversation-list" id="conversationList"><p class="messages-admin-feedback">Carregando conversas...</p></div>
+                <div class="conversation-chat">
+                    <h3 id="conversationTitle">Selecione uma conversa</h3>
+                    <div class="admin-chat-messages" id="adminChatMessages"><p class="messages-admin-feedback">As mensagens aparecerão aqui.</p></div>
+                    <form class="admin-reply-form" id="adminReplyForm">
+                        <textarea id="adminReplyInput" maxlength="5000" placeholder="Escreva sua resposta..." required disabled></textarea>
+                        <p class="messages-admin-status" id="adminMessagesStatus" role="status" aria-live="polite"></p>
+                        <button type="submit" id="adminReplyButton" disabled>Enviar resposta</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <footer class="admin-footer">
@@ -883,6 +945,14 @@
 
         const logoutButton = document.getElementById("logoutButton");
         const refreshButton = document.getElementById("refreshButton");
+        const conversationList = document.getElementById("conversationList");
+        const conversationTitle = document.getElementById("conversationTitle");
+        const adminChatMessages = document.getElementById("adminChatMessages");
+        const adminReplyForm = document.getElementById("adminReplyForm");
+        const adminReplyInput = document.getElementById("adminReplyInput");
+        const adminReplyButton = document.getElementById("adminReplyButton");
+        const adminMessagesStatus = document.getElementById("adminMessagesStatus");
+        const refreshMessagesButton = document.getElementById("refreshMessagesButton");
 
         const totalOrders = document.getElementById("totalOrders");
         const newOrders = document.getElementById("newOrders");
@@ -921,8 +991,10 @@
 
         let redirecionando = false;
         let todosPedidos = [];
-
-        document.getElementById("year").textContent =
+        let administradorAtual = null;
+        let usuarioConversaSelecionada = null;
+        let conversasCache = [];
+                document.getElementById("year").textContent =
             new Date().getFullYear();
 
         function redirecionarParaLogin() {
@@ -1171,8 +1243,7 @@
 
             botao.addEventListener("click", async () => {
                 const novoStatus = seletor.value;
-
-                if (novoStatus === statusAtual) {
+                                if (novoStatus === statusAtual) {
                     alert("Este pedido já está com esse status.");
                     return;
                 }
@@ -1422,8 +1493,7 @@
 
                 acoes.appendChild(botaoPix);
             }
-
-            if (pagamentoStatus === "Aguardando pagamento") {
+                        if (pagamentoStatus === "Aguardando pagamento") {
                 const botaoConfirmar = criarElemento(
                     "button",
                     "payment-button confirm",
@@ -1671,8 +1741,7 @@
 
                         linha.appendChild(link);
                     }
-
-                    lista.appendChild(linha);
+                                        lista.appendChild(linha);
                 }
             }
 
@@ -1922,7 +1991,7 @@
         }
 
         async function carregarPedidos() {
-            ordersLoading.hidden = false;
+                        ordersLoading.hidden = false;
             ordersError.hidden = true;
             ordersEmpty.hidden = true;
             ordersList.hidden = true;
@@ -1972,6 +2041,168 @@
             }
         }
 
+        function definirStatusMensagens(texto, tipo = "") {
+            adminMessagesStatus.textContent = texto;
+            adminMessagesStatus.className = "messages-admin-status";
+            if (tipo) adminMessagesStatus.classList.add(tipo);
+        }
+
+        async function carregarConversaSelecionada() {
+            if (!usuarioConversaSelecionada) return;
+            adminChatMessages.replaceChildren(
+                criarElemento("p", "messages-admin-feedback", "Carregando conversa...")
+            );
+            const { data, error } = await supabase
+                .from("mensagens")
+                .select("id, user_id, autor_id, mensagem, created_at")
+                .eq("user_id", usuarioConversaSelecionada)
+                .order("created_at", { ascending: true });
+            if (error) {
+                console.error("Erro ao carregar conversa:", error);
+                adminChatMessages.replaceChildren(
+                    criarElemento("p", "messages-admin-feedback", "Não foi possível carregar esta conversa.")
+                );
+                return;
+            }
+            adminChatMessages.replaceChildren();
+            if (!data || data.length === 0) {
+                adminChatMessages.appendChild(criarElemento("p", "messages-admin-feedback", "Esta conversa ainda não possui mensagens."));
+                return;
+            }
+            for (const mensagem of data) {
+                const ehAdmin = mensagem.autor_id === administradorAtual.id;
+                const bolha = criarElemento("article", "admin-chat-bubble" + (ehAdmin ? " from-admin" : ""));
+                bolha.appendChild(criarElemento("strong", "", ehAdmin ? "Você · Amora Studio" : "Cliente"));
+                bolha.appendChild(criarElemento("p", "", mensagem.mensagem));
+                const dataHora = criarElemento("time", "", formatarDataHora(mensagem.created_at));
+                bolha.appendChild(dataHora);
+                adminChatMessages.appendChild(bolha);
+            }
+            adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
+        }
+
+        async function carregarMensagensAdmin() {
+            refreshMessagesButton.disabled = true;
+            refreshMessagesButton.textContent = "Atualizando...";
+            try {
+                const { data: mensagens, error } = await supabase
+                    .from("mensagens")
+                    .select("id, user_id, autor_id, mensagem, created_at")
+                    .order("created_at", { ascending: false });
+                if (error) throw error;
+
+                const { data: pedidos, error: pedidosError } = await supabase
+                    .from("pedidos")
+                    .select("user_id, nome_cliente, email_cliente, created_at")
+                    .order("created_at", { ascending: false });
+                if (pedidosError) throw pedidosError;
+
+                const dadosClientes = new Map();
+                for (const pedido of (pedidos || [])) {
+                    if (!dadosClientes.has(pedido.user_id)) {
+                        dadosClientes.set(pedido.user_id, {
+                            nome: pedido.nome_cliente,
+                            email: pedido.email_cliente
+                        });
+                    }
+                }
+
+                const porUsuario = new Map();
+                for (const mensagem of (mensagens || [])) {
+                    if (!porUsuario.has(mensagem.user_id)) porUsuario.set(mensagem.user_id, []);
+                    porUsuario.get(mensagem.user_id).push(mensagem);
+                }
+
+                conversasCache = Array.from(porUsuario.entries()).map(([userId, lista]) => {
+                    const cliente = dadosClientes.get(userId) || {};
+                    return {
+                        userId,
+                        nome: cliente.nome || cliente.email || "Cliente sem pedido cadastrado",
+                        email: cliente.email || "",
+                        ultima: lista[0]
+                    };
+                });
+
+                conversationList.replaceChildren();
+                if (conversasCache.length === 0) {
+                    conversationList.appendChild(criarElemento("p", "messages-admin-feedback", "Ainda não há mensagens de clientes."));
+                    usuarioConversaSelecionada = null;
+                    conversationTitle.textContent = "Selecione uma conversa";
+                    adminChatMessages.replaceChildren(criarElemento("p", "messages-admin-feedback", "As mensagens aparecerão aqui."));
+                    adminReplyInput.disabled = true;
+                    adminReplyButton.disabled = true;
+                    return;
+                }
+
+                for (const conversa of conversasCache) {
+                    const botao = criarElemento("button", "conversation-choice", "");
+                    botao.type = "button";
+                    if (conversa.userId === usuarioConversaSelecionada) botao.classList.add("selected");
+                    botao.appendChild(criarElemento("strong", "", conversa.nome));
+                    botao.appendChild(criarElemento("span", "", conversa.email || "Conversa privada"));
+                    botao.appendChild(criarElemento("p", "", conversa.ultima.mensagem));
+                    botao.addEventListener("click", async () => {
+                        usuarioConversaSelecionada = conversa.userId;
+                        conversationTitle.textContent = conversa.nome + (conversa.email ? " · " + conversa.email : "");
+                        adminReplyInput.disabled = false;
+                        adminReplyButton.disabled = false;
+                        conversationList.querySelectorAll(".conversation-choice").forEach(el => el.classList.remove("selected"));
+                        botao.classList.add("selected");
+                        definirStatusMensagens("");
+                        await carregarConversaSelecionada();
+                    });
+                    conversationList.appendChild(botao);
+                }
+                                if (usuarioConversaSelecionada && porUsuario.has(usuarioConversaSelecionada)) {
+                    await carregarConversaSelecionada();
+                } else {
+                    usuarioConversaSelecionada = null;
+                    conversationTitle.textContent = "Selecione uma conversa";
+                    adminChatMessages.replaceChildren(criarElemento("p", "messages-admin-feedback", "Escolha um cliente na lista ao lado para ler e responder."));
+                    adminReplyInput.disabled = true;
+                    adminReplyButton.disabled = true;
+                }
+            } catch (error) {
+                console.error("Erro ao carregar caixa de mensagens:", error);
+                conversationList.replaceChildren(criarElemento("p", "messages-admin-feedback", "Não foi possível carregar as mensagens. Verifique sua conexão e tente novamente."));
+            } finally {
+                refreshMessagesButton.disabled = false;
+                refreshMessagesButton.textContent = "Atualizar mensagens";
+            }
+        }
+
+        adminReplyForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            if (!administradorAtual || !usuarioConversaSelecionada) return;
+            const texto = adminReplyInput.value.trim();
+            if (!texto) {
+                definirStatusMensagens("Digite uma resposta antes de enviar.", "error");
+                return;
+            }
+            adminReplyButton.disabled = true;
+            adminReplyButton.textContent = "Enviando...";
+            definirStatusMensagens("");
+            try {
+                const { error } = await supabase.from("mensagens").insert({
+                    user_id: usuarioConversaSelecionada,
+                    autor_id: administradorAtual.id,
+                    mensagem: texto
+                });
+                if (error) throw error;
+                adminReplyInput.value = "";
+                definirStatusMensagens("Resposta enviada com sucesso!", "success");
+                await carregarMensagensAdmin();
+            } catch (error) {
+                console.error("Erro ao enviar resposta:", error);
+                definirStatusMensagens("Não foi possível enviar a resposta. Tente novamente.", "error");
+            } finally {
+                adminReplyButton.disabled = !usuarioConversaSelecionada;
+                adminReplyButton.textContent = "Enviar resposta";
+            }
+        });
+
+        refreshMessagesButton.addEventListener("click", carregarMensagensAdmin);
+
         async function verificarAdministrador() {
             try {
                 const { data: sessionData, error: sessionError } =
@@ -2011,9 +2242,13 @@
                     return;
                 }
 
+                administradorAtual = userData.user;
                 document.body.style.display = "block";
 
-                await carregarPedidos();
+                await Promise.all([
+                    carregarPedidos(),
+                    carregarMensagensAdmin()
+                ]);
 
             } catch (error) {
                 console.error(
