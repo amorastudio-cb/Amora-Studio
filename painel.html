@@ -311,6 +311,148 @@
         }
 
         /* =========================================
+           DECISÃO DO ORÇAMENTO
+        ========================================= */
+
+        .budget-decision {
+            margin-top: 18px;
+            padding: 21px;
+            background: #FFFCFF;
+            border: 1px solid #DCC3E4;
+            border-radius: 12px;
+        }
+
+        .budget-decision h4 {
+            color: #641B43;
+            font-family: 'DM Serif Display', serif;
+            font-size: 22px;
+            font-weight: 400;
+            margin-bottom: 9px;
+        }
+
+        .budget-decision > p {
+            color: #706A73;
+            font-size: 12px;
+            line-height: 1.9;
+        }
+
+        .budget-decision .budget-value {
+            margin: 13px 0;
+            color: #641B43;
+            font-size: 25px;
+            font-weight: 700;
+        }
+
+        .budget-instructions {
+            margin-top: 12px;
+            padding: 12px;
+            background: #F6ECFA;
+            border-radius: 9px;
+            color: #641B43 !important;
+            font-size: 11px !important;
+        }
+
+        .budget-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .budget-accept-button {
+            border: 0;
+            border-radius: 28px;
+            padding: 13px 24px;
+            background: linear-gradient(120deg, #641B43, #873B83);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 5px 14px rgba(100, 27, 67, 0.17);
+            transition: 0.2s;
+        }
+
+        .budget-accept-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 17px rgba(100, 27, 67, 0.23);
+        }
+
+        .budget-cancel-button {
+            border: 1px solid #CDBBCF;
+            border-radius: 25px;
+            padding: 10px 17px;
+            background: transparent;
+            color: #766B78;
+            font-family: 'Poppins', sans-serif;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .budget-cancel-button:hover {
+            border-color: #A04444;
+            color: #A04444;
+            background: #FFF8F8;
+        }
+
+        .budget-accept-button:disabled,
+        .budget-cancel-button:disabled {
+            opacity: 0.55;
+            cursor: wait;
+            transform: none;
+        }
+
+        .budget-decision-feedback {
+            min-height: 18px;
+            margin-top: 12px;
+            font-size: 11px !important;
+            line-height: 1.7;
+        }
+
+        .budget-decision-feedback.error {
+            color: #A04444 !important;
+        }
+
+        .budget-decision-feedback.success {
+            color: #39734C !important;
+        }
+
+        .budget-accepted-note {
+            margin-top: 18px;
+            padding: 15px;
+            background: #EDF6EF;
+            border: 1px solid #CDE5D2;
+            border-radius: 10px;
+            color: #39734C;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .budget-cancelled-note {
+            margin-top: 18px;
+            padding: 15px;
+            background: #FAF1F1;
+            border: 1px solid #E8D1D1;
+            border-radius: 10px;
+            color: #8B4444;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .budget-legacy-note {
+            margin-top: 18px;
+            padding: 14px;
+            background: #F6ECFA;
+            border-radius: 10px;
+            color: #641B43;
+            font-size: 11px;
+            line-height: 1.8;
+        }
+
+        /* =========================================
            PAGAMENTO PIX
         ========================================= */
 
@@ -671,6 +813,16 @@
             .messages-section {
                 padding: 20px;
             }
+
+            .budget-buttons {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .budget-accept-button,
+            .budget-cancel-button {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -918,6 +1070,21 @@
         return normalizarStatus(status) === "confirmado";
     }
 
+    function decisaoOrcamento(pedido) {
+        return pedido.decisao_orcamento || "Pendente";
+    }
+
+    function orcamentoValido(pedido) {
+        const valor = Number(pedido.valor_orcamento);
+
+        return (
+            pedido.valor_orcamento !== null &&
+            pedido.valor_orcamento !== undefined &&
+            Number.isFinite(valor) &&
+            valor > 0
+        );
+    }
+
     function criarDetalhe(titulo, valor) {
         const detalhe = criarElemento("div", "order-detail");
 
@@ -933,29 +1100,242 @@
     }
 
     /* =========================================
-       ÁREA DE PAGAMENTO
-       Exibe o orçamento mesmo antes de gerar o Pix.
+       DECISÃO DO ORÇAMENTO
+    ========================================= */
+
+    async function responderOrcamento(pedido, decisao, botaoPrincipal, botaoSecundario, feedback) {
+        if (!usuarioAutenticado) {
+            feedback.textContent = "Sua sessão expirou. Entre novamente.";
+            feedback.className = "budget-decision-feedback error";
+            return;
+        }
+
+        if (decisao === "Cancelado") {
+            const confirmou = window.confirm(
+                "Tem certeza de que deseja cancelar esta solicitação? Essa decisão não poderá ser desfeita."
+            );
+
+            if (!confirmou) return;
+        }
+
+        botaoPrincipal.disabled = true;
+        botaoSecundario.disabled = true;
+
+        const textoOriginal = botaoPrincipal.textContent;
+
+        botaoPrincipal.textContent =
+            decisao === "Aceito"
+                ? "Registrando aceite..."
+                : "Cancelando...";
+
+        feedback.textContent = "";
+
+        try {
+            const { data, error } = await supabase.rpc(
+                "responder_orcamento",
+                {
+                    p_pedido_id: pedido.id,
+                    p_decisao: decisao
+                }
+            );
+
+            if (error) {
+                throw error;
+            }
+
+            if (!data?.sucesso) {
+                throw new Error("Não foi possível registrar sua decisão.");
+            }
+
+            feedback.textContent =
+                decisao === "Aceito"
+                    ? "Orçamento aceito com sucesso!"
+                    : "Solicitação cancelada com sucesso.";
+
+            feedback.className = "budget-decision-feedback success";
+
+            await carregarPedidos(usuarioAutenticado.id);
+
+        } catch (error) {
+            console.error("Erro ao responder orçamento:", error);
+
+            feedback.textContent =
+                error.message ||
+                "Não foi possível registrar sua decisão. Atualize a página e tente novamente.";
+
+            feedback.className = "budget-decision-feedback error";
+
+            botaoPrincipal.disabled = false;
+            botaoSecundario.disabled = false;
+            botaoPrincipal.textContent = textoOriginal;
+        }
+    }
+
+    function criarAreaDecisaoOrcamento(pedido) {
+        if (pagamentoConfirmado(pedido.pagamento_status)) {
+            return null;
+        }
+
+        if (statusCancelado(pedido.status)) {
+            const aviso = criarElemento(
+                "div",
+                "budget-cancelled-note",
+                "Esta solicitação foi cancelada. Se desejar contratar um serviço futuramente, você poderá enviar um novo pedido à Amora Studio."
+            );
+
+            return aviso;
+        }
+
+        if (!orcamentoValido(pedido)) {
+            return null;
+        }
+
+        const decisao = decisaoOrcamento(pedido);
+
+        if (decisao === "Cancelado") {
+            return criarElemento(
+                "div",
+                "budget-cancelled-note",
+                "Você cancelou esta solicitação. Se desejar contratar um serviço futuramente, poderá enviar um novo pedido."
+            );
+        }
+
+        if (decisao === "Aceito") {
+            const aviso = criarElemento("div", "budget-accepted-note");
+
+            aviso.textContent =
+                "Orçamento aceito! Obrigada pela confiança na Amora Studio. Sua decisão foi registrada. A cobrança Pix será disponibilizada pela Amora Studio e aparecerá nesta área assim que for gerada.";
+
+            return aviso;
+        }
+
+        // Não exibe botões de decisão para pedidos que já possuem cobrança.
+        if (pedido.mercado_pago_payment_id) {
+            return criarElemento(
+                "div",
+                "budget-legacy-note",
+                "Este pedido já possui uma cobrança registrada. Entre em contato com a Amora Studio caso tenha dúvidas sobre o orçamento."
+            );
+        }
+
+        const secao = criarElemento("section", "budget-decision");
+
+        secao.appendChild(
+            criarElemento("h4", "", "Seu orçamento está disponível!")
+        );
+
+        secao.appendChild(
+            criarElemento(
+                "p",
+                "",
+                "A Amora Studio analisou sua solicitação e definiu o valor do serviço."
+            )
+        );
+
+        secao.appendChild(
+            criarElemento(
+                "p",
+                "budget-value",
+                formatarValor(pedido.valor_orcamento)
+            )
+        );
+
+        secao.appendChild(
+            criarElemento(
+                "p",
+                "",
+                "Analise o valor com atenção. A contratação só será confirmada depois que você aceitar este orçamento."
+            )
+        );
+
+        secao.appendChild(
+            criarElemento(
+                "p",
+                "budget-instructions",
+                "Se desejar continuar com o serviço, clique em ACEITAR ORÇAMENTO. Caso não queira mais solicitar o serviço, basta clicar em Cancelar solicitação. Nenhuma cobrança Pix será gerada antes do seu aceite."
+            )
+        );
+
+        const botoes = criarElemento("div", "budget-buttons");
+
+        const aceitar = criarElemento(
+            "button",
+            "budget-accept-button",
+            "✓ ACEITAR ORÇAMENTO"
+        );
+
+        aceitar.type = "button";
+
+        const cancelar = criarElemento(
+            "button",
+            "budget-cancel-button",
+            "Cancelar solicitação"
+        );
+
+        cancelar.type = "button";
+
+        const feedback = criarElemento(
+            "p",
+            "budget-decision-feedback",
+            ""
+        );
+
+        aceitar.addEventListener("click", () => {
+            responderOrcamento(
+                pedido,
+                "Aceito",
+                aceitar,
+                cancelar,
+                feedback
+            );
+        });
+
+        cancelar.addEventListener("click", () => {
+            responderOrcamento(
+                pedido,
+                "Cancelado",
+                cancelar,
+                aceitar,
+                feedback
+            );
+        });
+
+        botoes.appendChild(aceitar);
+        botoes.appendChild(cancelar);
+
+        secao.appendChild(botoes);
+        secao.appendChild(feedback);
+
+        return secao;
+    }
+
+    /* =========================================
+       ÁREA DE PAGAMENTO PIX
     ========================================= */
 
     function criarAreaPix(pedido) {
         if (pagamentoConfirmado(pedido.pagamento_status)) {
             const aviso = criarElemento("div", "pix-paid-note");
+
             aviso.textContent =
                 "Pagamento confirmado! Obrigada pela confiança na Amora Studio. 💜";
 
             return aviso;
         }
 
-        const valor = Number(pedido.valor_orcamento);
-
-        if (
-            pedido.valor_orcamento === null ||
-            pedido.valor_orcamento === undefined ||
-            !Number.isFinite(valor) ||
-            valor <= 0
-        ) {
+        if (decisaoOrcamento(pedido) !== "Aceito") {
             return null;
         }
+
+        if (statusCancelado(pedido.status)) {
+            return null;
+        }
+
+        if (!orcamentoValido(pedido)) {
+            return null;
+        }
+
+        const valor = Number(pedido.valor_orcamento);
 
         const secao = criarElemento("section", "pix-section");
 
@@ -967,7 +1347,7 @@
             criarElemento(
                 "p",
                 "",
-                "Valor definido para o seu serviço:"
+                "Valor aprovado por você:"
             )
         );
 
@@ -988,7 +1368,7 @@
                 criarElemento(
                     "p",
                     "pix-pending-note",
-                    "Seu orçamento foi definido pela Amora Studio. A cobrança Pix ainda não foi gerada. Assim que estiver disponível, o QR Code e o código para pagamento aparecerão aqui."
+                    "Seu orçamento foi aceito! A Amora Studio ainda está preparando sua cobrança Pix. Assim que ela for gerada, o QR Code e o código para pagamento aparecerão aqui."
                 )
             );
 
@@ -1307,6 +1687,12 @@
             cartao.appendChild(descricao);
         }
 
+        const areaDecisao = criarAreaDecisaoOrcamento(pedido);
+
+        if (areaDecisao) {
+            cartao.appendChild(areaDecisao);
+        }
+
         const areaPix = criarAreaPix(pedido);
 
         if (areaPix) {
@@ -1344,6 +1730,7 @@
                 status,
                 pagamento_status,
                 valor_orcamento,
+                decisao_orcamento,
                 mercado_pago_payment_id,
                 pix_qr_code,
                 pix_qr_code_base64,
@@ -1372,7 +1759,8 @@
         ).length;
 
         const cancelados = lista.filter(pedido =>
-            statusCancelado(pedido.status)
+            statusCancelado(pedido.status) ||
+            decisaoOrcamento(pedido) === "Cancelado"
         ).length;
 
         activeOrders.textContent =
