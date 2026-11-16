@@ -353,6 +353,181 @@
             cursor: wait;
         }
 
+        /* =========================================
+           MENSAGENS - CONVERSA COM A AMORA STUDIO
+        ========================================= */
+
+        .messages-section {
+            margin-top: 25px;
+            background: white;
+            border: 1px solid #E9D8F2;
+            border-radius: 17px;
+            padding: 28px;
+        }
+
+        .messages-section h2 {
+            font-family: 'DM Serif Display', serif;
+            color: #641B43;
+            font-size: 25px;
+            font-weight: 400;
+            margin-bottom: 7px;
+        }
+
+        .messages-intro {
+            color: #706A73;
+            font-size: 12px;
+            line-height: 1.8;
+            margin-bottom: 18px;
+        }
+
+        .messages-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 430px;
+            overflow-y: auto;
+            padding: 4px 3px 12px;
+            margin-bottom: 18px;
+        }
+
+        .message-bubble {
+            max-width: 85%;
+            padding: 12px 15px;
+            border-radius: 13px;
+            background: #F6ECFA;
+            align-self: flex-start;
+            overflow-wrap: anywhere;
+        }
+
+        .message-bubble.client-message {
+            background: #F1E3F5;
+            align-self: flex-end;
+        }
+
+        .message-bubble.admin-message {
+            background: #FAF7FB;
+            border: 1px solid #E9D8F2;
+            align-self: flex-start;
+        }
+
+        .message-author {
+            display: block;
+            color: #641B43;
+            font-size: 10px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .message-content {
+            color: #514A55;
+            font-size: 12px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .message-date {
+            display: block;
+            color: #8A808C;
+            font-size: 9px;
+            margin-top: 7px;
+            text-align: right;
+        }
+
+        .messages-empty,
+        .messages-feedback {
+            color: #706A73;
+            font-size: 12px;
+            line-height: 1.8;
+            padding: 18px;
+            text-align: center;
+            background: #FAF7FB;
+            border-radius: 10px;
+        }
+
+        .messages-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .messages-form label {
+            color: #641B43;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .messages-form textarea {
+            width: 100%;
+            min-height: 105px;
+            resize: vertical;
+            padding: 13px;
+            border: 1px solid #E0D2E5;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            color: #514A55;
+            outline: none;
+        }
+
+        .messages-form textarea:focus {
+            border-color: #873B83;
+            box-shadow: 0 0 0 3px rgba(135, 59, 131, 0.10);
+        }
+
+        .messages-form button,
+        .messages-refresh {
+            border: 0;
+            border-radius: 25px;
+            padding: 11px 19px;
+            background: #873B83;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .messages-form button:hover,
+        .messages-refresh:hover {
+            background: #641B43;
+        }
+
+        .messages-form button:disabled,
+        .messages-refresh:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        .messages-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .messages-refresh {
+            background: transparent;
+            color: #873B83;
+            border: 1px solid #873B83;
+            padding: 7px 14px;
+        }
+
+        .messages-status {
+            min-height: 18px;
+            color: #706A73;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .messages-status.error {
+            color: #A04444;
+        }
+
+        .messages-status.success {
+            color: #39734C;
+        }
+
         @media (max-width: 700px) {
             .dashboard-summary {
                 grid-template-columns: 1fr;
@@ -377,7 +552,7 @@
 
 <header class="header">
     <a href="index.html" class="logo">
-        <span class="logo-icon">●</span>
+        <span class="logo-icon">❁</span>
         AMORA <span>STUDIO</span>
     </a>
 
@@ -461,12 +636,48 @@
 
         </section>
 
+        <section class="messages-section" aria-labelledby="messagesTitle">
+            <h2 id="messagesTitle">Mensagens</h2>
+
+            <p class="messages-intro">
+                Converse diretamente com a Amora Studio. Suas mensagens e respostas
+                ficam registradas aqui, em uma conversa privada.
+            </p>
+
+            <div class="messages-toolbar">
+                <button class="messages-refresh" id="refreshMessagesButton" type="button">
+                    Atualizar conversa
+                </button>
+            </div>
+
+            <div class="messages-list" id="messagesList" aria-live="polite">
+                <p class="messages-feedback">Carregando mensagens...</p>
+            </div>
+
+            <form class="messages-form" id="messageForm">
+                <label for="messageInput">Escreva sua mensagem</label>
+
+                <textarea
+                    id="messageInput"
+                    name="mensagem"
+                    maxlength="5000"
+                    placeholder="Digite sua dúvida ou mensagem..."
+                    required
+                ></textarea>
+
+                <p class="messages-status" id="messageStatus" role="status" aria-live="polite"></p>
+
+                <button id="sendMessageButton" type="submit">
+                    Enviar mensagem
+                </button>
+            </form>
+        </section>
+
         <section class="dashboard-help">
-            <h3>Precisa de ajuda?</h3>
+            <h3>Precisa de mais ajuda?</h3>
 
             <p>
-                Se tiver alguma dúvida sobre seus pedidos,
-                entre em contato pelo nosso
+                Você também pode consultar nosso
                 <a href="contato.html">canal de atendimento</a>.
             </p>
         </section>
@@ -501,6 +712,14 @@
     const ordersError = document.getElementById("ordersError");
     const ordersList = document.getElementById("ordersList");
 
+    const messagesList = document.getElementById("messagesList");
+    const messageForm = document.getElementById("messageForm");
+    const messageInput = document.getElementById("messageInput");
+    const messageStatus = document.getElementById("messageStatus");
+    const sendMessageButton = document.getElementById("sendMessageButton");
+    const refreshMessagesButton = document.getElementById("refreshMessagesButton");
+
+    let usuarioAutenticado = null;
     let redirecionando = false;
     let encerrandoSessaoManualmente = false;
 
@@ -865,6 +1084,190 @@
         }
     }
 
+    function formatarDataHora(data) {
+        if (!data) return "";
+
+        const dataObj = new Date(data);
+
+        if (Number.isNaN(dataObj.getTime())) return "";
+
+        return dataObj.toLocaleString("pt-BR", {
+            dateStyle: "short",
+            timeStyle: "short"
+        });
+    }
+
+    function mostrarStatusMensagem(texto, tipo = "") {
+        messageStatus.textContent = texto;
+        messageStatus.className = "messages-status";
+
+        if (tipo) {
+            messageStatus.classList.add(tipo);
+        }
+    }
+
+    async function carregarMensagens() {
+        if (!usuarioAutenticado) return;
+
+        messagesList.replaceChildren(
+            criarElemento(
+                "p",
+                "messages-feedback",
+                "Carregando mensagens..."
+            )
+        );
+
+        refreshMessagesButton.disabled = true;
+
+        try {
+            const { data: mensagens, error } = await supabase
+                .from("mensagens")
+                .select("id, user_id, autor_id, mensagem, created_at")
+                .eq("user_id", usuarioAutenticado.id)
+                .order("created_at", { ascending: true });
+
+            if (error) {
+                throw error;
+            }
+
+            messagesList.replaceChildren();
+
+            if (!mensagens || mensagens.length === 0) {
+                messagesList.appendChild(
+                    criarElemento(
+                        "p",
+                        "messages-empty",
+                        "Sua conversa está começando! Envie uma mensagem para falar com a Amora Studio."
+                    )
+                );
+
+                return;
+            }
+
+            for (const mensagem of mensagens) {
+                const ehCliente =
+                    mensagem.autor_id === usuarioAutenticado.id;
+
+                const bolha = criarElemento(
+                    "article",
+                    "message-bubble " +
+                    (ehCliente ? "client-message" : "admin-message")
+                );
+
+                bolha.appendChild(
+                    criarElemento(
+                        "span",
+                        "message-author",
+                        ehCliente ? "Você" : "Amora Studio"
+                    )
+                );
+
+                bolha.appendChild(
+                    criarElemento(
+                        "p",
+                        "message-content",
+                        mensagem.mensagem
+                    )
+                );
+
+                bolha.appendChild(
+                    criarElemento(
+                        "span",
+                        "message-date",
+                        formatarDataHora(mensagem.created_at)
+                    )
+                );
+
+                messagesList.appendChild(bolha);
+            }
+
+            messagesList.scrollTop = messagesList.scrollHeight;
+
+        } catch (error) {
+            console.error("Erro ao carregar mensagens:", error);
+
+            messagesList.replaceChildren(
+                criarElemento(
+                    "p",
+                    "messages-feedback",
+                    "Não foi possível carregar a conversa. Tente atualizar novamente."
+                )
+            );
+
+        } finally {
+            refreshMessagesButton.disabled = false;
+        }
+    }
+
+    messageForm.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        if (!usuarioAutenticado) {
+            mostrarStatusMensagem(
+                "Sua sessão expirou. Entre novamente.",
+                "error"
+            );
+
+            return;
+        }
+
+        const texto = messageInput.value.trim();
+
+        if (!texto) {
+            mostrarStatusMensagem(
+                "Digite uma mensagem antes de enviar.",
+                "error"
+            );
+
+            return;
+        }
+
+        sendMessageButton.disabled = true;
+        sendMessageButton.textContent = "Enviando...";
+
+        mostrarStatusMensagem("");
+
+        try {
+            const { error } = await supabase
+                .from("mensagens")
+                .insert({
+                    user_id: usuarioAutenticado.id,
+                    autor_id: usuarioAutenticado.id,
+                    mensagem: texto
+                });
+
+            if (error) {
+                throw error;
+            }
+
+            messageInput.value = "";
+
+            mostrarStatusMensagem(
+                "Mensagem enviada com sucesso!",
+                "success"
+            );
+
+            await carregarMensagens();
+
+        } catch (error) {
+            console.error("Erro ao enviar mensagem:", error);
+
+            mostrarStatusMensagem(
+                "Não foi possível enviar sua mensagem. Tente novamente.",
+                "error"
+            );
+
+        } finally {
+            sendMessageButton.disabled = false;
+            sendMessageButton.textContent = "Enviar mensagem";
+        }
+    });
+
+    refreshMessagesButton.addEventListener(
+        "click",
+        carregarMensagens
+    );
+
     async function verificarAutenticacao() {
         try {
             const { data, error } = await supabase.auth.getSession();
@@ -898,10 +1301,16 @@
                     "! Acompanhe seus projetos e encontre tudo sobre seus pedidos em um só lugar.";
             }
 
-            await carregarPedidos(usuario.id);
+            usuarioAutenticado = usuario;
+
+            await Promise.all([
+                carregarPedidos(usuario.id),
+                carregarMensagens()
+            ]);
 
         } catch (error) {
             console.error("Erro ao verificar autenticação:", error);
+
             ordersLoading.hidden = true;
             ordersError.hidden = false;
         }
