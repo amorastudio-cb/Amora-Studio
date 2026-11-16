@@ -1,2306 +1,294 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel administrativo | Amora Studio</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+function criarControlePagamento(pedido) {
+    const area = criarElemento("div", "payment-management");
+
+    area.appendChild(
+        criarElemento("h4", "", "Controle financeiro")
+    );
+
+    area.appendChild(
+        criarElemento(
+            "p",
+            "payment-explanation",
+            "Defina o orçamento e gere uma cobrança Pix automaticamente pelo Mercado Pago."
+        )
+    );
+
+    const pagamentoStatus = pedido.pagamento_status || "Não solicitado";
+
+    let classeStatus = "not-requested";
+
+    if (pagamentoStatus === "Aguardando pagamento") {
+        classeStatus = "waiting";
+    } else if (pagamentoStatus === "Confirmado") {
+        classeStatus = "confirmed";
+    }
+
+    area.appendChild(
+        criarElemento(
+            "span",
+            "payment-status " + classeStatus,
+            "Pagamento: " + pagamentoStatus
+        )
+    );
+
+    const campo = criarElemento("div", "payment-field");
+
+    const label = criarElemento(
+        "label",
+        "",
+        "Valor do orçamento (R$)"
+    );
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.min = "0.01";
+    input.step = "0.01";
+    input.placeholder = "Ex.: 35,00";
+    input.value = pedido.valor_orcamento ?? "";
+    input.setAttribute("aria-label", "Valor do orçamento");
+
+    if (pagamentoStatus === "Confirmado") {
+        input.disabled = true;
+    }
+
+    campo.appendChild(label);
+    campo.appendChild(input);
+    area.appendChild(campo);
+
+    const botaoSalvar = criarElemento(
+        "button",
+        "payment-button secondary",
+        "Salvar orçamento"
+    );
+
+    botaoSalvar.type = "button";
+
+    if (pagamentoStatus === "Confirmado") {
+        botaoSalvar.disabled = true;
+        botaoSalvar.textContent = "Orçamento confirmado";
+    }
+
+    botaoSalvar.addEventListener("click", async () => {
+        const valorDigitado = input.value.trim();
+        const valor = Number(valorDigitado);
+
+        if (!valorDigitado || !Number.isFinite(valor) || valor <= 0) {
+            alert("Informe um valor válido para o orçamento.");
+            input.focus();
+            return;
+        }
+
+        if (pagamentoStatus === "Confirmado") {
+            alert("Este pagamento já foi confirmado. O orçamento não pode ser alterado.");
+            return;
+        }
+
+        if (pedido.mercado_pago_payment_id) {
+            alert(
+                "Este pedido já possui uma cobrança Pix. Não altere o orçamento enquanto ela estiver ativa."
+            );
+            return;
+        }
+
+        botaoSalvar.disabled = true;
+        botaoSalvar.textContent = "Salvando...";
+
+        try {
+            const { error } = await supabase
+                .from("pedidos")
+                .update({
+                    valor_orcamento: valor
+                })
+                .eq("id", pedido.id);
 
-    <link rel="stylesheet" href="style.css">
+            if (error) throw error;
 
-    <style>
-        body {
-            background: #F9F5FA;
-            display: none;
-        }
-
-        .admin-header {
-            background: #641B43;
-            color: white;
-            padding: 22px 7%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .admin-header h2 {
-            font-family: 'DM Serif Display', serif;
-            font-size: 27px;
-            font-weight: 400;
-        }
-
-        .admin-header span {
-            font-size: 12px;
-            opacity: .8;
-        }
-
-        .admin-header a {
-            color: white;
-            text-decoration: none;
-            font-size: 13px;
-        }
-
-        .admin-header-actions {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .admin-logout {
-            border: 1px solid white;
-            color: white;
-            background: transparent;
-            padding: 9px 17px;
-            border-radius: 25px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 11px;
-            cursor: pointer;
-        }
-
-        .admin-logout:disabled {
-            opacity: .6;
-            cursor: wait;
-        }
-
-        .admin-container {
-            max-width: 1150px;
-            margin: 55px auto;
-            padding: 0 22px;
-        }
-
-        .admin-intro {
-            margin-bottom: 30px;
-        }
-
-        .admin-intro h1 {
-            font-family: 'DM Serif Display', serif;
-            color: #641B43;
-            font-size: 38px;
-            font-weight: 400;
-        }
-
-        .admin-intro p {
-            color: #706A73;
-            font-size: 14px;
-            margin-top: 8px;
-        }
-
-        .admin-notice {
-            background: #F1E5F5;
-            border-left: 4px solid #873B83;
-            padding: 16px 20px;
-            border-radius: 8px;
-            color: #641B43;
-            font-size: 13px;
-            line-height: 1.7;
-            margin-bottom: 30px;
-        }
-
-        .admin-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-            gap: 18px;
-            margin-bottom: 35px;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 25px;
-            border-radius: 14px;
-            box-shadow: 0 5px 20px rgba(100, 27, 67, .05);
-        }
-
-        .stat-card p {
-            color: #706A73;
-            font-size: 13px;
-        }
-
-        .stat-card h2 {
-            color: #641B43;
-            font-size: 30px;
-            margin-top: 10px;
-            overflow-wrap: anywhere;
-        }
-
-        .admin-orders {
-            background: white;
-            padding: 28px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(100, 27, 67, .05);
-        }
-
-        .orders-heading {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-bottom: 25px;
-        }
-
-        .orders-heading h2 {
-            color: #641B43;
-            font-size: 20px;
-        }
-
-        .orders-heading p {
-            color: #706A73;
-            font-size: 12px;
-            margin-top: 5px;
-        }
-
-        .refresh-button {
-            border: 1px solid #873B83;
-            color: #873B83;
-            background: white;
-            padding: 10px 16px;
-            border-radius: 25px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 11px;
-            cursor: pointer;
-        }
-
-        .refresh-button:disabled {
-            opacity: .6;
-            cursor: wait;
-        }
-
-        .filter-area {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 22px;
-        }
-
-        .filter-area input,
-        .filter-area select {
-            padding: 12px;
-            border: 1px solid #E5D9E9;
-            border-radius: 8px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 12px;
-            background: white;
-            color: #706A73;
-        }
-
-        .filter-area input {
-            flex: 1;
-            min-width: 180px;
-        }
-
-        .filter-area select {
-            min-width: 170px;
-        }
-
-        .empty-orders,
-        .orders-message {
-            text-align: center;
-            padding: 45px 20px;
-            border: 1px dashed #DCCBE3;
-            border-radius: 12px;
-            color: #706A73;
-            font-size: 13px;
-            line-height: 1.8;
-        }
-
-        .empty-orders .symbol {
-            font-size: 38px;
-            margin-bottom: 15px;
-        }
-
-        .empty-orders h3 {
-            color: #641B43;
-            font-size: 17px;
-            margin-bottom: 8px;
-        }
-
-        .orders-message.error {
-            color: #A04444;
-            border-color: #E9BABA;
-        }
-
-        .order-card {
-            border: 1px solid #E9D8F2;
-            border-radius: 13px;
-            padding: 22px;
-            margin-bottom: 18px;
-            background: #FFFCFF;
-        }
-
-        .order-card:last-child {
-            margin-bottom: 0;
-        }
-
-        .order-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-bottom: 17px;
-        }
-
-        .order-card-header h3 {
-            color: #641B43;
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-
-        .order-date {
-            color: #8A818C;
-            font-size: 11px;
-        }
-
-        .order-status {
-            display: inline-block;
-            padding: 6px 12px;
-            background: #F6ECFA;
-            color: #873B83;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 600;
-        }
-
-        .order-details {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
-        }
-
-        .order-detail {
-            padding: 13px;
-            background: #FAF7FB;
-            border-radius: 9px;
-            min-width: 0;
-        }
-
-        .order-detail strong {
-            display: block;
-            color: #641B43;
-            font-size: 11px;
-            margin-bottom: 5px;
-        }
-
-        .order-detail span {
-            display: block;
-            color: #706A73;
-            font-size: 12px;
-            line-height: 1.7;
-            overflow-wrap: anywhere;
-        }
-
-        .order-description {
-            margin-top: 13px;
-            padding: 14px;
-            background: #FAF7FB;
-            border-radius: 9px;
-        }
-
-        .order-description strong,
-        .order-files strong {
-            display: block;
-            color: #641B43;
-            font-size: 11px;
-            margin-bottom: 7px;
-        }
-
-        .order-description p {
-            color: #706A73;
-            font-size: 12px;
-            line-height: 1.8;
-            white-space: pre-wrap;
-            overflow-wrap: anywhere;
-        }
-
-        .order-files {
-            margin-top: 15px;
-        }
-
-        .file-link {
-            display: inline-block;
-            margin: 3px 7px 3px 0;
-            padding: 8px 12px;
-            border: 1px solid #E9D8F2;
-            border-radius: 20px;
-            color: #873B83;
-            font-size: 11px;
-            text-decoration: none;
-            overflow-wrap: anywhere;
-        }
-
-        .file-link:hover {
-            background: #F6ECFA;
-        }
-
-        .file-error {
-            color: #A04444;
-            font-size: 11px;
-        }
-
-        .order-management {
-            border-top: 1px solid #E9D8F2;
-            margin-top: 19px;
-            padding-top: 17px;
-        }
-
-        .order-management label {
-            display: block;
-            color: #641B43;
-            font-size: 11px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .order-management-row {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .order-management select {
-            flex: 1;
-            min-width: 180px;
-            padding: 11px;
-            border: 1px solid #E5D9E9;
-            border-radius: 8px;
-            background: white;
-            color: #706A73;
-            font-family: 'Poppins', sans-serif;
-            font-size: 12px;
-        }
-
-        .save-status-button {
-            padding: 11px 18px;
-            border: none;
-            border-radius: 25px;
-            background: #873B83;
-            color: white;
-            font-family: 'Poppins', sans-serif;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .save-status-button:hover {
-            background: #641B43;
-        }
-
-        .save-status-button:disabled {
-            opacity: .6;
-            cursor: wait;
-        }
-                /* Controle financeiro */
-
-        .payment-management {
-            border-top: 1px solid #E9D8F2;
-            margin-top: 19px;
-            padding-top: 19px;
-        }
-
-        .payment-management h4 {
-            color: #641B43;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .payment-explanation {
-            color: #8A818C;
-            font-size: 11px;
-            line-height: 1.7;
-            margin-bottom: 15px;
-        }
-
-        .payment-status {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            background: #F6ECFA;
-            color: #873B83;
-            font-size: 10px;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        .payment-status.waiting {
-            background: #FFF2DB;
-            color: #95631C;
-        }
-
-        .payment-status.confirmed {
-            background: #E6F4EA;
-            color: #287443;
-        }
-
-        .payment-status.not-requested {
-            background: #F1EAF3;
-            color: #706A73;
-        }
-
-        .payment-field {
-            margin-bottom: 14px;
-        }
-
-        .payment-field label {
-            display: block;
-            color: #641B43;
-            font-size: 11px;
-            font-weight: 600;
-            margin-bottom: 7px;
-        }
-
-        .payment-field input {
-            width: 100%;
-            max-width: 300px;
-            padding: 11px 13px;
-            border: 1px solid #E5D9E9;
-            border-radius: 8px;
-            background: white;
-            color: #641B43;
-            font-family: 'Poppins', sans-serif;
-            font-size: 13px;
-        }
-
-        .payment-field input:disabled {
-            background: #F5F0F6;
-            color: #8A818C;
-        }
-
-        .payment-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 12px;
-        }
-
-        .payment-button {
-            padding: 11px 17px;
-            border: none;
-            border-radius: 25px;
-            background: #873B83;
-            color: white;
-            font-family: 'Poppins', sans-serif;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .payment-button:hover {
-            background: #641B43;
-        }
-
-        .payment-button.secondary {
-            background: white;
-            color: #873B83;
-            border: 1px solid #873B83;
-        }
-
-        .payment-button.confirm {
-            background: #39764C;
-        }
-
-        .payment-button.confirm:hover {
-            background: #285B38;
-        }
-
-        .payment-button:disabled {
-            opacity: .6;
-            cursor: wait;
-        }
-
-        .payment-dates {
-            margin-top: 14px;
-            padding: 12px;
-            background: #FAF7FB;
-            border-radius: 9px;
-            color: #706A73;
-            font-size: 11px;
-            line-height: 1.9;
-        }
-
-        .payment-dates strong {
-            color: #641B43;
-        }
-
-        /* Arquivos finais */
-
-        .final-files-management {
-            border-top: 1px solid #E9D8F2;
-            margin-top: 19px;
-            padding-top: 19px;
-        }
-
-        .final-files-management h4 {
-            color: #641B43;
-            font-size: 14px;
-            margin-bottom: 6px;
-        }
-
-        .final-files-description {
-            color: #8A818C;
-            font-size: 11px;
-            line-height: 1.8;
-            margin-bottom: 14px;
-        }
-
-        .final-files-list {
-            background: #FAF7FB;
-            border-radius: 9px;
-            padding: 13px;
-            margin-bottom: 15px;
-        }
-
-        .final-files-list strong {
-            display: block;
-            color: #641B43;
-            font-size: 11px;
-            margin-bottom: 8px;
-        }
-
-        .final-file-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            flex-wrap: wrap;
-            padding: 8px 0;
-            border-bottom: 1px solid #E9D8F2;
-        }
-
-        .final-file-item:last-child {
-            border-bottom: none;
-        }
-
-        .final-file-name {
-            color: #706A73;
-            font-size: 11px;
-            overflow-wrap: anywhere;
-            flex: 1;
-            min-width: 120px;
-        }
-
-        .final-file-link {
-            color: #873B83;
-            font-size: 11px;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .final-file-link:hover {
-            text-decoration: underline;
-        }
-
-        .final-files-empty {
-            color: #8A818C;
-            font-size: 11px;
-        }
-
-        .final-upload-area {
-            background: #F6EFF8;
-            border: 1px dashed #C69AE0;
-            border-radius: 10px;
-            padding: 16px;
-        }
-
-        .final-upload-area label {
-            display: block;
-            color: #641B43;
-            font-size: 11px;
-            font-weight: 600;
-            margin-bottom: 9px;
-        }
-
-        .final-upload-area input[type="file"] {
-            width: 100%;
-            color: #706A73;
-            font-family: 'Poppins', sans-serif;
-            font-size: 11px;
-            margin-bottom: 12px;
-        }
-
-        .final-upload-button {
-            padding: 11px 17px;
-            border: none;
-            border-radius: 25px;
-            background: #873B83;
-            color: white;
-            font-family: 'Poppins', sans-serif;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .final-upload-button:hover {
-            background: #641B43;
-        }
-
-        .final-upload-button:disabled {
-            opacity: .6;
-            cursor: wait;
-        }
-
-        .final-upload-feedback {
-            color: #706A73;
-            font-size: 11px;
-            line-height: 1.7;
-            margin-top: 10px;
-        }
-
-        .final-upload-feedback.error {
-            color: #A04444;
-        }
-
-        .final-upload-feedback.success {
-            color: #287443;
-        }
-
-
-        /* Caixa de entrada de mensagens */
-        .messages-admin {
-            background: white;
-            padding: 28px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(100, 27, 67, .05);
-            margin-top: 30px;
-        }
-        .messages-admin h2 { color: #641B43; font-size: 20px; margin-bottom: 7px; }
-        .messages-admin-intro { color: #706A73; font-size: 12px; line-height: 1.8; margin-bottom: 20px; }
-        .messages-admin-layout { display: grid; grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.7fr); gap: 18px; }
-        .conversation-list { border: 1px solid #E9D8F2; border-radius: 10px; padding: 8px; max-height: 520px; overflow-y: auto; }
-        .conversation-choice { display: block; width: 100%; text-align: left; padding: 13px; border: 0; border-radius: 8px; background: white; cursor: pointer; font-family: 'Poppins', sans-serif; margin-bottom: 5px; }
-        .conversation-choice:hover, .conversation-choice.selected { background: #F6ECFA; }
-        .conversation-choice strong { display: block; color: #641B43; font-size: 12px; overflow-wrap: anywhere; }
-        .conversation-choice span { display: block; color: #8A818C; font-size: 10px; margin-top: 4px; }
-        .conversation-choice p { color: #706A73; font-size: 11px; margin-top: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .conversation-chat { border: 1px solid #E9D8F2; border-radius: 10px; padding: 15px; min-width: 0; }
-        .conversation-chat h3 { color: #641B43; font-size: 14px; margin-bottom: 12px; }
-        .admin-chat-messages { display: flex; flex-direction: column; gap: 10px; min-height: 170px; max-height: 360px; overflow-y: auto; padding: 5px 2px 14px; }
-        .admin-chat-bubble { max-width: 88%; padding: 11px 13px; border-radius: 11px; background: #F6ECFA; align-self: flex-start; overflow-wrap: anywhere; }
-        .admin-chat-bubble.from-admin { background: #F1E3F5; align-self: flex-end; }
-        .admin-chat-bubble strong { display: block; color: #641B43; font-size: 10px; margin-bottom: 5px; }
-        .admin-chat-bubble p { color: #514A55; font-size: 11px; line-height: 1.7; white-space: pre-wrap; }
-        .admin-chat-bubble time { display: block; color: #8A818C; font-size: 9px; margin-top: 6px; text-align: right; }
-        .admin-reply-form { display: flex; flex-direction: column; gap: 9px; margin-top: 12px; }
-        .admin-reply-form textarea { width: 100%; min-height: 90px; resize: vertical; padding: 12px; border: 1px solid #E5D9E9; border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 12px; }
-        .admin-reply-form button { align-self: flex-start; padding: 10px 18px; border: 0; border-radius: 25px; background: #873B83; color: white; font-family: 'Poppins', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; }
-        .admin-reply-form button:disabled { opacity: .6; cursor: wait; }
-        .messages-admin-feedback { color: #706A73; font-size: 12px; line-height: 1.8; padding: 18px; text-align: center; background: #FAF7FB; border-radius: 9px; }
-        .messages-admin-status { color: #706A73; font-size: 11px; min-height: 17px; }
-        .messages-admin-status.error { color: #A04444; }
-        .messages-admin-status.success { color: #287443; }
-        @media (max-width: 700px) {
-            .messages-admin { padding: 20px; }
-            .messages-admin-layout { grid-template-columns: 1fr; }
-            .conversation-list { max-height: 230px; }
-            .admin-chat-bubble { max-width: 95%; }
-        }
-
-        .admin-footer {
-            text-align: center;
-            color: #8A818C;
-            font-size: 12px;
-            padding: 35px 15px;
-        }
-
-        .admin-footer a {
-            color: #873B83;
-            text-decoration: none;
-        }
-
-        @media (max-width: 600px) {
-            .admin-container {
-                margin: 35px auto;
-            }
-
-            .admin-intro h1 {
-                font-size: 31px;
-            }
-
-            .admin-orders {
-                padding: 20px;
-            }
-
-            .filter-area {
-                flex-direction: column;
-            }
-
-            .filter-area input,
-            .filter-area select {
-                width: 100%;
-            }
-
-            .order-details {
-                grid-template-columns: 1fr;
-            }
-
-            .order-management-row {
-                flex-direction: column;
-            }
-
-            .order-management select,
-            .save-status-button {
-                width: 100%;
-            }
-                        .payment-actions {
-                flex-direction: column;
-            }
-
-            .payment-button {
-                width: 100%;
-            }
-
-            .payment-field input {
-                max-width: none;
-            }
-
-            .final-upload-button {
-                width: 100%;
-            }
-        }
-    </style>
-</head>
-
-<body>
-
-    <header class="admin-header">
-        <div>
-            <h2>Amora Studio</h2>
-            <span>Área administrativa</span>
-        </div>
-
-        <div class="admin-header-actions">
-            <a href="index.html">Voltar ao site ↗</a>
-
-            <button class="admin-logout" id="logoutButton" type="button">
-                Sair da conta
-            </button>
-        </div>
-    </header>
-
-    <main class="admin-container">
-
-        <section class="admin-intro">
-            <h1>Painel administrativo</h1>
-            <p>Gerencie os pedidos e acompanhe os serviços do Amora Studio.</p>
-        </section>
-
-        <div class="admin-notice">
-            <strong>Atenção:</strong>
-            a confirmação de pagamento deve acontecer somente depois que você
-            verificar o recebimento do Pix na sua conta. O status do pedido e
-            o status do pagamento são controles separados. Os arquivos finais
-            ficam em armazenamento privado e o acesso do cliente depende da
-            confirmação do pagamento.
-        </div>
-
-        <section class="admin-stats">
-
-            <div class="stat-card">
-                <p>Total de pedidos</p>
-                <h2 id="totalOrders">—</h2>
-            </div>
-
-            <div class="stat-card">
-                <p>Novos pedidos</p>
-                <h2 id="newOrders">—</h2>
-            </div>
-
-            <div class="stat-card">
-                <p>Em andamento</p>
-                <h2 id="activeOrders">—</h2>
-            </div>
-
-            <div class="stat-card">
-                <p>Concluídos</p>
-                <h2 id="completedOrders">—</h2>
-            </div>
-
-            <div class="stat-card">
-                <p>Aguardando pagamento</p>
-                <h2 id="waitingPayments">—</h2>
-            </div>
-
-            <div class="stat-card">
-                <p>Pagamentos confirmados</p>
-                <h2 id="confirmedPayments">—</h2>
-            </div>
-
-            <div class="stat-card">
-                <p>Valores aguardando</p>
-                <h2 id="pendingAmount">—</h2>
-            </div>
-
-            <div class="stat-card">
-                <p>Valores recebidos</p>
-                <h2 id="receivedAmount">—</h2>
-            </div>
-
-        </section>
-
-        <section class="admin-orders">
-
-            <div class="orders-heading">
-                <div>
-                    <h2>Pedidos recebidos</h2>
-                    <p>Visualize, gerencie e acompanhe as solicitações dos clientes.</p>
-                </div>
-
-                <button
-                    type="button"
-                    class="refresh-button"
-                    id="refreshButton"
-                >
-                    Atualizar pedidos
-                </button>
-            </div>
-
-            <div class="filter-area">
-                <input
-                    type="search"
-                    id="searchOrders"
-                    placeholder="Buscar por cliente, e-mail ou serviço..."
-                >
-
-                <select id="filterStatus">
-                    <option value="">Todos os status do pedido</option>
-                    <option value="Novo">Novo</option>
-                    <option value="Em análise">Em análise</option>
-                    <option value="Aguardando pagamento">Aguardando pagamento</option>
-                    <option value="Em andamento">Em andamento</option>
-                    <option value="Concluído">Concluído</option>
-                    <option value="Cancelado">Cancelado</option>
-                </select>
-
-                <select id="filterPayment">
-                    <option value="">Todos os pagamentos</option>
-                    <option value="Não solicitado">Não solicitado</option>
-                    <option value="Aguardando pagamento">Aguardando pagamento</option>
-                    <option value="Confirmado">Confirmado</option>
-                </select>
-            </div>
-
-            <div class="orders-message" id="ordersLoading">
-                Carregando pedidos...
-            </div>
-
-            <div class="orders-message error" id="ordersError" hidden>
-                Não foi possível carregar os pedidos. Tente novamente.
-            </div>
-
-            <div class="empty-orders" id="ordersEmpty" hidden>
-                <div class="symbol">♡</div>
-
-                <h3>Nenhum pedido encontrado</h3>
-
-                <p>
-                    Quando os clientes enviarem solicitações,
-                    elas aparecerão nesta área.
-                </p>
-            </div>
-
-            <div id="ordersList" hidden></div>
-
-        </section>
-
-
-        <section class="messages-admin" aria-labelledby="adminMessagesTitle">
-            <div class="orders-heading">
-                <div>
-                    <h2 id="adminMessagesTitle">Caixa de mensagens</h2>
-                    <p>Leia as mensagens dos clientes e responda diretamente por aqui.</p>
-                </div>
-                <button type="button" class="refresh-button" id="refreshMessagesButton">Atualizar mensagens</button>
-            </div>
-            <p class="messages-admin-intro">As conversas são privadas. Selecione um cliente para visualizar o histórico e enviar uma resposta.</p>
-            <div class="messages-admin-layout">
-                <div class="conversation-list" id="conversationList"><p class="messages-admin-feedback">Carregando conversas...</p></div>
-                <div class="conversation-chat">
-                    <h3 id="conversationTitle">Selecione uma conversa</h3>
-                    <div class="admin-chat-messages" id="adminChatMessages"><p class="messages-admin-feedback">As mensagens aparecerão aqui.</p></div>
-                    <form class="admin-reply-form" id="adminReplyForm">
-                        <textarea id="adminReplyInput" maxlength="5000" placeholder="Escreva sua resposta..." required disabled></textarea>
-                        <p class="messages-admin-status" id="adminMessagesStatus" role="status" aria-live="polite"></p>
-                        <button type="submit" id="adminReplyButton" disabled>Enviar resposta</button>
-                    </form>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <footer class="admin-footer">
-        © <span id="year"></span> Amora Studio ·
-        <a href="contato.html">Central de contato</a>
-    </footer>
-
-    <script src="script.js"></script>
-
-    <script type="module">
-        import { supabase } from "./supabase.js";
-
-        const logoutButton = document.getElementById("logoutButton");
-        const refreshButton = document.getElementById("refreshButton");
-        const conversationList = document.getElementById("conversationList");
-        const conversationTitle = document.getElementById("conversationTitle");
-        const adminChatMessages = document.getElementById("adminChatMessages");
-        const adminReplyForm = document.getElementById("adminReplyForm");
-        const adminReplyInput = document.getElementById("adminReplyInput");
-        const adminReplyButton = document.getElementById("adminReplyButton");
-        const adminMessagesStatus = document.getElementById("adminMessagesStatus");
-        const refreshMessagesButton = document.getElementById("refreshMessagesButton");
-
-        const totalOrders = document.getElementById("totalOrders");
-        const newOrders = document.getElementById("newOrders");
-        const activeOrders = document.getElementById("activeOrders");
-        const completedOrders = document.getElementById("completedOrders");
-
-        const waitingPayments = document.getElementById("waitingPayments");
-        const confirmedPayments = document.getElementById("confirmedPayments");
-        const pendingAmount = document.getElementById("pendingAmount");
-        const receivedAmount = document.getElementById("receivedAmount");
-
-        const searchInput = document.getElementById("searchOrders");
-        const filterStatus = document.getElementById("filterStatus");
-        const filterPayment = document.getElementById("filterPayment");
-
-        const ordersLoading = document.getElementById("ordersLoading");
-        const ordersError = document.getElementById("ordersError");
-        const ordersEmpty = document.getElementById("ordersEmpty");
-        const ordersList = document.getElementById("ordersList");
-
-        const BUCKET_ARQUIVOS_FINAIS = "arquivos-finais";
-
-        const TIPOS_PERMITIDOS = [
-            "application/pdf",
-            "application/msword",
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            "application/vnd.ms-excel",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            "application/vnd.ms-powerpoint",
-            "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-            "image/jpeg",
-            "image/png"
-        ];
-
-        const TAMANHO_MAXIMO = 10 * 1024 * 1024;
-
-        let redirecionando = false;
-        let todosPedidos = [];
-        let administradorAtual = null;
-        let usuarioConversaSelecionada = null;
-        let conversasCache = [];
-                document.getElementById("year").textContent =
-            new Date().getFullYear();
-
-        function redirecionarParaLogin() {
-            if (redirecionando) return;
-
-            redirecionando = true;
-            window.location.replace("login.html");
-        }
-
-        function criarElemento(tag, classe, texto) {
-            const elemento = document.createElement(tag);
-
-            if (classe) {
-                elemento.className = classe;
-            }
-
-            if (texto !== undefined && texto !== null) {
-                elemento.textContent = texto;
-            }
-
-            return elemento;
-        }
-
-        function normalizar(texto) {
-            return String(texto || "")
-                .trim()
-                .toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "");
-        }
-
-        function formatarData(data) {
-            if (!data) return "Não informado";
-
-            const objetoData = new Date(data);
-
-            if (Number.isNaN(objetoData.getTime())) {
-                return "Não informado";
-            }
-
-            return objetoData.toLocaleDateString("pt-BR");
-        }
-
-        function formatarDataHora(data) {
-            if (!data) return "Não informado";
-
-            const objetoData = new Date(data);
-
-            if (Number.isNaN(objetoData.getTime())) {
-                return "Não informado";
-            }
-
-            return objetoData.toLocaleString("pt-BR");
-        }
-
-        function formatarMoeda(valor) {
-            if (valor === null || valor === undefined || valor === "") {
-                return "Não definido";
-            }
-
-            const numero = Number(valor);
-
-            if (!Number.isFinite(numero)) {
-                return "Não definido";
-            }
-
-            return numero.toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL"
-            });
-        }
-
-        function statusNormalizado(status) {
-            return normalizar(status);
-        }
-
-        function atualizarIndicadores() {
-            const total = todosPedidos.length;
-
-            const novos = todosPedidos.filter(pedido =>
-                statusNormalizado(pedido.status) === "novo"
-            ).length;
-
-            const concluidos = todosPedidos.filter(pedido =>
-                statusNormalizado(pedido.status) === "concluido"
-            ).length;
+            alert("Orçamento salvo com sucesso!");
+            await carregarPedidos();
 
-            const cancelados = todosPedidos.filter(pedido =>
-                statusNormalizado(pedido.status) === "cancelado"
-            ).length;
+        } catch (error) {
+            console.error("Erro ao salvar orçamento:", error);
 
-            const aguardando = todosPedidos.filter(pedido =>
-                normalizar(pedido.pagamento_status) === "aguardando pagamento"
+            alert(
+                "Não foi possível salvar o orçamento. Verifique as permissões do banco."
             );
 
-            const confirmados = todosPedidos.filter(pedido =>
-                normalizar(pedido.pagamento_status) === "confirmado"
-            );
-
-            const totalAguardando = aguardando.reduce((soma, pedido) => {
-                return soma + (Number(pedido.valor_orcamento) || 0);
-            }, 0);
-
-            const totalRecebido = confirmados.reduce((soma, pedido) => {
-                return soma + (Number(pedido.valor_orcamento) || 0);
-            }, 0);
-
-            totalOrders.textContent = total;
-            newOrders.textContent = novos;
-            activeOrders.textContent = total - novos - concluidos - cancelados;
-            completedOrders.textContent = concluidos;
-
-            waitingPayments.textContent = aguardando.length;
-            confirmedPayments.textContent = confirmados.length;
-
-            pendingAmount.textContent = formatarMoeda(totalAguardando);
-            receivedAmount.textContent = formatarMoeda(totalRecebido);
+            botaoSalvar.disabled = false;
+            botaoSalvar.textContent = "Salvar orçamento";
         }
+    });
 
-        function criarDetalhe(titulo, valor) {
-            const detalhe = criarElemento("div", "order-detail");
+    area.appendChild(botaoSalvar);
 
-            detalhe.appendChild(
-                criarElemento("strong", "", titulo)
-            );
+    const datas = criarElemento("div", "payment-dates");
 
-            detalhe.appendChild(
-                criarElemento("span", "", valor || "Não informado")
-            );
+    datas.appendChild(
+        criarElemento(
+            "div",
+            "",
+            "Pix enviado: " + formatarDataHora(pedido.pix_enviado_em)
+        )
+    );
 
-            return detalhe;
-        }
+    datas.appendChild(
+        criarElemento(
+            "div",
+            "",
+            "Pagamento confirmado: " + formatarDataHora(pedido.pagamento_confirmado_em)
+        )
+    );
 
-        function obterArquivos(arquivos) {
-            if (Array.isArray(arquivos)) {
-                return arquivos;
-            }
-
-            if (typeof arquivos === "string" && arquivos.trim()) {
-                return [arquivos];
-            }
-
-            return [];
-        }
-
-        async function carregarAnexos(container, arquivos) {
-            if (!arquivos.length) return;
-
-            const secao = criarElemento("div", "order-files");
-
-            secao.appendChild(
-                criarElemento("strong", "", "Anexos enviados pelo cliente:")
-            );
-
-            for (const caminho of arquivos) {
-                const nomeArquivo = String(caminho).split("/").pop();
-
-                const { data, error } = await supabase
-                    .storage
-                    .from("pedido-referencias")
-                    .createSignedUrl(caminho, 60);
-
-                if (error || !data?.signedUrl) {
-                    secao.appendChild(
-                        criarElemento(
-                            "p",
-                            "file-error",
-                            "Não foi possível abrir: " + nomeArquivo
-                        )
-                    );
-
-                    console.error("Erro ao abrir anexo:", error);
-                    continue;
-                }
-
-                const link = criarElemento(
-                    "a",
-                    "file-link",
-                    "Abrir " + nomeArquivo
-                );
-
-                link.href = data.signedUrl;
-                link.target = "_blank";
-                link.rel = "noopener noreferrer";
-
-                secao.appendChild(link);
-            }
-
-            container.appendChild(secao);
-        }
-
-        function criarSeletorStatus(pedido) {
-            const opcoes = [
-                "Novo",
-                "Em análise",
-                "Aguardando pagamento",
-                "Em andamento",
-                "Concluído",
-                "Cancelado"
-            ];
-
-            const area = criarElemento("div", "order-management");
-
-            const label = criarElemento(
-                "label",
+    if (pedido.mercado_pago_payment_id) {
+        datas.appendChild(
+            criarElemento(
+                "div",
                 "",
-                "Atualizar status do pedido"
-            );
+                "Código da cobrança: " + pedido.mercado_pago_payment_id
+            )
+        );
+    }
 
-            const linha = criarElemento("div", "order-management-row");
+    area.appendChild(datas);
 
-            const seletor = document.createElement("select");
-            seletor.setAttribute("aria-label", "Status do pedido");
+    const acoes = criarElemento("div", "payment-actions");
 
-            const statusAtual = pedido.status || "Novo";
+    if (
+        pagamentoStatus !== "Confirmado" &&
+        pagamentoStatus !== "Aguardando pagamento"
+    ) {
+        const botaoPix = criarElemento(
+            "button",
+            "payment-button",
+            "Gerar cobrança Pix"
+        );
 
-            opcoes.forEach(status => {
-                const opcao = document.createElement("option");
-                opcao.value = status;
-                opcao.textContent = status;
+        botaoPix.type = "button";
 
-                if (normalizar(status) === normalizar(statusAtual)) {
-                    opcao.selected = true;
-                }
+        botaoPix.addEventListener("click", async () => {
+            const valorDigitado = input.value.trim();
+            const valor = Number(valorDigitado);
 
-                seletor.appendChild(opcao);
-            });
-
-            if (!opcoes.some(status =>
-                normalizar(status) === normalizar(statusAtual)
-            )) {
-                const opcaoAtual = document.createElement("option");
-                opcaoAtual.value = statusAtual;
-                opcaoAtual.textContent = statusAtual;
-                opcaoAtual.selected = true;
-                seletor.appendChild(opcaoAtual);
+            if (!valorDigitado || !Number.isFinite(valor) || valor <= 0) {
+                alert("Informe um valor válido para o orçamento.");
+                input.focus();
+                return;
             }
 
-            const botao = criarElemento(
-                "button",
-                "save-status-button",
-                "Salvar status"
-            );
-
-            botao.type = "button";
-
-            botao.addEventListener("click", async () => {
-                const novoStatus = seletor.value;
-                                if (novoStatus === statusAtual) {
-                    alert("Este pedido já está com esse status.");
-                    return;
-                }
-
-                botao.disabled = true;
-                seletor.disabled = true;
-                botao.textContent = "Salvando...";
-
-                try {
-                    const { error } = await supabase
-                        .from("pedidos")
-                        .update({
-                            status: novoStatus
-                        })
-                        .eq("id", pedido.id);
-
-                    if (error) {
-                        throw error;
-                    }
-
-                    alert("Status atualizado com sucesso!");
-
-                    await carregarPedidos();
-
-                } catch (error) {
-                    console.error("Erro ao atualizar status:", error);
-
-                    alert(
-                        "Não foi possível atualizar o status. Verifique sua conexão e as permissões do banco."
-                    );
-
-                    botao.disabled = false;
-                    seletor.disabled = false;
-                    botao.textContent = "Salvar status";
-                }
-            });
-
-            linha.appendChild(seletor);
-            linha.appendChild(botao);
-
-            area.appendChild(label);
-            area.appendChild(linha);
-
-            return area;
-        }
-
-        function criarControlePagamento(pedido) {
-            const area = criarElemento("div", "payment-management");
-
-            area.appendChild(
-                criarElemento("h4", "", "Controle financeiro")
-            );
-
-            area.appendChild(
-                criarElemento(
-                    "p",
-                    "payment-explanation",
-                    "Registre o orçamento e acompanhe o pagamento deste pedido."
-                )
-            );
-
-            const pagamentoStatus = pedido.pagamento_status || "Não solicitado";
-
-            let classeStatus = "not-requested";
-
-            if (pagamentoStatus === "Aguardando pagamento") {
-                classeStatus = "waiting";
-            } else if (pagamentoStatus === "Confirmado") {
-                classeStatus = "confirmed";
+            if (Number(pedido.valor_orcamento) !== valor) {
+                alert("Primeiro, salve o orçamento atualizado.");
+                return;
             }
 
-            area.appendChild(
-                criarElemento(
-                    "span",
-                    "payment-status " + classeStatus,
-                    "Pagamento: " + pagamentoStatus
-                )
+            const confirmar = window.confirm(
+                "Deseja gerar uma cobrança Pix de " +
+                formatarMoeda(valor) +
+                " para este pedido? O Mercado Pago criará o QR Code e o código Pix."
             );
 
-            const campo = criarElemento("div", "payment-field");
+            if (!confirmar) return;
 
-            const label = criarElemento(
-                "label",
-                "",
-                "Valor do orçamento (R$)"
-            );
+            botaoPix.disabled = true;
+            botaoPix.textContent = "Gerando cobrança...";
 
-            const input = document.createElement("input");
-            input.type = "number";
-            input.min = "0.01";
-            input.step = "0.01";
-            input.placeholder = "Ex.: 35,00";
-            input.value = pedido.valor_orcamento ?? "";
-            input.setAttribute("aria-label", "Valor do orçamento");
-
-            if (pagamentoStatus === "Confirmado") {
-                input.disabled = true;
-            }
-
-            campo.appendChild(label);
-            campo.appendChild(input);
-
-            area.appendChild(campo);
-
-            const botaoSalvar = criarElemento(
-                "button",
-                "payment-button secondary",
-                "Salvar orçamento"
-            );
-
-            botaoSalvar.type = "button";
-
-            if (pagamentoStatus === "Confirmado") {
-                botaoSalvar.disabled = true;
-                botaoSalvar.textContent = "Orçamento confirmado";
-            }
-
-            botaoSalvar.addEventListener("click", async () => {
-                const valorDigitado = input.value.trim();
-                const valor = Number(valorDigitado);
-
-                if (!valorDigitado || !Number.isFinite(valor) || valor <= 0) {
-                    alert("Informe um valor válido para o orçamento.");
-                    input.focus();
-                    return;
-                }
-
-                if (pagamentoStatus === "Confirmado") {
-                    alert("Este pagamento já foi confirmado. O orçamento não pode ser alterado por aqui.");
-                    return;
-                }
-
-                botaoSalvar.disabled = true;
-                botaoSalvar.textContent = "Salvando...";
-
-                try {
-                    const { error } = await supabase
-                        .from("pedidos")
-                        .update({
-                            valor_orcamento: valor
-                        })
-                        .eq("id", pedido.id);
-
-                    if (error) {
-                        throw error;
-                    }
-
-                    alert("Orçamento salvo com sucesso!");
-                    await carregarPedidos();
-
-                } catch (error) {
-                    console.error("Erro ao salvar orçamento:", error);
-
-                    alert(
-                        "Não foi possível salvar o orçamento. Verifique as permissões do banco."
-                    );
-
-                    botaoSalvar.disabled = false;
-                    botaoSalvar.textContent = "Salvar orçamento";
-                }
-            });
-
-            area.appendChild(botaoSalvar);
-
-            const datas = criarElemento("div", "payment-dates");
-
-            datas.appendChild(
-                criarElemento(
-                    "div",
-                    "",
-                    "Pix enviado: " + formatarDataHora(pedido.pix_enviado_em)
-                )
-            );
-
-            datas.appendChild(
-                criarElemento(
-                    "div",
-                    "",
-                    "Pagamento confirmado: " + formatarDataHora(pedido.pagamento_confirmado_em)
-                )
-            );
-
-            area.appendChild(datas);
-
-            const acoes = criarElemento("div", "payment-actions");
-
-            if (pagamentoStatus === "Não solicitado" || !pagamentoStatus) {
-                const botaoPix = criarElemento(
-                    "button",
-                    "payment-button",
-                    "Registrar envio do Pix"
-                );
-
-                botaoPix.type = "button";
-
-                botaoPix.addEventListener("click", async () => {
-                    const valor = Number(input.value);
-
-                    if (!input.value.trim() || !Number.isFinite(valor) || valor <= 0) {
-                        alert("Primeiro, informe e salve o valor do orçamento.");
-                        input.focus();
-                        return;
-                    }
-
-                    if (Number(pedido.valor_orcamento) !== valor) {
-                        alert("Salve o orçamento atualizado antes de registrar o envio do Pix.");
-                        return;
-                    }
-
-                    const confirmar = window.confirm(
-                        "Você já enviou o QR Code ou os dados do Pix ao cliente?"
-                    );
-
-                    if (!confirmar) return;
-
-                    botaoPix.disabled = true;
-                    botaoPix.textContent = "Registrando...";
-
-                    try {
-                        const { error } = await supabase
-                            .from("pedidos")
-                            .update({
-                                pagamento_status: "Aguardando pagamento",
-                                pix_enviado_em: new Date().toISOString(),
-                                pagamento_confirmado_em: null
-                            })
-                            .eq("id", pedido.id);
-
-                        if (error) {
-                            throw error;
+            try {
+                const { data, error } = await supabase.functions.invoke(
+                    "gerar-pix",
+                    {
+                        body: {
+                            pedido_id: pedido.id
                         }
-
-                        alert("Envio do Pix registrado com sucesso!");
-                        await carregarPedidos();
-
-                    } catch (error) {
-                        console.error("Erro ao registrar envio do Pix:", error);
-
-                        alert(
-                            "Não foi possível registrar o envio do Pix. Tente novamente."
-                        );
-
-                        botaoPix.disabled = false;
-                        botaoPix.textContent = "Registrar envio do Pix";
                     }
-                });
-
-                acoes.appendChild(botaoPix);
-            }
-                        if (pagamentoStatus === "Aguardando pagamento") {
-                const botaoConfirmar = criarElemento(
-                    "button",
-                    "payment-button confirm",
-                    "Confirmar recebimento do Pix"
                 );
-
-                botaoConfirmar.type = "button";
-
-                botaoConfirmar.addEventListener("click", async () => {
-                    if (!pedido.pix_enviado_em) {
-                        alert("Não há registro de envio do Pix para este pedido.");
-                        return;
-                    }
-
-                    if (!pedido.valor_orcamento || Number(pedido.valor_orcamento) <= 0) {
-                        alert("Este pedido não possui um orçamento válido.");
-                        return;
-                    }
-
-                    const confirmar = window.confirm(
-                        "Você conferiu sua conta e verificou que o valor deste Pix realmente caiu? Só confirme se o dinheiro já estiver disponível."
-                    );
-
-                    if (!confirmar) return;
-
-                    botaoConfirmar.disabled = true;
-                    botaoConfirmar.textContent = "Confirmando...";
-
-                    try {
-                        const { error } = await supabase
-                            .from("pedidos")
-                            .update({
-                                pagamento_status: "Confirmado",
-                                pagamento_confirmado_em: new Date().toISOString()
-                            })
-                            .eq("id", pedido.id);
-
-                        if (error) {
-                            throw error;
-                        }
-
-                        alert(
-                            "Pagamento confirmado e registrado com sucesso!"
-                        );
-
-                        await carregarPedidos();
-
-                    } catch (error) {
-                        console.error("Erro ao confirmar pagamento:", error);
-
-                        alert(
-                            "Não foi possível confirmar o pagamento. Verifique as permissões do banco."
-                        );
-
-                        botaoConfirmar.disabled = false;
-                        botaoConfirmar.textContent = "Confirmar recebimento do Pix";
-                    }
-                });
-
-                acoes.appendChild(botaoConfirmar);
-            }
-
-            if (pagamentoStatus === "Confirmado") {
-                acoes.appendChild(
-                    criarElemento(
-                        "p",
-                        "payment-explanation",
-                        "Este pagamento já foi confirmado. A confirmação registrada não pode ser alterada por este painel."
-                    )
-                );
-            }
-
-            area.appendChild(acoes);
-
-            return area;
-        }
-
-        function nomeArquivoSeguro(nome) {
-            return String(nome || "arquivo")
-                .replace(/[\/\\]/g, "_")
-                .replace(/[^\p{L}\p{N}._() -]/gu, "_")
-                .trim()
-                .slice(0, 150) || "arquivo";
-        }
-
-        function criarControleArquivosFinais(pedido) {
-            const area = criarElemento("div", "final-files-management");
-
-            area.appendChild(
-                criarElemento("h4", "", "Arquivos finais")
-            );
-
-            area.appendChild(
-                criarElemento(
-                    "p",
-                    "final-files-description",
-                    "Envie aqui os trabalhos concluídos deste pedido. Você pode selecionar vários arquivos. Eles ficam privados e o cliente só poderá acessá-los depois que o pagamento for confirmado."
-                )
-            );
-
-            const lista = criarElemento("div", "final-files-list");
-
-            lista.appendChild(
-                criarElemento("strong", "", "Arquivos já enviados")
-            );
-
-            lista.appendChild(
-                criarElemento(
-                    "p",
-                    "final-files-empty",
-                    "Carregando arquivos..."
-                )
-            );
-
-            area.appendChild(lista);
-
-            const uploadArea = criarElemento("div", "final-upload-area");
-
-            const label = criarElemento(
-                "label",
-                "",
-                "Selecionar arquivos finais"
-            );
-
-            const input = document.createElement("input");
-            input.type = "file";
-            input.multiple = true;
-            input.accept = ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png";
-            input.setAttribute("aria-label", "Selecionar arquivos finais");
-
-            const botao = criarElemento(
-                "button",
-                "final-upload-button",
-                "Enviar arquivos"
-            );
-
-            botao.type = "button";
-
-            const feedback = criarElemento(
-                "p",
-                "final-upload-feedback",
-                "Limite de 10 MB por arquivo. Formatos permitidos: PDF, Word, Excel, PowerPoint, JPEG e PNG."
-            );
-
-            uploadArea.appendChild(label);
-            uploadArea.appendChild(input);
-            uploadArea.appendChild(botao);
-            uploadArea.appendChild(feedback);
-
-            area.appendChild(uploadArea);
-
-            async function carregarListaArquivos() {
-                lista.replaceChildren();
-
-                lista.appendChild(
-                    criarElemento("strong", "", "Arquivos já enviados")
-                );
-
-                const caminhoPasta = `${pedido.user_id}/${pedido.id}`;
-
-                const { data: arquivos, error } = await supabase
-                    .storage
-                    .from(BUCKET_ARQUIVOS_FINAIS)
-                    .list(caminhoPasta, {
-                        limit: 100,
-                        sortBy: {
-                            column: "name",
-                            order: "asc"
-                        }
-                    });
 
                 if (error) {
-                    console.error("Erro ao listar arquivos finais:", error);
+                    console.error("Erro ao chamar gerar-pix:", error);
 
-                    lista.appendChild(
-                        criarElemento(
-                            "p",
-                            "file-error",
-                            "Não foi possível carregar a lista de arquivos finais."
-                        )
-                    );
+                    let mensagem = "Não foi possível gerar a cobrança Pix.";
 
-                    return;
-                }
-
-                const arquivosValidos = (arquivos || []).filter(arquivo =>
-                    arquivo.name && arquivo.id
-                );
-
-                if (!arquivosValidos.length) {
-                    lista.appendChild(
-                        criarElemento(
-                            "p",
-                            "final-files-empty",
-                            "Nenhum arquivo final enviado para este pedido."
-                        )
-                    );
-
-                    return;
-                }
-
-                for (const arquivo of arquivosValidos) {
-                    const caminhoCompleto =
-                        `${caminhoPasta}/${arquivo.name}`;
-
-                    const linha = criarElemento("div", "final-file-item");
-
-                    linha.appendChild(
-                        criarElemento(
-                            "span",
-                            "final-file-name",
-                            arquivo.name
-                        )
-                    );
-
-                    const { data, error: linkError } = await supabase
-                        .storage
-                        .from(BUCKET_ARQUIVOS_FINAIS)
-                        .createSignedUrl(caminhoCompleto, 60);
-
-                    if (linkError || !data?.signedUrl) {
-                        linha.appendChild(
-                            criarElemento(
-                                "span",
-                                "file-error",
-                                "Link indisponível"
-                            )
-                        );
-
-                        console.error(
-                            "Erro ao gerar link do arquivo final:",
-                            linkError
-                        );
-
-                    } else {
-                        const link = criarElemento(
-                            "a",
-                            "final-file-link",
-                            "Abrir arquivo"
-                        );
-
-                        link.href = data.signedUrl;
-                        link.target = "_blank";
-                        link.rel = "noopener noreferrer";
-
-                        linha.appendChild(link);
-                    }
-                                        lista.appendChild(linha);
-                }
-            }
-
-            botao.addEventListener("click", async () => {
-                const arquivosSelecionados = Array.from(input.files || []);
-
-                if (!arquivosSelecionados.length) {
-                    alert("Selecione pelo menos um arquivo para enviar.");
-                    input.focus();
-                    return;
-                }
-
-                for (const arquivo of arquivosSelecionados) {
-                    if (arquivo.size > TAMANHO_MAXIMO) {
-                        alert(
-                            `O arquivo "${arquivo.name}" ultrapassa o limite de 10 MB.`
-                        );
-                        return;
-                    }
-
-                    if (
-                        arquivo.type &&
-                        !TIPOS_PERMITIDOS.includes(arquivo.type)
-                    ) {
-                        alert(
-                            `O formato do arquivo "${arquivo.name}" não é permitido.`
-                        );
-                        return;
-                    }
-                }
-
-                const confirmar = window.confirm(
-                    `Deseja enviar ${arquivosSelecionados.length} arquivo(s) final(is) para este pedido?`
-                );
-
-                if (!confirmar) return;
-
-                botao.disabled = true;
-                input.disabled = true;
-                botao.textContent = "Enviando...";
-                feedback.className = "final-upload-feedback";
-                feedback.textContent = "Enviando os arquivos. Aguarde...";
-
-                const caminhoPasta = `${pedido.user_id}/${pedido.id}`;
-
-                let enviados = 0;
-
-                try {
-                    for (const arquivo of arquivosSelecionados) {
-                        const nomeSeguro = nomeArquivoSeguro(arquivo.name);
-
-                        const nomeArmazenado =
-                            `${Date.now()}-${crypto.randomUUID()}-${nomeSeguro}`;
-
-                        const caminhoCompleto =
-                            `${caminhoPasta}/${nomeArmazenado}`;
-
-                        const { error } = await supabase
-                            .storage
-                            .from(BUCKET_ARQUIVOS_FINAIS)
-                            .upload(caminhoCompleto, arquivo, {
-                                cacheControl: "3600",
-                                upsert: false,
-                                contentType: arquivo.type || undefined
-                            });
-
-                        if (error) {
-                            throw new Error(
-                                `Falha ao enviar "${arquivo.name}": ${error.message}`
-                            );
+                    if (error.context) {
+                        try {
+                            const resposta = await error.context.json();
+                            if (resposta?.erro) {
+                                mensagem = resposta.erro;
+                            }
+                        } catch (_) {
+                            // Mantém a mensagem padrão.
                         }
-
-                        enviados++;
                     }
 
-                    feedback.className = "final-upload-feedback success";
-                    feedback.textContent =
-                        `${enviados} arquivo(s) enviado(s) com sucesso!`;
+                    throw new Error(mensagem);
+                }
 
-                    input.value = "";
+                if (!data?.sucesso || !data?.qr_code) {
+                    throw new Error(
+                        data?.erro || "O Mercado Pago não retornou os dados do Pix."
+                    );
+                }
 
-                    await carregarListaArquivos();
+                const { error: erroRegistro } = await supabase
+                    .from("pedidos")
+                    .update({
+                        pix_enviado_em: pedido.pix_enviado_em || new Date().toISOString()
+                    })
+                    .eq("id", pedido.id);
 
-                    alert("Arquivos finais enviados com sucesso!");
-
-                } catch (error) {
-                    console.error("Erro ao enviar arquivos finais:", error);
-
-                    feedback.className = "final-upload-feedback error";
-
-                    feedback.textContent =
-                        `Foram enviados ${enviados} de ${arquivosSelecionados.length} arquivo(s). ${error.message || "Ocorreu um erro no envio."}`;
+                if (erroRegistro) {
+                    console.error("Erro ao registrar data do Pix:", erroRegistro);
 
                     alert(
-                        "Ocorreu um erro durante o envio. Confira a mensagem exibida na área de arquivos finais."
+                        "A cobrança foi criada, mas não foi possível registrar a data no pedido. Atualize o painel antes de tentar novamente."
                     );
 
-                    await carregarListaArquivos();
-
-                } finally {
-                    botao.disabled = false;
-                    input.disabled = false;
-                    botao.textContent = "Enviar arquivos";
-                }
-            });
-
-            carregarListaArquivos();
-
-            return area;
-        }
-
-        async function criarCartaoPedido(pedido) {
-            const cartao = criarElemento("article", "order-card");
-
-            const cabecalho = criarElemento("div", "order-card-header");
-            const identificacao = criarElemento("div");
-
-            identificacao.appendChild(
-                criarElemento(
-                    "h3",
-                    "",
-                    pedido.servico || "Serviço solicitado"
-                )
-            );
-
-            identificacao.appendChild(
-                criarElemento(
-                    "p",
-                    "order-date",
-                    "Recebido em " + formatarDataHora(pedido.created_at)
-                )
-            );
-
-            const status = criarElemento(
-                "span",
-                "order-status",
-                pedido.status || "Novo"
-            );
-
-            cabecalho.appendChild(identificacao);
-            cabecalho.appendChild(status);
-
-            cartao.appendChild(cabecalho);
-
-            const detalhes = criarElemento("div", "order-details");
-
-            detalhes.appendChild(
-                criarDetalhe("Nome do cliente", pedido.nome_cliente)
-            );
-
-            detalhes.appendChild(
-                criarDetalhe("E-mail", pedido.email_cliente)
-            );
-
-            detalhes.appendChild(
-                criarDetalhe("Categoria", pedido.categoria)
-            );
-
-            detalhes.appendChild(
-                criarDetalhe("Prazo solicitado", formatarData(pedido.prazo))
-            );
-
-            detalhes.appendChild(
-                criarDetalhe("Número do pedido", pedido.id)
-            );
-
-            cartao.appendChild(detalhes);
-
-            if (pedido.descricao) {
-                const descricao = criarElemento(
-                    "div",
-                    "order-description"
-                );
-
-                descricao.appendChild(
-                    criarElemento("strong", "", "Descrição do pedido")
-                );
-
-                descricao.appendChild(
-                    criarElemento("p", "", pedido.descricao)
-                );
-
-                cartao.appendChild(descricao);
-            }
-
-            const arquivos = obterArquivos(pedido.arquivos);
-
-            await carregarAnexos(cartao, arquivos);
-
-            cartao.appendChild(criarSeletorStatus(pedido));
-            cartao.appendChild(criarControlePagamento(pedido));
-            cartao.appendChild(criarControleArquivosFinais(pedido));
-
-            return cartao;
-        }
-
-        function aplicarFiltros() {
-            const busca = normalizar(searchInput.value);
-            const statusSelecionado = normalizar(filterStatus.value);
-            const pagamentoSelecionado = normalizar(filterPayment.value);
-
-            const filtrados = todosPedidos.filter(pedido => {
-                const textoBusca = normalizar([
-                    pedido.nome_cliente,
-                    pedido.email_cliente,
-                    pedido.servico,
-                    pedido.categoria,
-                    pedido.id
-                ].join(" "));
-
-                const correspondeBusca =
-                    !busca || textoBusca.includes(busca);
-
-                const correspondeStatus =
-                    !statusSelecionado ||
-                    normalizar(pedido.status || "Novo") === statusSelecionado;
-
-                const correspondePagamento =
-                    !pagamentoSelecionado ||
-                    normalizar(pedido.pagamento_status || "Não solicitado") === pagamentoSelecionado;
-
-                return correspondeBusca &&
-                    correspondeStatus &&
-                    correspondePagamento;
-            });
-
-            renderizarPedidos(filtrados);
-        }
-
-        async function renderizarPedidos(lista) {
-            ordersList.replaceChildren();
-
-            ordersEmpty.hidden = true;
-            ordersList.hidden = true;
-
-            if (lista.length === 0) {
-                ordersEmpty.hidden = false;
-                return;
-            }
-
-            ordersList.hidden = false;
-
-            for (const pedido of lista) {
-                const cartao = await criarCartaoPedido(pedido);
-                ordersList.appendChild(cartao);
-            }
-        }
-
-        async function carregarPedidos() {
-                        ordersLoading.hidden = false;
-            ordersError.hidden = true;
-            ordersEmpty.hidden = true;
-            ordersList.hidden = true;
-
-            refreshButton.disabled = true;
-            refreshButton.textContent = "Atualizando...";
-
-            try {
-                const { data: pedidos, error } = await supabase
-                    .from("pedidos")
-                    .select(`
-                        id,
-                        user_id,
-                        nome_cliente,
-                        email_cliente,
-                        categoria,
-                        servico,
-                        descricao,
-                        prazo,
-                        arquivos,
-                        status,
-                        created_at,
-                        valor_orcamento,
-                        pagamento_status,
-                        pix_enviado_em,
-                        pagamento_confirmado_em
-                    `)
-                    .order("created_at", { ascending: false });
-
-                if (error) {
-                    throw error;
-                }
-
-                todosPedidos = pedidos || [];
-
-                atualizarIndicadores();
-                aplicarFiltros();
-
-            } catch (error) {
-                console.error("Erro ao carregar pedidos:", error);
-                ordersError.hidden = false;
-
-            } finally {
-                ordersLoading.hidden = true;
-                refreshButton.disabled = false;
-                refreshButton.textContent = "Atualizar pedidos";
-            }
-        }
-
-        function definirStatusMensagens(texto, tipo = "") {
-            adminMessagesStatus.textContent = texto;
-            adminMessagesStatus.className = "messages-admin-status";
-            if (tipo) adminMessagesStatus.classList.add(tipo);
-        }
-
-        async function carregarConversaSelecionada() {
-            if (!usuarioConversaSelecionada) return;
-            adminChatMessages.replaceChildren(
-                criarElemento("p", "messages-admin-feedback", "Carregando conversa...")
-            );
-            const { data, error } = await supabase
-                .from("mensagens")
-                .select("id, user_id, autor_id, mensagem, created_at")
-                .eq("user_id", usuarioConversaSelecionada)
-                .order("created_at", { ascending: true });
-            if (error) {
-                console.error("Erro ao carregar conversa:", error);
-                adminChatMessages.replaceChildren(
-                    criarElemento("p", "messages-admin-feedback", "Não foi possível carregar esta conversa.")
-                );
-                return;
-            }
-            adminChatMessages.replaceChildren();
-            if (!data || data.length === 0) {
-                adminChatMessages.appendChild(criarElemento("p", "messages-admin-feedback", "Esta conversa ainda não possui mensagens."));
-                return;
-            }
-            for (const mensagem of data) {
-                const ehAdmin = mensagem.autor_id === administradorAtual.id;
-                const bolha = criarElemento("article", "admin-chat-bubble" + (ehAdmin ? " from-admin" : ""));
-                bolha.appendChild(criarElemento("strong", "", ehAdmin ? "Você · Amora Studio" : "Cliente"));
-                bolha.appendChild(criarElemento("p", "", mensagem.mensagem));
-                const dataHora = criarElemento("time", "", formatarDataHora(mensagem.created_at));
-                bolha.appendChild(dataHora);
-                adminChatMessages.appendChild(bolha);
-            }
-            adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
-        }
-
-        async function carregarMensagensAdmin() {
-            refreshMessagesButton.disabled = true;
-            refreshMessagesButton.textContent = "Atualizando...";
-            try {
-                const { data: mensagens, error } = await supabase
-                    .from("mensagens")
-                    .select("id, user_id, autor_id, mensagem, created_at")
-                    .order("created_at", { ascending: false });
-                if (error) throw error;
-
-                const { data: pedidos, error: pedidosError } = await supabase
-                    .from("pedidos")
-                    .select("user_id, nome_cliente, email_cliente, created_at")
-                    .order("created_at", { ascending: false });
-                if (pedidosError) throw pedidosError;
-
-                const dadosClientes = new Map();
-                for (const pedido of (pedidos || [])) {
-                    if (!dadosClientes.has(pedido.user_id)) {
-                        dadosClientes.set(pedido.user_id, {
-                            nome: pedido.nome_cliente,
-                            email: pedido.email_cliente
-                        });
-                    }
-                }
-
-                const porUsuario = new Map();
-                for (const mensagem of (mensagens || [])) {
-                    if (!porUsuario.has(mensagem.user_id)) porUsuario.set(mensagem.user_id, []);
-                    porUsuario.get(mensagem.user_id).push(mensagem);
-                }
-
-                conversasCache = Array.from(porUsuario.entries()).map(([userId, lista]) => {
-                    const cliente = dadosClientes.get(userId) || {};
-                    return {
-                        userId,
-                        nome: cliente.nome || cliente.email || "Cliente sem pedido cadastrado",
-                        email: cliente.email || "",
-                        ultima: lista[0]
-                    };
-                });
-
-                conversationList.replaceChildren();
-                if (conversasCache.length === 0) {
-                    conversationList.appendChild(criarElemento("p", "messages-admin-feedback", "Ainda não há mensagens de clientes."));
-                    usuarioConversaSelecionada = null;
-                    conversationTitle.textContent = "Selecione uma conversa";
-                    adminChatMessages.replaceChildren(criarElemento("p", "messages-admin-feedback", "As mensagens aparecerão aqui."));
-                    adminReplyInput.disabled = true;
-                    adminReplyButton.disabled = true;
+                    await carregarPedidos();
                     return;
                 }
-
-                for (const conversa of conversasCache) {
-                    const botao = criarElemento("button", "conversation-choice", "");
-                    botao.type = "button";
-                    if (conversa.userId === usuarioConversaSelecionada) botao.classList.add("selected");
-                    botao.appendChild(criarElemento("strong", "", conversa.nome));
-                    botao.appendChild(criarElemento("span", "", conversa.email || "Conversa privada"));
-                    botao.appendChild(criarElemento("p", "", conversa.ultima.mensagem));
-                    botao.addEventListener("click", async () => {
-                        usuarioConversaSelecionada = conversa.userId;
-                        conversationTitle.textContent = conversa.nome + (conversa.email ? " · " + conversa.email : "");
-                        adminReplyInput.disabled = false;
-                        adminReplyButton.disabled = false;
-                        conversationList.querySelectorAll(".conversation-choice").forEach(el => el.classList.remove("selected"));
-                        botao.classList.add("selected");
-                        definirStatusMensagens("");
-                        await carregarConversaSelecionada();
-                    });
-                    conversationList.appendChild(botao);
-                }
-                                if (usuarioConversaSelecionada && porUsuario.has(usuarioConversaSelecionada)) {
-                    await carregarConversaSelecionada();
-                } else {
-                    usuarioConversaSelecionada = null;
-                    conversationTitle.textContent = "Selecione uma conversa";
-                    adminChatMessages.replaceChildren(criarElemento("p", "messages-admin-feedback", "Escolha um cliente na lista ao lado para ler e responder."));
-                    adminReplyInput.disabled = true;
-                    adminReplyButton.disabled = true;
-                }
-            } catch (error) {
-                console.error("Erro ao carregar caixa de mensagens:", error);
-                conversationList.replaceChildren(criarElemento("p", "messages-admin-feedback", "Não foi possível carregar as mensagens. Verifique sua conexão e tente novamente."));
-            } finally {
-                refreshMessagesButton.disabled = false;
-                refreshMessagesButton.textContent = "Atualizar mensagens";
-            }
-        }
-
-        adminReplyForm.addEventListener("submit", async (event) => {
-            event.preventDefault();
-            if (!administradorAtual || !usuarioConversaSelecionada) return;
-            const texto = adminReplyInput.value.trim();
-            if (!texto) {
-                definirStatusMensagens("Digite uma resposta antes de enviar.", "error");
-                return;
-            }
-            adminReplyButton.disabled = true;
-            adminReplyButton.textContent = "Enviando...";
-            definirStatusMensagens("");
-            try {
-                const { error } = await supabase.from("mensagens").insert({
-                    user_id: usuarioConversaSelecionada,
-                    autor_id: administradorAtual.id,
-                    mensagem: texto
-                });
-                if (error) throw error;
-                adminReplyInput.value = "";
-                definirStatusMensagens("Resposta enviada com sucesso!", "success");
-                await carregarMensagensAdmin();
-            } catch (error) {
-                console.error("Erro ao enviar resposta:", error);
-                definirStatusMensagens("Não foi possível enviar a resposta. Tente novamente.", "error");
-            } finally {
-                adminReplyButton.disabled = !usuarioConversaSelecionada;
-                adminReplyButton.textContent = "Enviar resposta";
-            }
-        });
-
-        refreshMessagesButton.addEventListener("click", carregarMensagensAdmin);
-
-        async function verificarAdministrador() {
-            try {
-                const { data: sessionData, error: sessionError } =
-                    await supabase.auth.getSession();
-
-                if (sessionError) {
-                    throw sessionError;
-                }
-
-                if (!sessionData.session) {
-                    redirecionarParaLogin();
-                    return;
-                }
-
-                const { data: userData, error: userError } =
-                    await supabase.auth.getUser();
-
-                if (userError || !userData.user) {
-                    redirecionarParaLogin();
-                    return;
-                }
-
-                const { data: profile, error: profileError } =
-                    await supabase
-                        .from("profiles")
-                        .select("is_admin")
-                        .eq("id", userData.user.id)
-                        .maybeSingle();
-
-                if (profileError) {
-                    throw profileError;
-                }
-
-                if (!profile || profile.is_admin !== true) {
-                    alert("Você não tem permissão para acessar esta área.");
-                    window.location.replace("painel.html");
-                    return;
-                }
-
-                administradorAtual = userData.user;
-                document.body.style.display = "block";
-
-                await Promise.all([
-                    carregarPedidos(),
-                    carregarMensagensAdmin()
-                ]);
-
-            } catch (error) {
-                console.error(
-                    "Erro ao verificar permissão administrativa:",
-                    error
-                );
 
                 alert(
-                    "Não foi possível verificar sua permissão. Tente entrar novamente."
+                    "Cobrança Pix gerada com sucesso!\n\n" +
+                    "Valor: " + formatarMoeda(valor) +
+                    "\n\nO QR Code e o código Pix foram salvos. Na próxima etapa, vamos exibi-los na área do cliente."
                 );
 
-                redirecionarParaLogin();
-            }
-        }
-
-        verificarAdministrador();
-
-        supabase.auth.onAuthStateChange((event) => {
-            if (event === "SIGNED_OUT") {
-                redirecionarParaLogin();
-            }
-        });
-
-        searchInput.addEventListener("input", aplicarFiltros);
-        filterStatus.addEventListener("change", aplicarFiltros);
-        filterPayment.addEventListener("change", aplicarFiltros);
-
-        refreshButton.addEventListener("click", carregarPedidos);
-
-        logoutButton.addEventListener("click", async function() {
-            logoutButton.disabled = true;
-            logoutButton.textContent = "Saindo...";
-
-            try {
-                const { error } = await supabase.auth.signOut();
-
-                if (error) {
-                    throw error;
-                }
-
-                window.location.replace("index.html");
+                await carregarPedidos();
 
             } catch (error) {
-                console.error("Erro ao sair da conta:", error);
+                console.error("Erro ao gerar cobrança Pix:", error);
 
-                alert("Não foi possível sair da conta. Tente novamente.");
+                alert(
+                    error.message ||
+                    "Ocorreu um erro ao gerar a cobrança Pix. Consulte o console para mais detalhes."
+                );
 
-                logoutButton.disabled = false;
-                logoutButton.textContent = "Sair da conta";
+                botaoPix.disabled = false;
+                botaoPix.textContent = "Gerar cobrança Pix";
             }
         });
-    </script>
 
-</body>
-</html>
+        acoes.appendChild(botaoPix);
+    }
+
+    if (pagamentoStatus === "Aguardando pagamento") {
+        acoes.appendChild(
+            criarElemento(
+                "p",
+                "payment-explanation",
+                "Cobrança Pix gerada. A confirmação será atualizada automaticamente quando o Mercado Pago confirmar o pagamento. Não é necessário confirmar manualmente."
+            )
+        );
+    }
+
+    if (pagamentoStatus === "Confirmado") {
+        acoes.appendChild(
+            criarElemento(
+                "p",
+                "payment-explanation",
+                "Pagamento confirmado pelo sistema. Os arquivos finais poderão ser acessados pelo cliente."
+            )
+        );
+    }
+
+    area.appendChild(acoes);
+
+    return area;
+}
