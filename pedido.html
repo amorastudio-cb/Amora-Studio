@@ -627,7 +627,7 @@
 
             // Registra o pedido vinculado ao usuário autenticado.
             // O status será definido pelo padrão "Novo" da tabela.
-            const { error: insertError } = await supabase
+            const { data: pedidoCriado, error: insertError } = await supabase
                 .from("pedidos")
                 .insert({
                     user_id: usuarioAtual.id,
@@ -638,12 +638,30 @@
                     descricao: descricao,
                     prazo: prazo,
                     arquivos: caminhosArquivos
-                });
+                })
+                .select("id")
+                .single();
 
-            if (insertError) {
+            if (insertError || !pedidoCriado?.id) {
                 console.error("Erro ao registrar pedido:", insertError);
                 throw new Error(
                     "Os arquivos foram enviados, mas não foi possível registrar o pedido. Tente novamente ou entre em contato com a Amora Studio."
+                );
+            }
+
+            // Solicita ao Supabase o envio seguro do aviso por e-mail.
+            // Se a notificação falhar, o pedido continua registrado normalmente.
+            const { error: erroNotificacao } = await supabase.functions.invoke(
+                "notificar-novo-pedido",
+                {
+                    body: { pedido_id: pedidoCriado.id }
+                }
+            );
+
+            if (erroNotificacao) {
+                console.error(
+                    "Pedido registrado, mas o aviso por e-mail falhou:",
+                    erroNotificacao
                 );
             }
 
