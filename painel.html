@@ -1886,6 +1886,8 @@
         }
     }
 
+    /* ENVIO DE MENSAGENS E NOTIFICAÇÃO POR E-MAIL */
+
     messageForm.addEventListener("submit", async function(event) {
         event.preventDefault();
 
@@ -1915,13 +1917,15 @@
         mostrarStatusMensagem("");
 
         try {
-            const { error } = await supabase
+            const { data: mensagem, error } = await supabase
                 .from("mensagens")
                 .insert({
                     user_id: usuarioAutenticado.id,
                     autor_id: usuarioAutenticado.id,
                     mensagem: texto
-                });
+                })
+                .select("id")
+                .single();
 
             if (error) {
                 throw error;
@@ -1935,6 +1939,23 @@
             );
 
             await carregarMensagens();
+
+            // Solicita o envio de um e-mail para a Amora Studio.
+            const { error: notificacaoError } = await supabase.functions.invoke(
+                "notificar-mensagem",
+                {
+                    body: {
+                        message_id: mensagem.id
+                    }
+                }
+            );
+
+            if (notificacaoError) {
+                console.error(
+                    "A mensagem foi enviada, mas o aviso por e-mail falhou:",
+                    notificacaoError
+                );
+            }
 
         } catch (error) {
             console.error("Erro ao enviar mensagem:", error);
